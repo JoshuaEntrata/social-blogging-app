@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import { getArticle } from "../controllers/article.controller";
 
 const router = express.Router();
 
@@ -16,9 +17,7 @@ router.get("/articles/feed", (req: Request, res: Response) => {
   // Feed Articles
 });
 
-router.get("/articles/:slug", (req: Request, res: Response) => {
-  // Get Article
-});
+router.get("/articles/:slug", getArticle);
 
 router.post("/articles", (req: Request, res: Response) => {
   // Create Article
