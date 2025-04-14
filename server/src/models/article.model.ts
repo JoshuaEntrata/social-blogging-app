@@ -22,3 +22,19 @@ export interface Articles {
   articles: Article[];
   articlesCount: number;
 }
+
+export interface ArticleRow {
+  slug: string;
+  title: string;
+  description: string;
+  body: string | null;
+  tagList: string;
+  createdAt: string;
+  updatedAt: string;
+  favorited: number;
+  favoritesCount: number;
+  authorUsername: string;
+  authorBio: string;
+  authorImage: string;
+  authorFollowing: number;
+}
