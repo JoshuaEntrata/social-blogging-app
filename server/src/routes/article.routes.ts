@@ -1,7 +1,9 @@
 import express, { Request, Response } from "express";
-import { getArticle } from "../controllers/article.controller";
+import { ArticleController } from "../controllers/article.controller";
+import { logger } from "../utils/logger";
 
 const router = express.Router();
+const controller = ArticleController(logger);
 
 router.get("/articles", (req: Request, res: Response) => {
   // List Articles
@@ -17,7 +19,7 @@ router.get("/articles/feed", (req: Request, res: Response) => {
   // Feed Articles
 });
 
-router.get("/articles/:slug", getArticle);
+router.get("/articles/:slug", controller.getArticleBySlug);
 
 router.post("/articles", (req: Request, res: Response) => {
   // Create Article

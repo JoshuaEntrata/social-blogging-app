@@ -1,17 +1,25 @@
 import { Request, Response } from "express";
+import { logger, Logger } from "../utils/logger";
 import { ArticleService } from "../services/article.service";
 
-const service = new ArticleService();
+export const ArticleController = (log: Logger = logger) => {
+  const service = new ArticleService(log);
 
-export const getArticle = async (req: Request, res: Response) => {
-  const { slug } = req.params;
-  const article = await service.getArticle(slug);
+  return {
+    getArticleBySlug: async (req: Request, res: Response) => {
+      const context = "ArticleController.getArticleBySlug";
+      log.info(`${context} - Started`);
+      try {
+        const { slug } = req.params;
+        const article = await service.getArticle(slug);
 
-  //   if (!article) {
-  //     return res.status(404).json({
-  //       message: "Not found",
-  //     });
-  //   }
-
-  res.json({ article });
+        res.json({ article });
+      } catch (err) {
+        logger.error(`${context} - Error: ${err}`);
+        throw new Error();
+      } finally {
+        log.info(`${context} - Ended`);
+      }
+    },
+  };
 };

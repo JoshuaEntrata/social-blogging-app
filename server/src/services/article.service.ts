@@ -1,23 +1,26 @@
 import { ArticleRepository } from "../repositories/article.repository";
 import { Article } from "../models/article.model";
+import { Logger } from "../utils/logger";
 
 export class ArticleService {
-  constructor(private readonly repo = new ArticleRepository()) {}
+  private readonly repo = new ArticleRepository();
+
+  constructor(private readonly logger: Logger) {}
 
   async getArticle(slug: string): Promise<Article | undefined> {
-    let article;
-    const title = "ArticleService.getArticle";
-    console.log(`${title} started.`);
+    const context = "ArticleService.getArticle";
+    this.logger.info(`${context} - Started.`);
     try {
-      article = await this.repo.findBySlug(slug);
+      const article = await this.repo.findBySlug(slug);
 
-      if (!article) {
-        console.log(`${title} empty.`);
-      }
+      if (!article) this.logger.warn(`${context} - Article not found.`);
+
+      return article;
     } catch (err) {
-      console.log(`${title} error: ${err}`);
+      this.logger.error(`${context} - Error: ${err}`);
+      throw new Error();
+    } finally {
+      this.logger.info(`${context} - Ended.`);
     }
-    console.log(`${title} ended.`);
-    return article;
   }
 }
