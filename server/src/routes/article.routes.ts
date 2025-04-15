@@ -21,9 +21,7 @@ router.get("/articles/feed", (req: Request, res: Response) => {
 
 router.get("/articles/:slug", controller.getArticleBySlug);
 
-router.post("/articles", (req: Request, res: Response) => {
-  // Create Article
-});
+router.post("/articles", controller.createArticle);
 
 router.put("/articles/:slug", (req: Request, res: Response) => {
   // Update Article
