@@ -1,9 +1,7 @@
-export function generateSlug(title: string, suffix?: string): string {
-  const base = title
+export function generateSlug(title: string): string {
+  return title
     .toLowerCase()
     .trim()
     .replace(/[^\w\s-]/g, "")
     .replace(/\s+/g, "-");
-
-  return suffix ? `${base}-${suffix}` : base;
 }

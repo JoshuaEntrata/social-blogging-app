@@ -31,15 +31,21 @@ export class ArticleService {
   }
 
   async createArticle(data: Partial<Article>): Promise<Article> {
-    const now = new Date().toISOString();
-    const title = data.title!;
-    let slug = generateSlug(title);
-    let suffix = 1;
+    const context = "ArticleService.createArticle";
+    this.logger.info(`${context} - Started.`);
 
-    while (await this.repo.findBySlug(slug)) {
-      slug = generateSlug(title, suffix.toString());
-      suffix++;
+    const title = data.title!;
+    const slug = generateSlug(title);
+
+    const existing = await this.repo.findBySlug(slug);
+    if (existing) {
+      this.logger.warn(
+        `${context} - Article with title "${title}" already exists`
+      );
+      throw new Error("An article with the same title already exists");
     }
+
+    const now = new Date().toISOString();
 
     const article: Article = {
       slug,

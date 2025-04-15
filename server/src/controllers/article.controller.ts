@@ -41,8 +41,14 @@ export const ArticleController = (log: Logger = logger) => {
         log.info(`${context} - Article created`);
 
         res.status(201).json({ article: createdArticle });
-      } catch (err) {
+      } catch (err: any) {
         logger.error(`${context} - Error: ${err}`);
+
+        if (err.message.includes("already exists")) {
+          res.status(409).json({ message: err.message });
+          return;
+        }
+
         res.status(500).json({ message: "Internal server error" });
       } finally {
         log.info(`${context} - Ended`);
