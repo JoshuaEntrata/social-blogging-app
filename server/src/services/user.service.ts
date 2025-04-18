@@ -30,7 +30,36 @@ export class UserService {
       });
 
       const token = generateToken(id);
+      return token;
+    } catch (err) {
+      this.logger.error(`${context} - Error: ${err}`);
+      throw err;
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
+  }
 
+  async loginUser(userCreds: User): Promise<string> {
+    const context = "UserService.loginUser";
+    this.logger.info(`${context} - Started`);
+
+    try {
+      const { email, password } = userCreds;
+      const user = await this.repo.findByEmail(email);
+
+      if (!user) {
+        this.logger.warn(`${context} - User not found`);
+        throw new Error("Invalid credentials");
+      }
+
+      const isMatchPassword = await bcrypt.compare(password, user.password);
+
+      if (!user || !isMatchPassword) {
+        this.logger.warn(`${context} - Password mismatch`);
+        throw new Error("Invalid credentials");
+      }
+
+      const token = generateToken(user.id);
       return token;
     } catch (err) {
       this.logger.error(`${context} - Error: ${err}`);
