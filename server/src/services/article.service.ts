@@ -24,7 +24,7 @@ export class ArticleService {
       return article;
     } catch (err) {
       this.logger.error(`${context} - Error: ${err}`);
-      throw new Error();
+      throw new Error("Failed to retrieve article.");
     } finally {
       this.logger.info(`${context} - Ended.`);
     }
@@ -45,16 +45,14 @@ export class ArticleService {
       throw new Error("An article with the same title already exists");
     }
 
-    const now = new Date().toISOString();
-
     const article: Article = {
       slug,
       title: title,
       description: data.description!,
       body: data.body!,
       tagList: data.tagList ?? [],
-      createdAt: now,
-      updatedAt: now,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       favorited: false,
       favoritesCount: 0,
       author: {
@@ -65,8 +63,46 @@ export class ArticleService {
       },
     };
 
-    this.repo.save(article);
+    await this.repo.save(article);
     return article;
+  }
+
+  async updateArticle(
+    paramSlug: string,
+    data: Partial<Article>
+  ): Promise<Article | undefined> {
+    const context = "ArticleService.updateArticle";
+    this.logger.info(`${context} - Started.`);
+
+    try {
+      const original = await this.repo.findBySlug(paramSlug);
+
+      if (!original) {
+        this.logger.warn(`${context} - Article does not exist`);
+        return;
+      }
+
+      const article: Article = {
+        slug: data.title ? generateSlug(data.title) : original.slug,
+        title: data.title ?? original.title,
+        description: data.description ?? original.description,
+        body: data.body ?? original.body,
+        tagList: original.tagList,
+        createdAt: original.createdAt,
+        updatedAt: new Date().toISOString(),
+        favorited: original.favorited,
+        favoritesCount: original.favoritesCount,
+        author: { ...original.author },
+      };
+
+      const result = await this.repo.update(paramSlug, article);
+      return result;
+    } catch (err) {
+      this.logger.error(`${context} - Error: ${err}`);
+      throw new Error("Failed to update article.");
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
   }
 
   async deleteArticle(slug: string) {
@@ -86,7 +122,7 @@ export class ArticleService {
       return { message: "Article does not exist." };
     } catch (err) {
       this.logger.error(`${context} - Error: ${err}`);
-      throw new Error();
+      throw new Error("Failed to delete article.");
     } finally {
       this.logger.info(`${context} - Ended.`);
     }
@@ -103,7 +139,7 @@ export class ArticleService {
       return tags;
     } catch (err) {
       this.logger.error(`${context} - Error: ${err}`);
-      throw new Error();
+      throw new Error("Failed to retrieve all tags.");
     } finally {
       this.logger.info(`${context} - Ended.`);
     }

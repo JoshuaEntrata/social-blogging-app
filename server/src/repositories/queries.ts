@@ -22,6 +22,25 @@ export const LINK_TAG = `
     INSERT INTO article_tags (article_id, tag_id) VALUES (?, ?)
 `;
 
+export const UPDATE_ARTICLE = `
+  UPDATE articles
+  SET
+    slug = ?,
+    title = ?,
+    description = ?,
+    body = ?,
+    tagList = ?,
+    createdAt = ?,
+    updatedAt = ?,
+    favorited = ?,
+    favoritesCount = ?,
+    authorUsername = ?,
+    authorBio = ?,
+    authorImage = ?,
+    authorFollowing = ?
+  WHERE slug = ?
+`;
+
 export const DELETE_BY_SLUG = `
     DELETE FROM articles WHERE slug = ?
 `;

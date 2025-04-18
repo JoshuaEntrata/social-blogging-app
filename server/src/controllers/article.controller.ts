@@ -18,7 +18,7 @@ export const ArticleController = (log: Logger = logger) => {
         res.status(200).json({ result });
       } catch (err) {
         logger.error(`${context} - Error: ${err}`);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ message: err });
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -49,7 +49,67 @@ export const ArticleController = (log: Logger = logger) => {
           return;
         }
 
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ message: err });
+      } finally {
+        log.info(`${context} - Ended`);
+      }
+    },
+
+    updateArticle: async (req: Request, res: Response) => {
+      context = "ArticleController.updateArticle";
+      log.info(`${context} - Started`);
+
+      try {
+        const { slug } = req.params;
+        const { article } = req.body;
+
+        if (!article || typeof article !== "object") {
+          log.warn(`${context} - Invalid request body`);
+          res.status(400).json({ message: "Invalid request body format" });
+          return;
+        }
+
+        const allowedFields = ["title", "description", "body"];
+        const submittedFields = Object.keys(article);
+
+        const hasValidFields = submittedFields.some((key) =>
+          allowedFields.includes(key)
+        );
+
+        if (!hasValidFields) {
+          log.warn(`${context} - No updatable fields provided`);
+          res.status(400).json({
+            message: "At least one valid field is required to update",
+          });
+          return;
+        }
+
+        const hasInvalidFields = submittedFields.some(
+          (key) => !allowedFields.includes(key)
+        );
+
+        if (hasInvalidFields) {
+          log.warn(`${context} - Contains unsupported fields`);
+          res
+            .status(400)
+            .json({ message: "Request contains unsupported fields" });
+          return;
+        }
+
+        const result = await service.updateArticle(slug, article);
+
+        if (!result) {
+          log.warn(`${context} - Article not found`);
+          res.status(404).json({ message: "Article not found" });
+          return;
+        }
+
+        log.info(`${context} - Article updated`);
+
+        res.status(200).json({ article: result });
+      } catch (err) {
+        logger.error(`${context} - Error: ${err}`);
+        res.status(500).json({ message: err });
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -66,7 +126,7 @@ export const ArticleController = (log: Logger = logger) => {
         res.status(200).json({ result });
       } catch (err) {
         logger.error(`${context} - Error: ${err}`);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ message: err });
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -82,7 +142,7 @@ export const ArticleController = (log: Logger = logger) => {
         res.status(200).json({ result });
       } catch (err) {
         logger.error(`${context} - Error: ${err}`);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ message: err });
       } finally {
         log.info(`${context} - Ended`);
       }

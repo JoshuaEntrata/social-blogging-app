@@ -23,9 +23,7 @@ router.get("/articles/:slug", controller.getArticleBySlug);
 
 router.post("/articles", controller.createArticle);
 
-router.put("/articles/:slug", (req: Request, res: Response) => {
-  // Update Article
-});
+router.put("/articles/:slug", controller.updateArticle);
 
 router.delete("/articles/:slug", controller.deleteArticle);
 

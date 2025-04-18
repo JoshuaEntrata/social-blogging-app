@@ -8,6 +8,7 @@ import {
   LINK_TAG,
   RETRIVE_TAGS,
   SAVE_ARTICLE,
+  UPDATE_ARTICLE,
 } from "./queries";
 
 export class ArticleRepository {
@@ -66,6 +67,30 @@ export class ArticleRepository {
       const tagRow = getTagId.get(tag) as { id: number };
       linkTag.run(articleId, tagRow.id);
     }
+  }
+
+  async update(
+    paramSlug: string,
+    article: Article
+  ): Promise<Article | undefined> {
+    db.prepare(UPDATE_ARTICLE).run(
+      article.slug,
+      article.title,
+      article.description,
+      article.body ?? null,
+      JSON.stringify(article.tagList),
+      article.createdAt,
+      article.updatedAt,
+      article.favorited ? 1 : 0,
+      article.favoritesCount,
+      article.author.username,
+      article.author.bio,
+      article.author.image,
+      article.author.following ? 1 : 0,
+      paramSlug
+    );
+
+    return this.findBySlug(article.slug);
   }
 
   async delete(slug: string) {
