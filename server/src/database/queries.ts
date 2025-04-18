@@ -29,7 +29,7 @@ export const createArticleTagTable = `
         article_id INTEGER,
         tag_id INTEGER,
         PRIMARY KEY (article_id, tag_id),
-        FOREIGN KEY (article_id) REFERENCES articles(id),
+        FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,
         FOREIGN KEY (tag_id) REFERENCES tags(id)
     );
 `;

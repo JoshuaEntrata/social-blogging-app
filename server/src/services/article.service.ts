@@ -110,10 +110,10 @@ export class ArticleService {
     this.logger.info(`${context} - Started`);
 
     try {
-      const existing = await this.repo.findBySlug(slug);
+      const article = await this.repo.findBySlug(slug);
 
-      if (existing) {
-        await this.repo.delete(slug);
+      if (article) {
+        await this.repo.delete(article.slug);
         this.logger.info(`${context} - Article deleted`);
         return { message: "Article deleted." };
       }
