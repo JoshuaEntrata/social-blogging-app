@@ -69,6 +69,29 @@ export class ArticleService {
     return article;
   }
 
+  async deleteArticle(slug: string) {
+    const context = "ArticleService.deleteArticle";
+    this.logger.info(`${context} - Started`);
+
+    try {
+      const existing = await this.repo.findBySlug(slug);
+
+      if (existing) {
+        await this.repo.delete(slug);
+        this.logger.info(`${context} - Article deleted`);
+        return { message: "Article deleted." };
+      }
+
+      this.logger.warn(`${context} - Article does not exist`);
+      return { message: "Article does not exist." };
+    } catch (err) {
+      this.logger.error(`${context} - Error: ${err}`);
+      throw new Error();
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
+  }
+
   async getAllTags(): Promise<string[] | undefined> {
     const context = "ArticleService.getAllTags";
     this.logger.info(`${context} - Started.`);

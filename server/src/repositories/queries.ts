@@ -1,4 +1,6 @@
-export const FIND_BY_SLUG = "SELECT * FROM articles WHERE slug = ?";
+export const FIND_BY_SLUG = `
+    SELECT * FROM articles WHERE slug = ?
+`;
 
 export const SAVE_ARTICLE = `
     INSERT INTO articles (
@@ -18,6 +20,10 @@ export const GET_TAG_ID = `
 
 export const LINK_TAG = `
     INSERT INTO article_tags (article_id, tag_id) VALUES (?, ?)
+`;
+
+export const DELETE_BY_SLUG = `
+    DELETE FROM articles WHERE slug = ?
 `;
 
 export const RETRIVE_TAGS = `

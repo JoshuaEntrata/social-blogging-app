@@ -27,9 +27,7 @@ router.put("/articles/:slug", (req: Request, res: Response) => {
   // Update Article
 });
 
-router.delete("/articles/:slug", (req: Request, res: Response) => {
-  // Delete Article
-});
+router.delete("/articles/:slug", controller.deleteArticle);
 
 router.post("/articles/:slug/comments", (req: Request, res: Response) => {
   // Add Comments to an Article
@@ -51,8 +49,6 @@ router.delete("/articles/:slug/favorite", (req: Request, res: Response) => {
   // Unfavorite Article
 });
 
-router.get("/tags", (req: Request, res: Response) => {
-  // Get Tags
-});
+router.get("/tags", controller.getAllTags);
 
 export { router as articleRoutes };

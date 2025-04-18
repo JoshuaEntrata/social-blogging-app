@@ -55,6 +55,23 @@ export const ArticleController = (log: Logger = logger) => {
       }
     },
 
+    deleteArticle: async (req: Request, res: Response) => {
+      context = "ArticleController.deleteArticle";
+      log.info(`${context} - Started`);
+
+      try {
+        const { slug } = req.params;
+        const result = await service.deleteArticle(slug);
+
+        res.status(200).json({ result });
+      } catch (err) {
+        logger.error(`${context} - Error: ${err}`);
+        res.status(500).json({ message: "Internal server error" });
+      } finally {
+        log.info(`${context} - Ended`);
+      }
+    },
+
     getAllTags: async (req: Request, res: Response) => {
       context = "ArticleController.getAllTags";
       log.info(`${context} - Started`);

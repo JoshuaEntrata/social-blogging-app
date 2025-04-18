@@ -1,6 +1,7 @@
 import { Article, ArticleRow, Tag } from "../models/article.model";
 import { db } from "../database/db";
 import {
+  DELETE_BY_SLUG,
   FIND_BY_SLUG,
   GET_TAG_ID,
   INSERT_TAG,
@@ -65,6 +66,10 @@ export class ArticleRepository {
       const tagRow = getTagId.get(tag) as { id: number };
       linkTag.run(articleId, tagRow.id);
     }
+  }
+
+  async delete(slug: string) {
+    db.prepare(DELETE_BY_SLUG).run(slug);
   }
 
   async retrieveTags(): Promise<string[] | undefined> {
