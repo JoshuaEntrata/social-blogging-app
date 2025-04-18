@@ -13,9 +13,9 @@ export const ArticleController = (log: Logger = logger) => {
 
       try {
         const { slug } = req.params;
-        const article = await service.getArticle(slug);
+        const result = await service.getArticle(slug);
 
-        res.status(200).json({ article });
+        res.status(200).json({ result });
       } catch (err) {
         logger.error(`${context} - Error: ${err}`);
         res.status(500).json({ message: "Internal server error" });
@@ -37,10 +37,10 @@ export const ArticleController = (log: Logger = logger) => {
           return;
         }
 
-        const createdArticle = await service.createArticle(article);
+        const result = await service.createArticle(article);
         log.info(`${context} - Article created`);
 
-        res.status(201).json({ article: createdArticle });
+        res.status(201).json({ article: result });
       } catch (err: any) {
         logger.error(`${context} - Error: ${err}`);
 

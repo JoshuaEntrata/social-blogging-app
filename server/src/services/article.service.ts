@@ -73,11 +73,11 @@ export class ArticleService {
     const context = "ArticleService.getAllTags";
     this.logger.info(`${context} - Started.`);
     try {
-      const result = await this.repo.retrieveTags();
+      const tags = await this.repo.retrieveTags();
 
-      if (!result) this.logger.warn(`${context} - Empty tags.`);
+      if (!tags) this.logger.warn(`${context} - Empty tags.`);
 
-      return result;
+      return tags;
     } catch (err) {
       this.logger.error(`${context} - Error: ${err}`);
       throw new Error();
