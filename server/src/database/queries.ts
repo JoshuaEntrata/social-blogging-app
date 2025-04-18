@@ -1,6 +1,7 @@
 export const createArticleTable = `
     CREATE TABLE IF NOT EXISTS articles (
-        slug TEXT PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        slug TEXT UNIQUE,
         title TEXT NOT NULL,
         description TEXT NOT NULL,
         body TEXT,

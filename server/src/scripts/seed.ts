@@ -32,3 +32,6 @@ const insertMany = db.transaction((articles: Article[]) => {
 
 insertMany(mock.articles);
 console.log("✅ Seeded mock articles into the database.");
+
+// db.exec("DROP TABLE IF EXISTS articles;");
+// console.log("✅ Dropped TABLE articles in the database.");
