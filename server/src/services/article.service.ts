@@ -24,7 +24,7 @@ export class ArticleService {
       return article;
     } catch (err) {
       this.logger.error(`${context} - Error: ${err}`);
-      throw new Error("Failed to retrieve article.");
+      throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
     }
@@ -99,7 +99,7 @@ export class ArticleService {
       return result;
     } catch (err) {
       this.logger.error(`${context} - Error: ${err}`);
-      throw new Error("Failed to update article.");
+      throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
     }
@@ -122,7 +122,7 @@ export class ArticleService {
       return { message: "Article does not exist." };
     } catch (err) {
       this.logger.error(`${context} - Error: ${err}`);
-      throw new Error("Failed to delete article.");
+      throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
     }
@@ -139,7 +139,7 @@ export class ArticleService {
       return tags;
     } catch (err) {
       this.logger.error(`${context} - Error: ${err}`);
-      throw new Error("Failed to retrieve all tags.");
+      throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
     }
