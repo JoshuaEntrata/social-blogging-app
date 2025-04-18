@@ -12,8 +12,9 @@ export const authMiddleware = (
 ) => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader || !authHeader.startsWith("Token ")) {
-    return res.status(401).json({ message: "Missing or invalid token" });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    res.status(401).json({ message: "Missing or invalid token" });
+    return;
   }
 
   const token = authHeader.split(" ")[1];
@@ -23,6 +24,7 @@ export const authMiddleware = (
     req.user = { id: payload.userId };
     next();
   } catch (err) {
-    return res.status(401).json({ message: "Invalid or expired token" });
+    res.status(401).json({ message: "Invalid or expired token" });
+    return;
   }
 };

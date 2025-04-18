@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { ArticleController } from "../controllers/article.controller";
 import { logger } from "../utils/logger";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router = express.Router();
 const controller = ArticleController(logger);
@@ -19,13 +20,13 @@ router.get("/articles/feed", (req: Request, res: Response) => {
   // Feed Articles
 });
 
-router.get("/articles/:slug", controller.getArticleBySlug);
+router.get("/articles/:slug", authMiddleware, controller.getArticleBySlug);
 
-router.post("/articles", controller.createArticle);
+router.post("/articles", authMiddleware, controller.createArticle);
 
-router.put("/articles/:slug", controller.updateArticle);
+router.put("/articles/:slug", authMiddleware, controller.updateArticle);
 
-router.delete("/articles/:slug", controller.deleteArticle);
+router.delete("/articles/:slug", authMiddleware, controller.deleteArticle);
 
 router.post("/articles/:slug/comments", (req: Request, res: Response) => {
   // Add Comments to an Article
@@ -47,6 +48,6 @@ router.delete("/articles/:slug/favorite", (req: Request, res: Response) => {
   // Unfavorite Article
 });
 
-router.get("/tags", controller.getAllTags);
+router.get("/tags", authMiddleware, controller.getAllTags);
 
 export { router as articleRoutes };
