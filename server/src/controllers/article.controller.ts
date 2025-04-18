@@ -54,5 +54,21 @@ export const ArticleController = (log: Logger = logger) => {
         log.info(`${context} - Ended`);
       }
     },
+
+    getAllTags: async (req: Request, res: Response) => {
+      context = "ArticleController.getAllTags";
+      log.info(`${context} - Started`);
+
+      try {
+        const result = await service.getAllTags();
+
+        res.status(200).json({ result });
+      } catch (err) {
+        logger.error(`${context} - Error: ${err}`);
+        res.status(500).json({ message: "Internal server error" });
+      } finally {
+        log.info(`${context} - Ended`);
+      }
+    },
   };
 };

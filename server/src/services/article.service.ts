@@ -68,4 +68,21 @@ export class ArticleService {
     this.repo.save(article);
     return article;
   }
+
+  async getAllTags(): Promise<string[] | undefined> {
+    const context = "ArticleService.getAllTags";
+    this.logger.info(`${context} - Started.`);
+    try {
+      const result = await this.repo.retrieveTags();
+
+      if (!result) this.logger.warn(`${context} - Empty tags.`);
+
+      return result;
+    } catch (err) {
+      this.logger.error(`${context} - Error: ${err}`);
+      throw new Error();
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
+  }
 }

@@ -38,3 +38,7 @@ export interface ArticleRow {
   authorImage: string;
   authorFollowing: number;
 }
+
+export interface Tag {
+  name: string;
+}

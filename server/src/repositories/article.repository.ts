@@ -1,6 +1,13 @@
-import { Article, ArticleRow } from "../models/article.model";
+import { Article, ArticleRow, Tag } from "../models/article.model";
 import { db } from "../database/db";
-import { FIND_BY_SLUG, SAVE_ARTICLE } from "./queries";
+import {
+  FIND_BY_SLUG,
+  GET_TAG_ID,
+  INSERT_TAG,
+  LINK_TAG,
+  RETRIVE_TAGS,
+  SAVE_ARTICLE,
+} from "./queries";
 
 export class ArticleRepository {
   async findBySlug(slug: string): Promise<Article | undefined> {
@@ -30,7 +37,12 @@ export class ArticleRepository {
   }
 
   async save(article: Article): Promise<void> {
-    db.prepare(SAVE_ARTICLE).run(
+    const insertArticle = db.prepare(SAVE_ARTICLE);
+    const insertTag = db.prepare(INSERT_TAG);
+    const getTagId = db.prepare(GET_TAG_ID);
+    const linkTag = db.prepare(LINK_TAG);
+
+    const result = insertArticle.run(
       article.slug,
       article.title,
       article.description,
@@ -45,5 +57,18 @@ export class ArticleRepository {
       article.author.image,
       article.author.following ? 1 : 0
     );
+
+    const articleId = result.lastInsertRowid as number;
+
+    for (const tag of article.tagList) {
+      insertTag.run(tag);
+      const tagRow = getTagId.get(tag) as { id: number };
+      linkTag.run(articleId, tagRow.id);
+    }
+  }
+
+  async retrieveTags(): Promise<string[] | undefined> {
+    const rows = db.prepare(RETRIVE_TAGS).all() as Tag[];
+    return rows.map((r) => r.name);
   }
 }

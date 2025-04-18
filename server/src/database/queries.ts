@@ -16,3 +16,20 @@ export const createArticleTable = `
         authorFollowing INTEGER NOT NULL
     );
 `;
+
+export const createTagTable = `
+    CREATE TABLE IF NOT EXISTS tags (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL
+    );
+`;
+
+export const createArticleTagTable = `
+    CREATE TABLE IF NOT EXISTS article_tags (
+        article_id INTEGER,
+        tag_id INTEGER,
+        PRIMARY KEY (article_id, tag_id),
+        FOREIGN KEY (article_id) REFERENCES articles(id),
+        FOREIGN KEY (tag_id) REFERENCES tags(id)
+    );
+`;
