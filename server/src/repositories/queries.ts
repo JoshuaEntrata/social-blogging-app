@@ -1,4 +1,4 @@
-export const FIND_BY_SLUG = `
+export const FIND_ARTICLE_BY_SLUG = `
     SELECT * FROM articles WHERE slug = ?
 `;
 
@@ -41,10 +41,22 @@ export const UPDATE_ARTICLE = `
   WHERE slug = ?
 `;
 
-export const DELETE_BY_SLUG = `
+export const DELETE_ARTICLE_BY_SLUG = `
     DELETE FROM articles WHERE slug = ?
 `;
 
 export const RETRIVE_TAGS = `
     SELECT DISTINCT name FROM tags
+`;
+
+export const FIND_USER_BY_EMAIL = `
+    SELECT * FROM users WHERE email = ?
+`;
+
+export const SAVE_USER = `
+    INSERT INTO users (username, email, password) VALUES (?, ?, ?)
+`;
+
+export const FIND_USER_BY_ID = `
+    SELECT * FROM users WHERE id = ?
 `;

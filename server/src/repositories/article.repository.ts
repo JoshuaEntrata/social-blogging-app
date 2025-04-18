@@ -1,8 +1,8 @@
 import { Article, ArticleRow, Tag } from "../models/article.model";
 import { db } from "../database/db";
 import {
-  DELETE_BY_SLUG,
-  FIND_BY_SLUG,
+  DELETE_ARTICLE_BY_SLUG,
+  FIND_ARTICLE_BY_SLUG,
   GET_TAG_ID,
   INSERT_TAG,
   LINK_TAG,
@@ -13,7 +13,7 @@ import {
 
 export class ArticleRepository {
   async findBySlug(slug: string): Promise<Article | undefined> {
-    const row = db.prepare(FIND_BY_SLUG).get(slug) as ArticleRow;
+    const row = db.prepare(FIND_ARTICLE_BY_SLUG).get(slug) as ArticleRow;
 
     if (!row) return undefined;
 
@@ -94,7 +94,7 @@ export class ArticleRepository {
   }
 
   async delete(slug: string) {
-    db.prepare(DELETE_BY_SLUG).run(slug);
+    db.prepare(DELETE_ARTICLE_BY_SLUG).run(slug);
   }
 
   async retrieveTags(): Promise<string[] | undefined> {
