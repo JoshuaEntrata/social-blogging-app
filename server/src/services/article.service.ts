@@ -19,10 +19,7 @@ export class ArticleService {
 
   constructor(private readonly logger: Logger) {}
 
-  async getArticle(
-    slug: string,
-    userId: number
-  ): Promise<ArticleDetails | undefined> {
+  async getArticle(slug: string, userId: number): Promise<ArticleDetails> {
     const context = "ArticleService.getArticle";
     this.logger.info(`${context} - Started.`);
     try {
@@ -57,7 +54,7 @@ export class ArticleService {
         favoritesCount: favoritesCount,
       } as ArticleDetails;
     } catch (err) {
-      this.logger.error(`${context} - Error: ${err}`);
+      this.logger.error(`${context} - ${err}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
@@ -67,7 +64,7 @@ export class ArticleService {
   async createArticle(
     data: CreateArticle,
     userId: number
-  ): Promise<ArticleDetails | undefined> {
+  ): Promise<ArticleDetails> {
     const context = "ArticleService.createArticle";
     this.logger.info(`${context} - Started.`);
 
@@ -76,6 +73,7 @@ export class ArticleService {
       const slug = generateSlug(title);
 
       const existing = await this.articleRepo.findBySlug(slug);
+
       if (existing) {
         this.logger.warn(
           `${context} - Article with title "${title}" already exists`
@@ -98,7 +96,7 @@ export class ArticleService {
       const result = await this.getArticle(article.slug, userId);
       return result;
     } catch (err) {
-      this.logger.error(`${context} - Error: ${err}`);
+      this.logger.error(`${context} - ${err}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
@@ -109,7 +107,7 @@ export class ArticleService {
     paramSlug: string,
     data: Partial<Article>,
     userId: number
-  ): Promise<ArticleDetails | undefined> {
+  ): Promise<ArticleDetails> {
     const context = "ArticleService.updateArticle";
     this.logger.info(`${context} - Started.`);
 
@@ -140,7 +138,7 @@ export class ArticleService {
       const result = await this.getArticle(updatedArticle?.slug!, userId);
       return result;
     } catch (err) {
-      this.logger.error(`${context} - Error: ${err}`);
+      this.logger.error(`${context} - ${err}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
@@ -168,17 +166,14 @@ export class ArticleService {
       this.logger.warn(`${context} - Article does not exist`);
       return { message: "Article does not exist." };
     } catch (err) {
-      this.logger.error(`${context} - Error: ${err}`);
+      this.logger.error(`${context} - ${err}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
     }
   }
 
-  async favoriteArticle(
-    slug: string,
-    userId: number
-  ): Promise<ArticleDetails | undefined> {
+  async favoriteArticle(slug: string, userId: number): Promise<ArticleDetails> {
     const context = "ArticleService.favoriteArticle";
     this.logger.info(`${context} - Started.`);
 
@@ -198,7 +193,7 @@ export class ArticleService {
       const result = await this.getArticle(article.slug, userId);
       return result;
     } catch (err) {
-      this.logger.error(`${context} - Error: ${err}`);
+      this.logger.error(`${context} - ${err}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
@@ -208,7 +203,7 @@ export class ArticleService {
   async unfavoriteArticle(
     slug: string,
     userId: number
-  ): Promise<ArticleDetails | undefined> {
+  ): Promise<ArticleDetails> {
     const context = "ArticleService.unfavoriteArticle";
     this.logger.info(`${context} - Started.`);
 
@@ -228,14 +223,14 @@ export class ArticleService {
       const result = await this.getArticle(article.slug, userId);
       return result;
     } catch (err) {
-      this.logger.error(`${context} - Error: ${err}`);
+      this.logger.error(`${context} - ${err}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
     }
   }
 
-  async getAllTags(): Promise<string[] | undefined> {
+  async getAllTags(): Promise<string[]> {
     const context = "ArticleService.getAllTags";
     this.logger.info(`${context} - Started.`);
     try {
@@ -245,7 +240,7 @@ export class ArticleService {
 
       return tags;
     } catch (err) {
-      this.logger.error(`${context} - Error: ${err}`);
+      this.logger.error(`${context} - ${err}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);

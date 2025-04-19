@@ -9,23 +9,21 @@ export class UserService {
 
   constructor(private readonly logger: Logger) {}
 
-  async registerUser(user: User): Promise<string> {
+  async registerUser(user: User): Promise<UserAuthentication> {
     const context = "UserService.registerUser";
     this.logger.info(`${context} - Started`);
     try {
-      const { username, email, password } = user;
-
-      const existing = await this.repo.findByEmail(email);
+      const existing = await this.repo.findByEmail(user.email);
 
       if (existing) {
-        this.logger.warn(`${context} - User "${email}" already exists`);
+        this.logger.warn(`${context} - User "${user.email}" already exists`);
         throw new Error("A user with the same email already exists");
       }
 
-      const hashed = await bcrypt.hash(password, 10);
-      const id = await this.repo.save({
-        username: username,
-        email: email,
+      const hashed = await bcrypt.hash(user.password, 10);
+      const userId = await this.repo.save({
+        username: user.username,
+        email: user.email,
         password: hashed,
         bio: null,
         image: null,
@@ -33,17 +31,16 @@ export class UserService {
         updatedAt: new Date().toISOString(),
       });
 
-      const token = generateToken(id);
-      return token;
+      return await this.getUser(userId);
     } catch (err) {
-      this.logger.error(`${context} - Error: ${err}`);
+      this.logger.error(`${context} - ${err}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
     }
   }
 
-  async loginUser(userCreds: User): Promise<string> {
+  async loginUser(userCreds: User): Promise<UserAuthentication> {
     const context = "UserService.loginUser";
     this.logger.info(`${context} - Started`);
 
@@ -63,18 +60,17 @@ export class UserService {
         throw new Error("Invalid credentials");
       }
 
-      const token = generateToken(user.id);
-      return token;
+      return await this.getUser(user.id);
     } catch (err) {
-      this.logger.error(`${context} - Error: ${err}`);
+      this.logger.error(`${context} - ${err}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
     }
   }
 
-  async currentUser(userId: number): Promise<Partial<UserAuthentication>> {
-    const context = "UserService.currentUser";
+  async getUser(userId: number): Promise<UserAuthentication> {
+    const context = "UserService.getUser";
     this.logger.info(`${context} - Started`);
 
     try {
@@ -85,11 +81,13 @@ export class UserService {
         throw new Error("User does not exist");
       }
 
+      const token = generateToken(userId);
+
       const { email, username, bio, image } = user;
 
-      return { email, username, bio, image };
+      return { email, token, username, bio, image };
     } catch (err) {
-      this.logger.error(`${context} - Error: ${err}`);
+      this.logger.error(`${context} - ${err}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);

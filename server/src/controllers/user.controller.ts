@@ -20,18 +20,14 @@ export const UserController = (log: Logger = logger) => {
           return;
         }
 
-        const token = await service.registerUser(user);
+        const registeredUser = await service.registerUser(user);
         log.info(`${context} - User "${user.email}" created`);
 
         res.status(201).json({
-          user: {
-            username: user.username,
-            email: user.email,
-            token: token,
-          },
+          user: registeredUser,
         });
       } catch (err) {
-        logger.error(`${context} - Error: ${err}`);
+        logger.error(`${context} - ${err}`);
         res.status(500).json({ message: (err as Error).message });
       } finally {
         log.info(`${context} - Ended`);
@@ -61,7 +57,7 @@ export const UserController = (log: Logger = logger) => {
           },
         });
       } catch (err) {
-        logger.error(`${context} - Error: ${err}`);
+        logger.error(`${context} - ${err}`);
         res.status(500).json({ message: (err as Error).message });
       } finally {
         log.info(`${context} - Ended`);
@@ -82,11 +78,11 @@ export const UserController = (log: Logger = logger) => {
           return;
         }
 
-        const user = await service.currentUser(userId);
+        const user = await service.getUser(userId);
 
         res.status(200).json({ user: { ...user, token } });
       } catch (err) {
-        logger.error(`${context} - Error: ${err}`);
+        logger.error(`${context} - ${err}`);
         res.status(500).json({ message: (err as Error).message });
       } finally {
         log.info(`${context} - Ended`);

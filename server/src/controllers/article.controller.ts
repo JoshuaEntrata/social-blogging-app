@@ -22,11 +22,11 @@ export const ArticleController = (log: Logger = logger) => {
           return;
         }
 
-        const result = await service.getArticle(slug, userId);
+        const article = await service.getArticle(slug, userId);
 
-        res.status(200).json({ result });
+        res.status(200).json({ article });
       } catch (err) {
-        logger.error(`${context} - Error: ${err}`);
+        logger.error(`${context} - ${err}`);
         res.status(500).json({ message: err });
       } finally {
         log.info(`${context} - Ended`);
@@ -58,14 +58,14 @@ export const ArticleController = (log: Logger = logger) => {
 
         res.status(201).json({ article: result });
       } catch (err: any) {
-        logger.error(`${context} - Error: ${err}`);
+        logger.error(`${context} - ${err}`);
 
         if (err.message.includes("already exists")) {
           res.status(409).json({ message: err.message });
           return;
         }
 
-        res.status(500).json({ message: err });
+        res.status(500).json({ message: err.message });
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -123,9 +123,9 @@ export const ArticleController = (log: Logger = logger) => {
         log.info(`${context} - Article updated`);
 
         res.status(200).json({ article: result });
-      } catch (err) {
-        logger.error(`${context} - Error: ${err}`);
-        res.status(500).json({ message: err });
+      } catch (err: any) {
+        logger.error(`${context} - ${err}`);
+        res.status(500).json({ message: err.message });
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -148,9 +148,9 @@ export const ArticleController = (log: Logger = logger) => {
         const result = await service.deleteArticle(slug, userId);
 
         res.status(200).json({ result });
-      } catch (err) {
-        logger.error(`${context} - Error: ${err}`);
-        res.status(500).json({ message: err });
+      } catch (err: any) {
+        logger.error(`${context} - ${err}`);
+        res.status(500).json({ message: err.message });
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -170,12 +170,12 @@ export const ArticleController = (log: Logger = logger) => {
           return;
         }
 
-        const result = await service.favoriteArticle(slug, userId);
+        const article = await service.favoriteArticle(slug, userId);
 
-        res.status(200).json({ result });
-      } catch (err) {
-        logger.error(`${context} - Error: ${err}`);
-        res.status(500).json({ message: err });
+        res.status(200).json({ article });
+      } catch (err: any) {
+        logger.error(`${context} - ${err}`);
+        res.status(500).json({ message: err.message });
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -195,12 +195,12 @@ export const ArticleController = (log: Logger = logger) => {
           return;
         }
 
-        const result = await service.unfavoriteArticle(slug, userId);
+        const article = await service.unfavoriteArticle(slug, userId);
 
-        res.status(200).json({ result });
-      } catch (err) {
-        logger.error(`${context} - Error: ${err}`);
-        res.status(500).json({ message: err });
+        res.status(200).json({ article });
+      } catch (err: any) {
+        logger.error(`${context} - ${err}`);
+        res.status(500).json({ message: err.message });
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -211,12 +211,12 @@ export const ArticleController = (log: Logger = logger) => {
       log.info(`${context} - Started`);
 
       try {
-        const result = await service.getAllTags();
+        const tags = await service.getAllTags();
 
-        res.status(200).json({ result });
-      } catch (err) {
-        logger.error(`${context} - Error: ${err}`);
-        res.status(500).json({ message: err });
+        res.status(200).json({ tags });
+      } catch (err: any) {
+        logger.error(`${context} - ${err}`);
+        res.status(500).json({ message: err.message });
       } finally {
         log.info(`${context} - Ended`);
       }

@@ -17,10 +17,8 @@ import {
 } from "./queries";
 
 export class ArticleRepository {
-  async findBySlug(slug: string): Promise<Article | undefined> {
+  async findBySlug(slug: string): Promise<Article> {
     const row = db.prepare(FIND_ARTICLE_BY_SLUG).get(slug) as Article;
-
-    if (!row) return undefined;
 
     const article: Article = {
       id: row.id,
@@ -63,10 +61,7 @@ export class ArticleRepository {
     }
   }
 
-  async update(
-    paramSlug: string,
-    article: Article
-  ): Promise<Article | undefined> {
+  async update(paramSlug: string, article: Article): Promise<Article> {
     db.prepare(UPDATE_ARTICLE).run(
       article.slug,
       article.title,
@@ -83,7 +78,7 @@ export class ArticleRepository {
     db.prepare(DELETE_ARTICLE_BY_SLUG).run(slug);
   }
 
-  async retrieveTags(): Promise<string[] | undefined> {
+  async retrieveTags(): Promise<string[]> {
     const rows = db.prepare(RETRIVE_TAGS).all() as Tag[];
     return rows.map((r) => r.name);
   }
