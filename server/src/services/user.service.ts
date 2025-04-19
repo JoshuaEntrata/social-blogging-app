@@ -3,7 +3,6 @@ import { Logger } from "../utils/logger";
 import { User, UserAuthentication, UserFollowing } from "../models/user.model";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/jwt";
-
 export class UserService {
   private readonly repo = new UserRepository();
 
@@ -31,7 +30,9 @@ export class UserService {
         updatedAt: new Date().toISOString(),
       });
 
-      return await this.getUser(userId);
+      const token = generateToken(userId);
+
+      return await this.getUser(userId, token);
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;
@@ -60,7 +61,8 @@ export class UserService {
         throw new Error("Invalid credentials");
       }
 
-      return await this.getUser(user.id);
+      const token = generateToken(user.id);
+      return await this.getUser(user.id, token);
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;
@@ -69,7 +71,7 @@ export class UserService {
     }
   }
 
-  async getUser(userId: number): Promise<UserAuthentication> {
+  async getUser(userId: number, token: string): Promise<UserAuthentication> {
     const context = "UserService.getUser";
     this.logger.info(`${context} - Started`);
 
@@ -80,8 +82,6 @@ export class UserService {
         this.logger.warn(`${context} - User does not exist`);
         throw new Error("User does not exist");
       }
-
-      const token = generateToken(userId);
 
       const { email, username, bio, image } = user;
 
@@ -111,6 +111,48 @@ export class UserService {
       const isFollowing = userId ? true : false;
 
       return { username, bio, image, following: isFollowing } as UserFollowing;
+    } catch (err) {
+      this.logger.error(`${context} - ${err}`);
+      throw err;
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
+  }
+
+  async updateUser(
+    user: User,
+    userId: number,
+    token: string
+  ): Promise<UserAuthentication> {
+    const context = "UserService.updateUser";
+    this.logger.info(`${context} - Started`);
+
+    try {
+      const currentUser = await this.repo.findById(userId);
+
+      if (
+        user.email &&
+        (await this.repo.emailTakenByOthers(user.email, userId))
+      ) {
+        this.logger.warn(`${context} - Email is already taken`);
+        throw new Error("Email is already taken");
+      }
+
+      const updatedUser: User = {
+        email: user.email ?? currentUser?.email,
+        username: user.username ?? currentUser?.username,
+        password: user.password
+          ? await bcrypt.hash(user.password, 10)
+          : currentUser?.password!,
+        image: user.image ?? currentUser?.image,
+        bio: user.bio ?? currentUser?.bio,
+        updatedAt: new Date().toISOString(),
+        id: userId,
+      } as User;
+
+      await this.repo.update(updatedUser);
+
+      return await this.getUser(userId, token);
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;

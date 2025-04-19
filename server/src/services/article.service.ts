@@ -8,11 +8,6 @@ import { Logger } from "../utils/logger";
 import { generateSlug } from "../utils/helper";
 import { UserRepository } from "../repositories/user.repository";
 
-const mockAuthorDetails = {
-  username: "Joshua Kyle",
-  bio: "Author buo placeholder",
-  image: "https://placehold.co/400",
-};
 export class ArticleService {
   private readonly articleRepo = new ArticleRepository();
   private readonly userRepo = new UserRepository();

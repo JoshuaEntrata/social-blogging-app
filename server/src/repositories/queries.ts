@@ -86,3 +86,15 @@ export const COUNT_FAVORITES = `
   SELECT COUNT(*) as count FROM favorites
   WHERE articleId = ?;
 `;
+
+export const UPDATE_USER = `
+  UPDATE users
+  SET
+    email = ?,
+    username = ?,
+    password = ?,
+    image = ?,
+    bio = ?,
+    updatedAt = ?
+  WHERE id = ?
+`;

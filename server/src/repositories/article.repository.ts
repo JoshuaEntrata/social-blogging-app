@@ -71,7 +71,7 @@ export class ArticleRepository {
       paramSlug
     );
 
-    return this.findBySlug(article.slug);
+    return await this.findBySlug(article.slug);
   }
 
   async delete(slug: string) {

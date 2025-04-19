@@ -4,12 +4,13 @@ import {
   FIND_USER_BY_ID,
   FIND_USER_BY_USERNAME,
   SAVE_USER,
+  UPDATE_USER,
 } from "./queries";
 import { User } from "../models/user.model";
 
 export class UserRepository {
-  async findByEmail(email: string): Promise<User> {
-    return db.prepare(FIND_USER_BY_EMAIL).get(email) as User;
+  async findByEmail(email: string): Promise<User | undefined> {
+    return db.prepare(FIND_USER_BY_EMAIL).get(email) as User | undefined;
   }
 
   async findById(id: number): Promise<User> {
@@ -18,6 +19,11 @@ export class UserRepository {
 
   async findByUsername(userName: string): Promise<User> {
     return db.prepare(FIND_USER_BY_USERNAME).get(userName) as User;
+  }
+
+  async emailTakenByOthers(email: string, userId: number): Promise<boolean> {
+    const user = await this.findByEmail(email);
+    return !!user && user.id !== userId;
   }
 
   async save(user: Omit<User, "id">): Promise<number> {
@@ -33,5 +39,19 @@ export class UserRepository {
         user.updatedAt
       );
     return result.lastInsertRowid as number;
+  }
+
+  async update(user: User): Promise<User> {
+    db.prepare(UPDATE_USER).run(
+      user.email,
+      user.username,
+      user.password,
+      user.image,
+      user.bio,
+      user.updatedAt,
+      user.id
+    );
+
+    return (await this.findById(user.id)) as User;
   }
 }

@@ -12,9 +12,7 @@ router.post("/users", controller.register);
 
 router.get("/user", authMiddleware, controller.currentUser);
 
-router.put("/users", (req: Request, res: Response) => {
-  // Update User
-});
+router.put("/user", authMiddleware, controller.updateUser);
 
 router.get("/profiles/:username", authMiddleware, controller.getProfile);
 
