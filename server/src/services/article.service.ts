@@ -205,6 +205,36 @@ export class ArticleService {
     }
   }
 
+  async unfavoriteArticle(
+    slug: string,
+    userId: number
+  ): Promise<ArticleDetails | undefined> {
+    const context = "ArticleService.unfavoriteArticle";
+    this.logger.info(`${context} - Started.`);
+
+    try {
+      const article = await this.articleRepo.findBySlug(slug);
+
+      if (!article) {
+        this.logger.warn(`${context} - Article does not exist`);
+        throw new Error("Article does not exist");
+      }
+
+      await this.articleRepo.unfavorite({
+        userId: userId,
+        articleId: article.id!,
+      });
+
+      const result = await this.getArticle(article.slug, userId);
+      return result;
+    } catch (err) {
+      this.logger.error(`${context} - Error: ${err}`);
+      throw err;
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
+  }
+
   async getAllTags(): Promise<string[] | undefined> {
     const context = "ArticleService.getAllTags";
     this.logger.info(`${context} - Started.`);

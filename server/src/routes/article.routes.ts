@@ -46,9 +46,11 @@ router.post(
   controller.favoriteArticle
 );
 
-router.delete("/articles/:slug/favorite", (req: Request, res: Response) => {
-  // Unfavorite Article
-});
+router.delete(
+  "/articles/:slug/favorite",
+  authMiddleware,
+  controller.unfavoriteArticle
+);
 
 router.get("/tags", authMiddleware, controller.getAllTags);
 
