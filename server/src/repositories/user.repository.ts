@@ -14,7 +14,15 @@ export class UserRepository {
   async save(user: Omit<User, "id">): Promise<number> {
     const result = db
       .prepare(SAVE_USER)
-      .run(user.username, user.email, user.password);
+      .run(
+        user.username,
+        user.email,
+        user.password,
+        user.bio,
+        user.image,
+        user.createdAt,
+        user.updatedAt
+      );
     return result.lastInsertRowid as number;
   }
 }

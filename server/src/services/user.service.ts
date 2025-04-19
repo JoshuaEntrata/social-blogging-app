@@ -27,6 +27,10 @@ export class UserService {
         username: username,
         email: email,
         password: hashed,
+        bio: null,
+        image: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
 
       const token = generateToken(id);

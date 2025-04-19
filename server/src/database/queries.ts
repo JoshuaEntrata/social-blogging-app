@@ -39,6 +39,10 @@ export const createUserTable = `
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL,
         email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL
+        password TEXT NOT NULL,
+        bio TEXT,
+        image TEXT,
+        createdAt DATETIME,
+        updatedAt DATETIME
     )
 `;

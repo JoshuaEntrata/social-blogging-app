@@ -3,6 +3,10 @@ export interface User {
   username: string;
   email: string;
   password: string;
+  bio?: string | null;
+  image?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UserDetails {

@@ -54,7 +54,11 @@ export const FIND_USER_BY_EMAIL = `
 `;
 
 export const SAVE_USER = `
-    INSERT INTO users (username, email, password) VALUES (?, ?, ?)
+    INSERT INTO users (
+        username, email, password,
+        bio, image,
+        createdAt, updatedAt
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)
 `;
 
 export const FIND_USER_BY_ID = `
