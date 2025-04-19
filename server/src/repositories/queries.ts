@@ -51,6 +51,10 @@ export const FIND_USER_BY_EMAIL = `
     SELECT * FROM users WHERE email = ?
 `;
 
+export const FIND_USER_BY_USERNAME = `
+    SELECT * FROM users WHERE username = ?
+`;
+
 export const SAVE_USER = `
     INSERT INTO users (
         username, email, password,

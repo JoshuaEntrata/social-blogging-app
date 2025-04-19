@@ -16,9 +16,7 @@ router.put("/users", (req: Request, res: Response) => {
   // Update User
 });
 
-router.get("/profiles/:username", (req: Request, res: Response) => {
-  // Get Profile
-});
+router.get("/profiles/:username", authMiddleware, controller.getProfile);
 
 router.post("/profiles/:username/follow", (req: Request, res: Response) => {
   // Follow User

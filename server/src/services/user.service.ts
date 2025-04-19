@@ -1,6 +1,6 @@
 import { UserRepository } from "../repositories/user.repository";
 import { Logger } from "../utils/logger";
-import { User, UserAuthentication } from "../models/user.model";
+import { User, UserAuthentication, UserFollowing } from "../models/user.model";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/jwt";
 
@@ -86,6 +86,31 @@ export class UserService {
       const { email, username, bio, image } = user;
 
       return { email, token, username, bio, image };
+    } catch (err) {
+      this.logger.error(`${context} - ${err}`);
+      throw err;
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
+  }
+
+  async getProfile(userName: string, userId?: number): Promise<UserFollowing> {
+    const context = "UserService.getProfile";
+    this.logger.info(`${context} - Started`);
+
+    try {
+      const user = await this.repo.findByUsername(userName);
+
+      if (!user) {
+        this.logger.warn(`${context} - User does not exist`);
+        throw new Error("User does not exist");
+      }
+
+      const { username, bio, image } = user;
+      // TODO: update following depending on user auth
+      const isFollowing = userId ? true : false;
+
+      return { username, bio, image, following: isFollowing } as UserFollowing;
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;

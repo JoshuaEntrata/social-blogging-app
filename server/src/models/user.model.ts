@@ -16,3 +16,7 @@ export interface UserAuthentication {
   bio?: string | null;
   image?: string | null;
 }
+
+export interface UserFollowing extends User {
+  following: boolean;
+}

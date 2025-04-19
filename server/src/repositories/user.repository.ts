@@ -1,5 +1,10 @@
 import { db } from "../database/db";
-import { FIND_USER_BY_EMAIL, FIND_USER_BY_ID, SAVE_USER } from "./queries";
+import {
+  FIND_USER_BY_EMAIL,
+  FIND_USER_BY_ID,
+  FIND_USER_BY_USERNAME,
+  SAVE_USER,
+} from "./queries";
 import { User } from "../models/user.model";
 
 export class UserRepository {
@@ -9,6 +14,10 @@ export class UserRepository {
 
   async findById(id: number): Promise<User> {
     return db.prepare(FIND_USER_BY_ID).get(id) as User;
+  }
+
+  async findByUsername(userName: string): Promise<User> {
+    return db.prepare(FIND_USER_BY_USERNAME).get(userName) as User;
   }
 
   async save(user: Omit<User, "id">): Promise<number> {
