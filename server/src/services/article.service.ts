@@ -1,7 +1,12 @@
 import { ArticleRepository } from "../repositories/article.repository";
-import { Article } from "../models/article.model";
+import {
+  Article,
+  ArticleDetails,
+  CreateArticle,
+} from "../models/article.model";
 import { Logger } from "../utils/logger";
 import { generateSlug } from "../utils/helper";
+import { UserRepository } from "../repositories/user.repository";
 
 const mockAuthorDetails = {
   username: "Joshua Kyle",
@@ -9,19 +14,48 @@ const mockAuthorDetails = {
   image: "https://placehold.co/400",
 };
 export class ArticleService {
-  private readonly repo = new ArticleRepository();
+  private readonly articleRepo = new ArticleRepository();
+  private readonly userRepo = new UserRepository();
 
   constructor(private readonly logger: Logger) {}
 
-  async getArticle(slug: string): Promise<Article | undefined> {
+  async getArticle(
+    slug: string,
+    userId: number
+  ): Promise<ArticleDetails | undefined> {
     const context = "ArticleService.getArticle";
     this.logger.info(`${context} - Started.`);
     try {
-      const article = await this.repo.findBySlug(slug);
+      const article = await this.articleRepo.findBySlug(slug);
 
-      if (!article) this.logger.warn(`${context} - Article not found.`);
+      if (!article) {
+        this.logger.warn(`${context} - Article not found.`);
+        throw new Error("Article not found");
+      }
 
-      return article;
+      const { id: articleId, authorId, ...articleDetails } = article;
+
+      const tags = await this.articleRepo.getTagsByArticleId(articleId!);
+      const isFavorited = await this.articleRepo.isFavorited({
+        userId: userId,
+        articleId: articleId!,
+      });
+      const favoritesCount = await this.articleRepo.countFavorites(articleId!);
+      const authorDetails = await this.userRepo.findById(authorId!);
+      const author = {
+        username: authorDetails?.username,
+        bio: authorDetails?.bio,
+        image: authorDetails?.image,
+        following: true,
+      };
+
+      return {
+        ...articleDetails,
+        author: author,
+        tagList: tags,
+        favorited: isFavorited,
+        favoritesCount: favoritesCount,
+      } as ArticleDetails;
     } catch (err) {
       this.logger.error(`${context} - Error: ${err}`);
       throw err;
@@ -30,72 +64,38 @@ export class ArticleService {
     }
   }
 
-  async createArticle(data: Partial<Article>): Promise<Article> {
+  async createArticle(
+    data: CreateArticle,
+    userId: number
+  ): Promise<ArticleDetails | undefined> {
     const context = "ArticleService.createArticle";
     this.logger.info(`${context} - Started.`);
 
-    const title = data.title!;
-    const slug = generateSlug(title);
-
-    const existing = await this.repo.findBySlug(slug);
-    if (existing) {
-      this.logger.warn(
-        `${context} - Article with title "${title}" already exists`
-      );
-      throw new Error("An article with the same title already exists");
-    }
-
-    const article: Article = {
-      slug,
-      title: title,
-      description: data.description!,
-      body: data.body!,
-      tagList: data.tagList ?? [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      favorited: false,
-      favoritesCount: 0,
-      author: {
-        username: mockAuthorDetails.username,
-        bio: mockAuthorDetails.bio,
-        image: mockAuthorDetails.image,
-        following: false,
-      },
-    };
-
-    await this.repo.save(article);
-    return article;
-  }
-
-  async updateArticle(
-    paramSlug: string,
-    data: Partial<Article>
-  ): Promise<Article | undefined> {
-    const context = "ArticleService.updateArticle";
-    this.logger.info(`${context} - Started.`);
-
     try {
-      const original = await this.repo.findBySlug(paramSlug);
+      const title = data.title!;
+      const slug = generateSlug(title);
 
-      if (!original) {
-        this.logger.warn(`${context} - Article does not exist`);
-        return;
+      const existing = await this.articleRepo.findBySlug(slug);
+      if (existing) {
+        this.logger.warn(
+          `${context} - Article with title "${title}" already exists`
+        );
+        throw new Error("An article with the same title already exists");
       }
 
       const article: Article = {
-        slug: data.title ? generateSlug(data.title) : original.slug,
-        title: data.title ?? original.title,
-        description: data.description ?? original.description,
-        body: data.body ?? original.body,
-        tagList: original.tagList,
-        createdAt: original.createdAt,
+        slug,
+        title: title,
+        description: data.description!,
+        body: data.body!,
+        authorId: userId,
+        createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        favorited: original.favorited,
-        favoritesCount: original.favoritesCount,
-        author: { ...original.author },
       };
 
-      const result = await this.repo.update(paramSlug, article);
+      await this.articleRepo.save(article, data?.tagList);
+
+      const result = await this.getArticle(article.slug, userId);
       return result;
     } catch (err) {
       this.logger.error(`${context} - Error: ${err}`);
@@ -105,15 +105,62 @@ export class ArticleService {
     }
   }
 
-  async deleteArticle(slug: string) {
+  async updateArticle(
+    paramSlug: string,
+    data: Partial<Article>,
+    userId: number
+  ): Promise<ArticleDetails | undefined> {
+    const context = "ArticleService.updateArticle";
+    this.logger.info(`${context} - Started.`);
+
+    try {
+      const original = await this.articleRepo.findBySlug(paramSlug);
+
+      if (!original) {
+        this.logger.warn(`${context} - Article does not exist`);
+        throw new Error("Article does not exist");
+      }
+
+      if (original.authorId !== userId) {
+        this.logger.warn(`${context} - Unauthorized to edit this`);
+        throw new Error("Unauthorized to edit this");
+      }
+
+      const article: Article = {
+        ...original,
+        slug: data.title ? generateSlug(data.title) : original.slug,
+        title: data.title ?? original.title,
+        description: data.description ?? original.description,
+        body: data.body ?? original.body,
+        updatedAt: new Date().toISOString(),
+      };
+
+      const updatedArticle = await this.articleRepo.update(paramSlug, article);
+
+      const result = await this.getArticle(updatedArticle?.slug!, userId);
+      return result;
+    } catch (err) {
+      this.logger.error(`${context} - Error: ${err}`);
+      throw err;
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
+  }
+
+  async deleteArticle(slug: string, userId: number) {
     const context = "ArticleService.deleteArticle";
     this.logger.info(`${context} - Started`);
 
     try {
-      const article = await this.repo.findBySlug(slug);
+      const article = await this.articleRepo.findBySlug(slug);
 
       if (article) {
-        await this.repo.delete(article.slug);
+        if (article.authorId !== userId) {
+          this.logger.warn(`${context} - Unauthorized to delete this`);
+          throw new Error("Unauthorized to delete this");
+        }
+
+        await this.articleRepo.delete(article.slug);
         this.logger.info(`${context} - Article deleted`);
         return { message: "Article deleted." };
       }
@@ -128,11 +175,41 @@ export class ArticleService {
     }
   }
 
+  async favoriteArticle(
+    slug: string,
+    userId: number
+  ): Promise<ArticleDetails | undefined> {
+    const context = "ArticleService.favoriteArticle";
+    this.logger.info(`${context} - Started.`);
+
+    try {
+      const article = await this.articleRepo.findBySlug(slug);
+
+      if (!article) {
+        this.logger.warn(`${context} - Article does not exist`);
+        throw new Error("Article does not exist");
+      }
+
+      await this.articleRepo.favorite({
+        userId: userId,
+        articleId: article.id!,
+      });
+
+      const result = await this.getArticle(article.slug, userId);
+      return result;
+    } catch (err) {
+      this.logger.error(`${context} - Error: ${err}`);
+      throw err;
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
+  }
+
   async getAllTags(): Promise<string[] | undefined> {
     const context = "ArticleService.getAllTags";
     this.logger.info(`${context} - Started.`);
     try {
-      const tags = await this.repo.retrieveTags();
+      const tags = await this.articleRepo.retrieveTags();
 
       if (!tags) this.logger.warn(`${context} - Empty tags.`);
 

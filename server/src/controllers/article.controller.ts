@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { AuthRequest } from "../middlewares/auth.middleware";
 import { logger, Logger } from "../utils/logger";
 import { ArticleService } from "../services/article.service";
 
@@ -7,13 +8,21 @@ export const ArticleController = (log: Logger = logger) => {
   let context;
 
   return {
-    getArticleBySlug: async (req: Request, res: Response) => {
+    getArticleBySlug: async (req: AuthRequest, res: Response) => {
       context = "ArticleController.getArticleBySlug";
       log.info(`${context} - Started`);
 
       try {
         const { slug } = req.params;
-        const result = await service.getArticle(slug);
+        const userId = req.user?.id;
+
+        if (!userId) {
+          log.warn(`${context} - Unauthorized access`);
+          res.status(401).json({ message: "Unauthorized access" });
+          return;
+        }
+
+        const result = await service.getArticle(slug, userId);
 
         res.status(200).json({ result });
       } catch (err) {
@@ -24,12 +33,19 @@ export const ArticleController = (log: Logger = logger) => {
       }
     },
 
-    createArticle: async (req: Request, res: Response) => {
+    createArticle: async (req: AuthRequest, res: Response) => {
       context = "ArticleController.createArticle";
       log.info(`${context} - Started`);
 
       try {
         const { article } = req.body;
+        const userId = req.user?.id;
+
+        if (!userId) {
+          log.warn(`${context} - Unauthorized access`);
+          res.status(401).json({ message: "Unauthorized access" });
+          return;
+        }
 
         if (!article?.title || !article?.description || !article?.body) {
           log.warn(`${context} - Missing required fields`);
@@ -37,7 +53,7 @@ export const ArticleController = (log: Logger = logger) => {
           return;
         }
 
-        const result = await service.createArticle(article);
+        const result = await service.createArticle(article, userId);
         log.info(`${context} - Article created`);
 
         res.status(201).json({ article: result });
@@ -55,13 +71,20 @@ export const ArticleController = (log: Logger = logger) => {
       }
     },
 
-    updateArticle: async (req: Request, res: Response) => {
+    updateArticle: async (req: AuthRequest, res: Response) => {
       context = "ArticleController.updateArticle";
       log.info(`${context} - Started`);
 
       try {
         const { slug } = req.params;
         const { article } = req.body;
+        const userId = req.user?.id;
+
+        if (!userId) {
+          log.warn(`${context} - Unauthorized access`);
+          res.status(401).json({ message: "Unauthorized access" });
+          return;
+        }
 
         if (!article || typeof article !== "object") {
           log.warn(`${context} - Invalid request body`);
@@ -96,14 +119,7 @@ export const ArticleController = (log: Logger = logger) => {
           return;
         }
 
-        const result = await service.updateArticle(slug, article);
-
-        if (!result) {
-          log.warn(`${context} - Article not found`);
-          res.status(404).json({ message: "Article not found" });
-          return;
-        }
-
+        const result = await service.updateArticle(slug, article, userId);
         log.info(`${context} - Article updated`);
 
         res.status(200).json({ article: result });
@@ -115,13 +131,46 @@ export const ArticleController = (log: Logger = logger) => {
       }
     },
 
-    deleteArticle: async (req: Request, res: Response) => {
+    deleteArticle: async (req: AuthRequest, res: Response) => {
       context = "ArticleController.deleteArticle";
       log.info(`${context} - Started`);
 
       try {
         const { slug } = req.params;
-        const result = await service.deleteArticle(slug);
+        const userId = req.user?.id;
+
+        if (!userId) {
+          log.warn(`${context} - Unauthorized access`);
+          res.status(401).json({ message: "Unauthorized access" });
+          return;
+        }
+
+        const result = await service.deleteArticle(slug, userId);
+
+        res.status(200).json({ result });
+      } catch (err) {
+        logger.error(`${context} - Error: ${err}`);
+        res.status(500).json({ message: err });
+      } finally {
+        log.info(`${context} - Ended`);
+      }
+    },
+
+    favoriteArticle: async (req: AuthRequest, res: Response) => {
+      context = "ArticleController.favoriteArticle";
+      log.info(`${context} - Started`);
+
+      try {
+        const { slug } = req.params;
+        const userId = req.user?.id;
+
+        if (!userId) {
+          log.warn(`${context} - Unauthorized access`);
+          res.status(401).json({ message: "Unauthorized access" });
+          return;
+        }
+
+        const result = await service.favoriteArticle(slug, userId);
 
         res.status(200).json({ result });
       } catch (err) {

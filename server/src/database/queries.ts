@@ -5,15 +5,9 @@ export const createArticleTable = `
         title TEXT NOT NULL,
         description TEXT NOT NULL,
         body TEXT,
-        tagList TEXT NOT NULL,
+        authorId INTEGER,
         createdAt TEXT NOT NULL,
-        updatedAt TEXT NOT NULL,
-        favorited INTEGER NOT NULL,
-        favoritesCount INTEGER NOT NULL,
-        authorUsername TEXT NOT NULL,
-        authorBio TEXT NOT NULL,
-        authorImage TEXT NOT NULL,
-        authorFollowing INTEGER NOT NULL
+        updatedAt TEXT NOT NULL
     );
 `;
 
@@ -26,11 +20,11 @@ export const createTagTable = `
 
 export const createArticleTagTable = `
     CREATE TABLE IF NOT EXISTS article_tags (
-        article_id INTEGER,
-        tag_id INTEGER,
-        PRIMARY KEY (article_id, tag_id),
-        FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,
-        FOREIGN KEY (tag_id) REFERENCES tags(id)
+        articleId INTEGER,
+        tagId INTEGER,
+        PRIMARY KEY (articleId, tagId),
+        FOREIGN KEY (articleId) REFERENCES articles(id) ON DELETE CASCADE,
+        FOREIGN KEY (tagId) REFERENCES tags(id)
     );
 `;
 
@@ -45,4 +39,22 @@ export const createUserTable = `
         createdAt DATETIME,
         updatedAt DATETIME
     )
+`;
+
+export const createFavoriteTable = `
+    CREATE TABLE IF NOT EXISTS favorites (
+        userId INTEGER,
+        articleId INTEGER,
+        FOREIGN KEY (userId) REFERENCES users(id),
+        FOREIGN KEY (articleId) REFERENCES articles(id) ON DELETE CASCADE,
+        PRIMARY KEY (userId, articleId)
+    )
+`;
+
+export const dropAllTables = `
+    DROP TABLE IF EXISTS article_tags;
+    DROP TABLE IF EXISTS articles;
+    DROP TABLE IF EXISTS favorites;
+    DROP TABLE IF EXISTS tags;
+    DROP TABLE IF EXISTS users;
 `;

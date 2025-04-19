@@ -6,39 +6,34 @@ export interface Author {
 }
 
 export interface Article {
+  id?: number;
   slug: string;
   title: string;
   description: string;
-  body?: string;
-  tagList: string[];
+  body: string;
+  authorId?: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ArticleDetails extends Article {
+  tagList: string[];
   favorited: boolean;
   favoritesCount: number;
   author: Author;
 }
 
-export interface Articles {
-  articles: Article[];
-  articlesCount: number;
-}
-
-export interface ArticleRow {
-  slug: string;
+export interface CreateArticle {
   title: string;
   description: string;
-  body: string | null;
-  tagList: string;
-  createdAt: string;
-  updatedAt: string;
-  favorited: number;
-  favoritesCount: number;
-  authorUsername: string;
-  authorBio: string;
-  authorImage: string;
-  authorFollowing: number;
+  body: string;
+  tagList?: string[];
 }
 
 export interface Tag {
   name: string;
+}
+export interface ArticleUserFavorite {
+  userId: number;
+  articleId: number;
 }

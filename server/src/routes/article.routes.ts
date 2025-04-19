@@ -40,9 +40,11 @@ router.delete("/articles/:slug/comments/:id", (req: Request, res: Response) => {
   // Delete Comment
 });
 
-router.post("/articles/:slug/favorite", (req: Request, res: Response) => {
-  // Favorite Article
-});
+router.post(
+  "/articles/:slug/favorite",
+  authMiddleware,
+  controller.favoriteArticle
+);
 
 router.delete("/articles/:slug/favorite", (req: Request, res: Response) => {
   // Unfavorite Article

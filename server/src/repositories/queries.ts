@@ -4,10 +4,9 @@ export const FIND_ARTICLE_BY_SLUG = `
 
 export const SAVE_ARTICLE = `
     INSERT INTO articles (
-        slug, title, description, body, tagList,
-        createdAt, updatedAt, favorited, favoritesCount,
-        authorUsername, authorBio, authorImage, authorFollowing
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        slug, title, description, body, authorId,
+        createdAt, updatedAt
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)
 `;
 
 export const INSERT_TAG = `
@@ -19,7 +18,14 @@ export const GET_TAG_ID = `
 `;
 
 export const LINK_TAG = `
-    INSERT INTO article_tags (article_id, tag_id) VALUES (?, ?)
+    INSERT INTO article_tags (articleId, tagId) VALUES (?, ?)
+`;
+
+export const GET_TAGS_BY_ARTICLE_ID = `
+  SELECT t.name
+  FROM article_tags tl
+  JOIN tags t ON t.id = tl.tagId
+  WHERE tl.articleId = ?;
 `;
 
 export const UPDATE_ARTICLE = `
@@ -29,15 +35,7 @@ export const UPDATE_ARTICLE = `
     title = ?,
     description = ?,
     body = ?,
-    tagList = ?,
-    createdAt = ?,
-    updatedAt = ?,
-    favorited = ?,
-    favoritesCount = ?,
-    authorUsername = ?,
-    authorBio = ?,
-    authorImage = ?,
-    authorFollowing = ?
+    updatedAt = ?
   WHERE slug = ?
 `;
 
@@ -63,4 +61,24 @@ export const SAVE_USER = `
 
 export const FIND_USER_BY_ID = `
     SELECT * FROM users WHERE id = ?
+`;
+
+export const ADD_FAVORITE = `
+  INSERT OR IGNORE INTO favorites (userId, articleId)
+  VALUES (?, ?);
+`;
+
+export const REMOVE_FAVORITE = `
+  DELETE FROM favorites
+  WHERE userId = ? AND articleId = ?;
+`;
+
+export const IS_FAVORITED = `
+  SELECT COUNT(*) as count FROM favorites
+  WHERE userId = ? AND articleId = ?;
+`;
+
+export const COUNT_FAVORITES = `
+  SELECT COUNT(*) as count FROM favorites
+  WHERE articleId = ?;
 `;

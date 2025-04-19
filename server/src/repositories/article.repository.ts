@@ -1,11 +1,16 @@
-import { Article, ArticleRow, Tag } from "../models/article.model";
+import { Article, ArticleUserFavorite, Tag } from "../models/article.model";
 import { db } from "../database/db";
 import {
+  ADD_FAVORITE,
+  COUNT_FAVORITES,
   DELETE_ARTICLE_BY_SLUG,
   FIND_ARTICLE_BY_SLUG,
   GET_TAG_ID,
+  GET_TAGS_BY_ARTICLE_ID,
   INSERT_TAG,
+  IS_FAVORITED,
   LINK_TAG,
+  REMOVE_FAVORITE,
   RETRIVE_TAGS,
   SAVE_ARTICLE,
   UPDATE_ARTICLE,
@@ -13,59 +18,48 @@ import {
 
 export class ArticleRepository {
   async findBySlug(slug: string): Promise<Article | undefined> {
-    const row = db.prepare(FIND_ARTICLE_BY_SLUG).get(slug) as ArticleRow;
+    const row = db.prepare(FIND_ARTICLE_BY_SLUG).get(slug) as Article;
 
     if (!row) return undefined;
 
     const article: Article = {
+      id: row.id,
       slug: row.slug,
       title: row.title,
       description: row.description,
-      body: row.body ?? undefined,
-      tagList: JSON.parse(row.tagList),
+      body: row.body,
+      authorId: row.authorId,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
-      favorited: !!row.favorited,
-      favoritesCount: row.favoritesCount,
-      author: {
-        username: row.authorUsername,
-        bio: row.authorBio,
-        image: row.authorImage,
-        following: !!row.authorFollowing,
-      },
     };
 
     return article;
   }
 
-  async save(article: Article): Promise<void> {
-    const insertArticle = db.prepare(SAVE_ARTICLE);
-    const insertTag = db.prepare(INSERT_TAG);
-    const getTagId = db.prepare(GET_TAG_ID);
-    const linkTag = db.prepare(LINK_TAG);
+  async save(article: Article, tagList?: string[]): Promise<void> {
+    const row = db
+      .prepare(SAVE_ARTICLE)
+      .run(
+        article.slug,
+        article.title,
+        article.description,
+        article.body,
+        article.authorId,
+        article.createdAt,
+        article.updatedAt
+      );
 
-    const result = insertArticle.run(
-      article.slug,
-      article.title,
-      article.description,
-      article.body ?? null,
-      JSON.stringify(article.tagList),
-      article.createdAt,
-      article.updatedAt,
-      article.favorited ? 1 : 0,
-      article.favoritesCount,
-      article.author.username,
-      article.author.bio,
-      article.author.image,
-      article.author.following ? 1 : 0
-    );
+    if (tagList) {
+      const insertTag = db.prepare(INSERT_TAG);
+      const getTagId = db.prepare(GET_TAG_ID);
+      const linkTag = db.prepare(LINK_TAG);
+      const articleId = row.lastInsertRowid as number;
 
-    const articleId = result.lastInsertRowid as number;
-
-    for (const tag of article.tagList) {
-      insertTag.run(tag);
-      const tagRow = getTagId.get(tag) as { id: number };
-      linkTag.run(articleId, tagRow.id);
+      for (const tag of tagList) {
+        insertTag.run(tag);
+        const tagRow = getTagId.get(tag) as { id: number };
+        linkTag.run(articleId, tagRow.id);
+      }
     }
   }
 
@@ -77,16 +71,8 @@ export class ArticleRepository {
       article.slug,
       article.title,
       article.description,
-      article.body ?? null,
-      JSON.stringify(article.tagList),
-      article.createdAt,
+      article.body,
       article.updatedAt,
-      article.favorited ? 1 : 0,
-      article.favoritesCount,
-      article.author.username,
-      article.author.bio,
-      article.author.image,
-      article.author.following ? 1 : 0,
       paramSlug
     );
 
@@ -100,5 +86,32 @@ export class ArticleRepository {
   async retrieveTags(): Promise<string[] | undefined> {
     const rows = db.prepare(RETRIVE_TAGS).all() as Tag[];
     return rows.map((r) => r.name);
+  }
+
+  async getTagsByArticleId(articleId: number): Promise<string[]> {
+    const rows = db.prepare(GET_TAGS_BY_ARTICLE_ID).all(articleId) as Tag[];
+    return rows.map((row) => row.name);
+  }
+
+  async favorite(ids: ArticleUserFavorite): Promise<void> {
+    db.prepare(ADD_FAVORITE).run(ids.userId, ids.articleId);
+  }
+
+  async unfavorite(ids: ArticleUserFavorite): Promise<void> {
+    db.prepare(REMOVE_FAVORITE).run(ids.userId, ids.articleId);
+  }
+
+  async isFavorited(ids: ArticleUserFavorite): Promise<boolean> {
+    const row = db.prepare(IS_FAVORITED).get(ids.userId, ids.articleId) as {
+      count: number;
+    };
+    return row.count > 0;
+  }
+
+  async countFavorites(articleId: number): Promise<number> {
+    const row = db.prepare(COUNT_FAVORITES).get(articleId) as {
+      count: number;
+    };
+    return row.count;
   }
 }
