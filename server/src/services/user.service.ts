@@ -1,6 +1,6 @@
 import { UserRepository } from "../repositories/user.repository";
 import { Logger } from "../utils/logger";
-import { User } from "../models/user.model";
+import { User, UserAuthentication } from "../models/user.model";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/jwt";
 
@@ -11,7 +11,7 @@ export class UserService {
 
   async registerUser(user: User): Promise<string> {
     const context = "UserService.registerUser";
-    this.logger.info(`${context} - Started.`);
+    this.logger.info(`${context} - Started`);
     try {
       const { username, email, password } = user;
 
@@ -65,6 +65,29 @@ export class UserService {
 
       const token = generateToken(user.id);
       return token;
+    } catch (err) {
+      this.logger.error(`${context} - Error: ${err}`);
+      throw err;
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
+  }
+
+  async currentUser(userId: number): Promise<Partial<UserAuthentication>> {
+    const context = "UserService.currentUser";
+    this.logger.info(`${context} - Started`);
+
+    try {
+      const user = await this.repo.findById(userId);
+
+      if (!user) {
+        this.logger.warn(`${context} - User does not exist`);
+        throw new Error("User does not exist");
+      }
+
+      const { email, username, bio, image } = user;
+
+      return { email, username, bio, image };
     } catch (err) {
       this.logger.error(`${context} - Error: ${err}`);
       throw err;

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/user.service";
 import { logger, Logger } from "../utils/logger";
+import { AuthRequest } from "../middlewares/auth.middleware";
 
 export const UserController = (log: Logger = logger) => {
   const service = new UserService(log);
@@ -59,6 +60,31 @@ export const UserController = (log: Logger = logger) => {
             token: token,
           },
         });
+      } catch (err) {
+        logger.error(`${context} - Error: ${err}`);
+        res.status(500).json({ message: (err as Error).message });
+      } finally {
+        log.info(`${context} - Ended`);
+      }
+    },
+
+    currentUser: async (req: AuthRequest, res: Response) => {
+      context = "UserController.currentUser";
+      log.info(`${context} - Started`);
+
+      try {
+        const userId = req.user?.id;
+        const token = req.headers.authorization?.split(" ")[1];
+
+        if (!userId) {
+          log.warn(`${context} - Unauthorized access`);
+          res.status(401).json({ message: "Unauthorized access" });
+          return;
+        }
+
+        const user = await service.currentUser(userId);
+
+        res.status(200).json({ user: { ...user, token } });
       } catch (err) {
         logger.error(`${context} - Error: ${err}`);
         res.status(500).json({ message: (err as Error).message });

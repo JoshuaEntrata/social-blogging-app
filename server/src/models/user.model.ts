@@ -8,3 +8,11 @@ export interface User {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface UserAuthentication {
+  email: string;
+  token: string;
+  username: string;
+  bio?: string | null;
+  image?: string | null;
+}

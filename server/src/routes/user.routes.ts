@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { UserController } from "../controllers/user.controller";
 import { logger } from "../utils/logger";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router = express.Router();
 const controller = UserController(logger);
@@ -9,10 +10,7 @@ router.post("/users/login", controller.login);
 
 router.post("/users", controller.register);
 
-router.get("/users", (req: Request, res: Response) => {
-  // Get Current User
-  res.send("Get Current User Endpoint");
-});
+router.get("/user", authMiddleware, controller.currentUser);
 
 router.put("/users", (req: Request, res: Response) => {
   // Update User
