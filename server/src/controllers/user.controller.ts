@@ -129,7 +129,45 @@ export const UserController = (log: Logger = logger) => {
         const userId = req.user?.id;
         const { username } = req.params;
 
-        const profile = await service.getProfile(username, userId);
+        const profile = await service.getProfile(username, userId!);
+
+        res.status(200).json({ profile });
+      } catch (err) {
+        logger.error(`${context} - ${err}`);
+        res.status(500).json({ message: (err as Error).message });
+      } finally {
+        log.info(`${context} - Ended`);
+      }
+    },
+
+    followUser: async (req: AuthRequest, res: Response) => {
+      context = "UserController.followUser";
+      log.info(`${context} - Started`);
+
+      try {
+        const userId = req.user?.id;
+        const { username } = req.params;
+
+        const profile = await service.followUser(username, userId!);
+
+        res.status(200).json({ profile });
+      } catch (err) {
+        logger.error(`${context} - ${err}`);
+        res.status(500).json({ message: (err as Error).message });
+      } finally {
+        log.info(`${context} - Ended`);
+      }
+    },
+
+    unfollowUser: async (req: AuthRequest, res: Response) => {
+      context = "UserController.unfollowUser";
+      log.info(`${context} - Started`);
+
+      try {
+        const userId = req.user?.id;
+        const { username } = req.params;
+
+        const profile = await service.unfollowUser(username, userId!);
 
         res.status(200).json({ profile });
       } catch (err) {

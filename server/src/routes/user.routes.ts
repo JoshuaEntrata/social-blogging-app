@@ -16,12 +16,16 @@ router.put("/user", authMiddleware, controller.updateUser);
 
 router.get("/profiles/:username", authMiddleware, controller.getProfile);
 
-router.post("/profiles/:username/follow", (req: Request, res: Response) => {
-  // Follow User
-});
+router.post(
+  "/profiles/:username/follow",
+  authMiddleware,
+  controller.followUser
+);
 
-router.delete("/profiles/:username/follow", (req: Request, res: Response) => {
-  // Unfollow User
-});
+router.delete(
+  "/profiles/:username/follow",
+  authMiddleware,
+  controller.unfollowUser
+);
 
 export { router as userRoutes };

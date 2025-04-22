@@ -98,3 +98,18 @@ export const UPDATE_USER = `
     updatedAt = ?
   WHERE id = ?
 `;
+
+export const FOLLOW_USER = `
+  INSERT OR IGNORE INTO followers (userId, followerId)
+  VALUES (?, ?);
+`;
+
+export const UNFOLLOW_USER = `
+  DELETE FROM followers
+  WHERE userId = ? AND followerId = ?;
+`;
+
+export const IS_FOLLOWING = `
+  SELECT COUNT(*) as count FROM followers
+  WHERE userId = ? AND followerId = ?;
+`;

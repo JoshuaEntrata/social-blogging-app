@@ -94,21 +94,23 @@ export class UserService {
     }
   }
 
-  async getProfile(userName: string, userId?: number): Promise<UserFollowing> {
+  async getProfile(
+    usernameParam: string,
+    userId: number
+  ): Promise<UserFollowing> {
     const context = "UserService.getProfile";
     this.logger.info(`${context} - Started`);
 
     try {
-      const user = await this.repo.findByUsername(userName);
+      const user = await this.repo.findByUsername(usernameParam);
 
       if (!user) {
         this.logger.warn(`${context} - User does not exist`);
         throw new Error("User does not exist");
       }
 
-      const { username, bio, image } = user;
-      // TODO: update following depending on user auth
-      const isFollowing = userId ? true : false;
+      const { username, id, bio, image } = user;
+      const isFollowing = await this.repo.isFollowing(id, userId);
 
       return { username, bio, image, following: isFollowing } as UserFollowing;
     } catch (err) {
@@ -153,6 +155,84 @@ export class UserService {
       await this.repo.update(updatedUser);
 
       return await this.getUser(userId, token);
+    } catch (err) {
+      this.logger.error(`${context} - ${err}`);
+      throw err;
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
+  }
+
+  async followUser(
+    usernameParam: string,
+    followerId: number
+  ): Promise<UserFollowing> {
+    const context = "UserService.followUser";
+    this.logger.info(`${context} - Started`);
+
+    try {
+      const user = await this.repo.findByUsername(usernameParam);
+
+      if (!user) {
+        this.logger.warn(`${context} - User does not exist`);
+        throw new Error("User does not exist");
+      }
+
+      if (user.id === followerId) {
+        this.logger.warn(`${context} - User cannot follow itself`);
+        throw new Error("User cannot follow itself");
+      }
+
+      const { username, id, bio, image } = user;
+      await this.repo.follow(id, followerId);
+
+      const isFollowing = await this.repo.isFollowing(id, followerId);
+
+      return {
+        username,
+        bio,
+        image,
+        following: isFollowing,
+      } as UserFollowing;
+    } catch (err) {
+      this.logger.error(`${context} - ${err}`);
+      throw err;
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
+  }
+
+  async unfollowUser(
+    usernameParam: string,
+    followerId: number
+  ): Promise<UserFollowing> {
+    const context = "UserService.followUser";
+    this.logger.info(`${context} - Started`);
+
+    try {
+      const user = await this.repo.findByUsername(usernameParam);
+
+      if (!user) {
+        this.logger.warn(`${context} - User does not exist`);
+        throw new Error("User does not exist");
+      }
+
+      if (user.id === followerId) {
+        this.logger.warn(`${context} - User cannot unfollow itself`);
+        throw new Error("User cannot unfollow itself");
+      }
+
+      const { username, id, bio, image } = user;
+      await this.repo.unfollow(id, followerId);
+
+      const isFollowing = await this.repo.isFollowing(id, followerId);
+
+      return {
+        username,
+        bio,
+        image,
+        following: isFollowing,
+      } as UserFollowing;
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;

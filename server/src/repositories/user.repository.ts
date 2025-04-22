@@ -3,7 +3,10 @@ import {
   FIND_USER_BY_EMAIL,
   FIND_USER_BY_ID,
   FIND_USER_BY_USERNAME,
+  FOLLOW_USER,
+  IS_FOLLOWING,
   SAVE_USER,
+  UNFOLLOW_USER,
   UPDATE_USER,
 } from "./queries";
 import { User } from "../models/user.model";
@@ -53,5 +56,20 @@ export class UserRepository {
     );
 
     return (await this.findById(user.id)) as User;
+  }
+
+  async follow(userId: number, followerId: number): Promise<void> {
+    db.prepare(FOLLOW_USER).run(userId, followerId);
+  }
+
+  async unfollow(userId: number, followerId: number): Promise<void> {
+    db.prepare(UNFOLLOW_USER).run(userId, followerId);
+  }
+
+  async isFollowing(userId: number, followerId: number): Promise<boolean> {
+    const row = db.prepare(IS_FOLLOWING).get(userId, followerId) as {
+      count: number;
+    };
+    return row.count > 0;
   }
 }

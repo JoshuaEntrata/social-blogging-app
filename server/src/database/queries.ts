@@ -51,6 +51,16 @@ export const createFavoriteTable = `
     )
 `;
 
+export const createFollowerTable = `
+    CREATE TABLE IF NOT EXISTS followers (
+        userId INTEGER,
+        followerId INTEGER,
+        FOREIGN KEY (userId) REFERENCES users(id),
+        FOREIGN KEY (followerId) REFERENCES users(id),
+        PRIMARY KEY (userId, followerId)
+    )
+`;
+
 export const dropAllTables = `
     DROP TABLE IF EXISTS article_tags;
     DROP TABLE IF EXISTS articles;
