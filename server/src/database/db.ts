@@ -3,6 +3,7 @@ import path from "path";
 import {
   createArticleTable,
   createArticleTagTable,
+  createCommentTable,
   createFavoriteTable,
   createFollowerTable,
   createTagTable,
@@ -20,5 +21,6 @@ db.exec(createArticleTagTable);
 db.exec(createUserTable);
 db.exec(createFavoriteTable);
 db.exec(createFollowerTable);
+db.exec(createCommentTable);
 
 export { db };

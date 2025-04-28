@@ -37,3 +37,11 @@ export interface ArticleUserFavorite {
   userId: number;
   articleId: number;
 }
+
+export interface CommentDetails {
+  id?: number;
+  createdAt: string;
+  updatedAt: string;
+  body: string;
+  author: Author;
+}

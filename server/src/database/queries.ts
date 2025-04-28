@@ -61,6 +61,19 @@ export const createFollowerTable = `
     )
 `;
 
+export const createCommentTable = `
+    CREATE TABLE IF NOT EXISTS comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        body TEXT NOT NULL,
+        userId INTEGER,
+        articleId INTEGER,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL,
+        FOREIGN KEY (userId) REFERENCES users(id),
+        FOREIGN KEY (articleId) REFERENCES articles(id)
+    )
+`;
+
 export const dropAllTables = `
     DROP TABLE IF EXISTS article_tags;
     DROP TABLE IF EXISTS articles;

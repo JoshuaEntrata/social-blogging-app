@@ -2,11 +2,13 @@ import { ArticleRepository } from "../repositories/article.repository";
 import {
   Article,
   ArticleDetails,
+  CommentDetails,
   CreateArticle,
 } from "../models/article.model";
 import { Logger } from "../utils/logger";
 import { generateSlug } from "../utils/helper";
 import { UserRepository } from "../repositories/user.repository";
+import { CreateCommentDTO } from "../dtos/article.dtos";
 
 export class ArticleService {
   private readonly articleRepo = new ArticleRepository();
@@ -234,6 +236,58 @@ export class ArticleService {
       if (!tags) this.logger.warn(`${context} - Empty tags.`);
 
       return tags;
+    } catch (err) {
+      this.logger.error(`${context} - ${err}`);
+      throw err;
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
+  }
+
+  async addComment(
+    body: string,
+    userId: number,
+    slug: string
+  ): Promise<CommentDetails> {
+    const context = "ArticleService.addComment";
+    this.logger.info(`${context} - Started.`);
+
+    try {
+      const article = await this.articleRepo.findBySlug(slug);
+
+      if (!article) {
+        this.logger.warn(`${context} - Article does not exist`);
+        throw new Error("Article does not exist");
+      }
+
+      const data: CreateCommentDTO = {
+        body: body,
+        userId: userId,
+        articleId: article.id!,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      const commentId = await this.articleRepo.addComment(data);
+      const comment = await this.articleRepo.findComment(commentId);
+      const author = await this.userRepo.findById(comment.userId);
+      const isFollowing = await this.userRepo.isFollowing(
+        comment.userId,
+        userId
+      );
+
+      return {
+        id: comment.id,
+        createdAt: comment.createdAt,
+        updatedAt: comment.updatedAt,
+        body: comment.body,
+        author: {
+          username: author.username,
+          bio: author.bio!,
+          image: author.image!,
+          following: isFollowing,
+        },
+      };
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;

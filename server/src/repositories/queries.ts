@@ -113,3 +113,14 @@ export const IS_FOLLOWING = `
   SELECT COUNT(*) as count FROM followers
   WHERE userId = ? AND followerId = ?;
 `;
+
+export const ADD_COMMENT = `
+  INSERT into comments (
+    body, userId, articleId, createdAt, updatedAt
+  ) VALUES (?, ?, ?, ?, ?)
+`;
+
+export const FIND_COMMENT = `
+    SELECT * FROM comments 
+    WHERE id = ?;
+`;

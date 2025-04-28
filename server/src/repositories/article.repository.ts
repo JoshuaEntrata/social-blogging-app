@@ -1,10 +1,12 @@
 import { Article, ArticleUserFavorite, Tag } from "../models/article.model";
 import { db } from "../database/db";
 import {
+  ADD_COMMENT,
   ADD_FAVORITE,
   COUNT_FAVORITES,
   DELETE_ARTICLE_BY_SLUG,
   FIND_ARTICLE_BY_SLUG,
+  FIND_COMMENT,
   GET_TAG_ID,
   GET_TAGS_BY_ARTICLE_ID,
   INSERT_TAG,
@@ -15,6 +17,7 @@ import {
   SAVE_ARTICLE,
   UPDATE_ARTICLE,
 } from "./queries";
+import { CreateCommentDTO } from "../dtos/article.dtos";
 
 export class ArticleRepository {
   async findBySlug(slug: string): Promise<Article> {
@@ -108,5 +111,24 @@ export class ArticleRepository {
       count: number;
     };
     return row.count;
+  }
+
+  async findComment(id: number): Promise<CreateCommentDTO> {
+    return db.prepare(FIND_COMMENT).get(id) as CreateCommentDTO;
+  }
+
+  async addComment(data: CreateCommentDTO): Promise<number> {
+    console.log(data);
+    const result = db
+      .prepare(ADD_COMMENT)
+      .run(
+        data.body,
+        data.userId,
+        data.articleId,
+        data.createdAt,
+        data.updatedAt
+      );
+
+    return result.lastInsertRowid as number;
   }
 }

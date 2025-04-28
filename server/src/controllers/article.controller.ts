@@ -221,5 +221,32 @@ export const ArticleController = (log: Logger = logger) => {
         log.info(`${context} - Ended`);
       }
     },
+
+    addComment: async (req: AuthRequest, res: Response) => {
+      context = "ArticleController.addComment";
+      log.info(`${context} - Started`);
+
+      try {
+        const { comment } = req.body;
+        const { slug } = req.params;
+        const userId = req.user?.id;
+
+        if (!userId) {
+          log.warn(`${context} - Unauthorized access`);
+          res.status(401).json({ message: "Unauthorized access" });
+          return;
+        }
+
+        const result = await service.addComment(comment.body, userId, slug);
+        log.info(`${context} - Comment added`);
+
+        res.status(201).json({ comment: result });
+      } catch (err: any) {
+        logger.error(`${context} - ${err}`);
+        res.status(500).json({ message: err.message });
+      } finally {
+        log.info(`${context} - Ended`);
+      }
+    },
   };
 };

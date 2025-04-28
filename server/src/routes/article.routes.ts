@@ -28,9 +28,7 @@ router.put("/articles/:slug", authMiddleware, controller.updateArticle);
 
 router.delete("/articles/:slug", authMiddleware, controller.deleteArticle);
 
-router.post("/articles/:slug/comments", (req: Request, res: Response) => {
-  // Add Comments to an Article
-});
+router.post("/articles/:slug/comments", authMiddleware, controller.addComment);
 
 router.get("/articles/:slug/comments", (req: Request, res: Response) => {
   // Get Comments from an Article
