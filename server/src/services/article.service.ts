@@ -295,4 +295,49 @@ export class ArticleService {
       this.logger.info(`${context} - Ended.`);
     }
   }
+
+  async getComments(slug: string, userId?: number): Promise<CommentDetails[]> {
+    const context = "ArticleService.getComments";
+    this.logger.info(`${context} - Started.`);
+    try {
+      const article = await this.articleRepo.findBySlug(slug);
+
+      if (!article) {
+        this.logger.warn(`${context} - Article does not exist`);
+        throw new Error("Article does not exist");
+      }
+
+      const comments = await this.articleRepo.getCommentsByArticleId(
+        article.id!
+      );
+      const commentDetails: CommentDetails[] = [];
+
+      for (const comment of comments) {
+        const author = await this.userRepo.findById(comment.userId);
+        const isFollowing = userId
+          ? await this.userRepo.isFollowing(userId, comment.userId)
+          : false;
+
+        commentDetails.push({
+          id: comment.id,
+          createdAt: comment.createdAt,
+          updatedAt: comment.updatedAt,
+          body: comment.body,
+          author: {
+            username: author.username,
+            bio: author.bio ?? "",
+            image: author.image ?? "",
+            following: isFollowing,
+          },
+        });
+      }
+
+      return commentDetails;
+    } catch (err) {
+      this.logger.error(`${context} - ${err}`);
+      throw err;
+    } finally {
+      this.logger.info(`${context} - Ended`);
+    }
+  }
 }

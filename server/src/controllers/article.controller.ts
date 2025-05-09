@@ -248,5 +248,25 @@ export const ArticleController = (log: Logger = logger) => {
         log.info(`${context} - Ended`);
       }
     },
+
+    getComments: async (req: AuthRequest, res: Response) => {
+      context = "ArticleController.getComments";
+      log.info(`${context} - Started`);
+
+      try {
+        const { slug } = req.params;
+        const userId = req.user?.id;
+
+        const result = await service.getComments(slug, userId);
+        log.info(`${context} - Comments for ${slug} retrieved.`);
+
+        res.status(200).json({ comments: result });
+      } catch (err: any) {
+        logger.error(`${context} - ${err}`);
+        res.status(500).json({ message: err.message });
+      } finally {
+        log.info(`${context} - Ended`);
+      }
+    },
   };
 };

@@ -124,3 +124,8 @@ export const FIND_COMMENT = `
     SELECT * FROM comments 
     WHERE id = ?;
 `;
+
+export const GET_COMMENTS_BY_ARTICLE_ID = `
+  SELECT * FROM comments
+  WHERE articleId = ?;
+`;

@@ -7,6 +7,7 @@ import {
   DELETE_ARTICLE_BY_SLUG,
   FIND_ARTICLE_BY_SLUG,
   FIND_COMMENT,
+  GET_COMMENTS_BY_ARTICLE_ID,
   GET_TAG_ID,
   GET_TAGS_BY_ARTICLE_ID,
   INSERT_TAG,
@@ -118,7 +119,6 @@ export class ArticleRepository {
   }
 
   async addComment(data: CreateCommentDTO): Promise<number> {
-    console.log(data);
     const result = db
       .prepare(ADD_COMMENT)
       .run(
@@ -130,5 +130,11 @@ export class ArticleRepository {
       );
 
     return result.lastInsertRowid as number;
+  }
+
+  async getCommentsByArticleId(articleId: number): Promise<CreateCommentDTO[]> {
+    return db
+      .prepare(GET_COMMENTS_BY_ARTICLE_ID)
+      .all(articleId) as CreateCommentDTO[];
   }
 }

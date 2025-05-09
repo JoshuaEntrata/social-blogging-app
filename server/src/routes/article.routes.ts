@@ -30,9 +30,7 @@ router.delete("/articles/:slug", authMiddleware, controller.deleteArticle);
 
 router.post("/articles/:slug/comments", authMiddleware, controller.addComment);
 
-router.get("/articles/:slug/comments", (req: Request, res: Response) => {
-  // Get Comments from an Article
-});
+router.get("/articles/:slug/comments", controller.getComments);
 
 router.delete("/articles/:slug/comments/:id", (req: Request, res: Response) => {
   // Delete Comment
