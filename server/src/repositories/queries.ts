@@ -2,6 +2,11 @@ export const FIND_ARTICLE_BY_SLUG = `
     SELECT * FROM articles WHERE slug = ?
 `;
 
+export const IS_ARTICLE_EXISTING = `
+  SELECT COUNT(*) as count FROM articles
+  WHERE slug = ?;
+`;
+
 export const SAVE_ARTICLE = `
     INSERT INTO articles (
         slug, title, description, body, authorId,

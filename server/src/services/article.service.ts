@@ -69,7 +69,7 @@ export class ArticleService {
       const title = data.title!;
       const slug = generateSlug(title);
 
-      const existing = await this.articleRepo.findBySlug(slug);
+      const existing = await this.articleRepo.isArticleExisting(slug);
 
       if (existing) {
         this.logger.warn(
@@ -87,7 +87,7 @@ export class ArticleService {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-
+      console.log("hello");
       await this.articleRepo.save(article, data?.tagList);
 
       const result = await this.getArticle(article.slug, userId);
@@ -147,21 +147,25 @@ export class ArticleService {
     this.logger.info(`${context} - Started`);
 
     try {
-      const article = await this.articleRepo.findBySlug(slug);
+      const existing = await this.articleRepo.isArticleExisting(slug);
 
-      if (article) {
-        if (article.authorId !== userId) {
-          this.logger.warn(`${context} - Unauthorized to delete this`);
-          throw new Error("Unauthorized to delete this");
-        }
-
-        await this.articleRepo.delete(article.slug);
-        this.logger.info(`${context} - Article deleted`);
-        return { message: "Article deleted." };
+      if (!existing) {
+        this.logger.warn(
+          `${context} - Article with title "${slug}" does not exist`
+        );
+        throw new Error("Article does not exist.");
       }
 
-      this.logger.warn(`${context} - Article does not exist`);
-      return { message: "Article does not exist." };
+      const article = await this.articleRepo.findBySlug(slug);
+
+      if (article.authorId !== userId) {
+        this.logger.warn(`${context} - Unauthorized to delete this`);
+        throw new Error("Unauthorized to delete this");
+      }
+
+      await this.articleRepo.delete(article.slug);
+      this.logger.info(`${context} - Article deleted`);
+      return { message: "Article deleted." };
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;

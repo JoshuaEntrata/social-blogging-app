@@ -13,6 +13,7 @@ import {
   GET_TAG_ID,
   GET_TAGS_BY_ARTICLE_ID,
   INSERT_TAG,
+  IS_ARTICLE_EXISTING,
   IS_FAVORITED,
   LINK_TAG,
   REMOVE_FAVORITE,
@@ -38,6 +39,13 @@ export class ArticleRepository {
     };
 
     return article;
+  }
+
+  async isArticleExisting(slug: string): Promise<boolean> {
+    const row = db.prepare(IS_ARTICLE_EXISTING).get(slug) as {
+      count: number;
+    };
+    return row.count > 0;
   }
 
   async save(article: Article, tagList?: string[]): Promise<void> {
