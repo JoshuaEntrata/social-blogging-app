@@ -340,4 +340,38 @@ export class ArticleService {
       this.logger.info(`${context} - Ended`);
     }
   }
+
+  async deleteComment(commentId: number, slug: string, userId: number) {
+    const context = "ArticleService.deleteComment";
+    this.logger.info(`${context} - Started`);
+
+    try {
+      const article = await this.articleRepo.findBySlug(slug);
+
+      if (!article) {
+        this.logger.warn(`${context} - Article does not exist`);
+        return { message: "Article does not exist." };
+      }
+
+      const comment = await this.articleRepo.getCommentById(commentId);
+      if (!comment) {
+        this.logger.warn(`${context} - Comment does not exist`);
+        return { message: "Comment does not exist." };
+      }
+
+      if (comment.userId !== userId) {
+        this.logger.warn(`${context} - Unauthorized to delete this`);
+        throw new Error("Unauthorized to delete this");
+      }
+
+      await this.articleRepo.deleteCommentById(commentId, article.id!);
+      this.logger.info(`${context} - Comment deleted`);
+      return { message: "Comment deleted." };
+    } catch (err) {
+      this.logger.error(`${context} - ${err}`);
+      throw err;
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
+  }
 }

@@ -32,9 +32,11 @@ router.post("/articles/:slug/comments", authMiddleware, controller.addComment);
 
 router.get("/articles/:slug/comments", controller.getComments);
 
-router.delete("/articles/:slug/comments/:id", (req: Request, res: Response) => {
-  // Delete Comment
-});
+router.delete(
+  "/articles/:slug/comments/:id",
+  authMiddleware,
+  controller.deleteComment
+);
 
 router.post(
   "/articles/:slug/favorite",

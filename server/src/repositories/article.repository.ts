@@ -5,8 +5,10 @@ import {
   ADD_FAVORITE,
   COUNT_FAVORITES,
   DELETE_ARTICLE_BY_SLUG,
+  DELETE_COMMENT_BY_ID,
   FIND_ARTICLE_BY_SLUG,
   FIND_COMMENT,
+  GET_COMMENT_BY_ID,
   GET_COMMENTS_BY_ARTICLE_ID,
   GET_TAG_ID,
   GET_TAGS_BY_ARTICLE_ID,
@@ -136,5 +138,13 @@ export class ArticleRepository {
     return db
       .prepare(GET_COMMENTS_BY_ARTICLE_ID)
       .all(articleId) as CreateCommentDTO[];
+  }
+
+  async getCommentById(commentId: number): Promise<CreateCommentDTO> {
+    return db.prepare(GET_COMMENT_BY_ID).get(commentId) as CreateCommentDTO;
+  }
+
+  async deleteCommentById(commentId: number, articleId: number) {
+    db.prepare(DELETE_COMMENT_BY_ID).run(commentId, articleId);
   }
 }

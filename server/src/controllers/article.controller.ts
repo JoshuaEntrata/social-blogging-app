@@ -268,5 +268,31 @@ export const ArticleController = (log: Logger = logger) => {
         log.info(`${context} - Ended`);
       }
     },
+
+    deleteComment: async (req: AuthRequest, res: Response) => {
+      context = "ArticleController.deleteComment";
+      log.info(`${context} - Started`);
+
+      try {
+        const { id, slug } = req.params;
+        const userId = req.user?.id;
+
+        if (!userId) {
+          log.warn(`${context} - Unauthorized access`);
+          res.status(401).json({ message: "Unauthorized access" });
+          return;
+        }
+
+        const commentId = parseInt(id);
+        const result = await service.deleteComment(commentId, slug, userId);
+
+        res.status(200).json({ result });
+      } catch (err: any) {
+        logger.error(`${context} - ${err}`);
+        res.status(500).json({ message: err.message });
+      } finally {
+        log.info(`${context} - Ended`);
+      }
+    },
   };
 };

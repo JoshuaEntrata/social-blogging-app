@@ -129,3 +129,13 @@ export const GET_COMMENTS_BY_ARTICLE_ID = `
   SELECT * FROM comments
   WHERE articleId = ?;
 `;
+
+export const GET_COMMENT_BY_ID = `
+  SELECT * FROM comments
+  WHERE id = ?;
+`;
+
+export const DELETE_COMMENT_BY_ID = `
+  DELETE FROM comments
+  WHERE id = ? AND articleId = ?;
+`;
