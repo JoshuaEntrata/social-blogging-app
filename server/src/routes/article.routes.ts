@@ -6,15 +6,7 @@ import { authMiddleware } from "../middlewares/auth.middleware";
 const router = express.Router();
 const controller = ArticleController(logger);
 
-router.get("/articles", (req: Request, res: Response) => {
-  // List Articles
-  // ?tag=
-  // ?author=
-  // ?favorited=
-  // ?limit=20
-  // ?offset=0
-  res.send("List Articles Endpoint");
-});
+router.get("/articles", controller.listArticles);
 
 router.get("/articles/feed", (req: Request, res: Response) => {
   // Feed Articles

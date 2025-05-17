@@ -16,12 +16,13 @@ import {
   IS_ARTICLE_EXISTING,
   IS_FAVORITED,
   LINK_TAG,
+  LIST_ARTICLES,
   REMOVE_FAVORITE,
   RETRIVE_TAGS,
   SAVE_ARTICLE,
   UPDATE_ARTICLE,
 } from "./queries";
-import { CreateCommentDTO } from "../dtos/article.dtos";
+import { CreateCommentDTO, FilterDTO } from "../dtos/article.dtos";
 
 export class ArticleRepository {
   async findBySlug(slug: string): Promise<Article> {
@@ -90,6 +91,41 @@ export class ArticleRepository {
 
   async delete(slug: string) {
     db.prepare(DELETE_ARTICLE_BY_SLUG).run(slug);
+  }
+
+  async listArticles(filters: FilterDTO): Promise<Article[]> {
+    let baseQuery = LIST_ARTICLES.BASE_QUERY;
+    const where: string[] = [];
+    const params: any[] = [];
+
+    if (filters.tag) {
+      baseQuery += LIST_ARTICLES.JOIN_TAG;
+      where.push(LIST_ARTICLES.TAG_NAME);
+      params.push(filters.tag);
+    }
+
+    if (filters.author) {
+      where.push(LIST_ARTICLES.USERNAME_NAME);
+      params.push(filters.author);
+    }
+
+    if (filters.favorited) {
+      baseQuery += LIST_ARTICLES.JOIN_FAVORITED;
+      where.push(LIST_ARTICLES.USER_FAVORITED_NAME);
+      params.push(filters.favorited);
+    }
+
+    if (where.length > 0) {
+      baseQuery += LIST_ARTICLES.WHERE + where.join(LIST_ARTICLES.AND);
+    }
+
+    baseQuery += LIST_ARTICLES.ORDER_BY;
+    baseQuery += LIST_ARTICLES.LIMIT_OFFSET;
+    params.push(filters.limit ?? 20);
+    params.push(filters.offset ?? 0);
+
+    const rows = db.prepare(baseQuery).all(...params) as Article[];
+    return rows;
   }
 
   async retrieveTags(): Promise<string[]> {

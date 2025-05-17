@@ -8,11 +8,13 @@ import {
 import { Logger } from "../utils/logger";
 import { generateSlug } from "../utils/helper";
 import { UserRepository } from "../repositories/user.repository";
-import { CreateCommentDTO } from "../dtos/article.dtos";
+import { CreateCommentDTO, FilterDTO } from "../dtos/article.dtos";
+import { UserService } from "./user.service";
 
 export class ArticleService {
   private readonly articleRepo = new ArticleRepository();
   private readonly userRepo = new UserRepository();
+  private readonly userService = new UserService(this.logger);
 
   constructor(private readonly logger: Logger) {}
 
@@ -87,7 +89,6 @@ export class ArticleService {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      console.log("hello");
       await this.articleRepo.save(article, data?.tagList);
 
       const result = await this.getArticle(article.slug, userId);
@@ -166,6 +167,52 @@ export class ArticleService {
       await this.articleRepo.delete(article.slug);
       this.logger.info(`${context} - Article deleted`);
       return { message: "Article deleted." };
+    } catch (err) {
+      this.logger.error(`${context} - ${err}`);
+      throw err;
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
+  }
+
+  async listArticles(
+    filters: FilterDTO,
+    userId?: number
+  ): Promise<ArticleDetails[]> {
+    const context = "ArticleService.listArticles";
+    this.logger.info(`${context} - Started.`);
+
+    try {
+      const articles = await this.articleRepo.listArticles(filters);
+      const result: ArticleDetails[] = [];
+
+      for (const article of articles) {
+        const tags = await this.articleRepo.getTagsByArticleId(article.id!);
+        const isFavorited = userId
+          ? await this.articleRepo.isFavorited({
+              userId: userId,
+              articleId: article.id!,
+            })
+          : false;
+        const favoritesCount = await this.articleRepo.countFavorites(
+          article.id!
+        );
+        const authorDetails = await this.userRepo.findById(article.authorId!);
+        const author = await this.userService.getProfile(
+          authorDetails.username,
+          authorDetails.id
+        );
+
+        result.push({
+          ...article,
+          author,
+          tagList: tags,
+          favorited: isFavorited,
+          favoritesCount,
+        });
+      }
+
+      return result;
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;

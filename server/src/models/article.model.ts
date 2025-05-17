@@ -1,3 +1,5 @@
+import { UserFollowing } from "./user.model";
+
 export interface Author {
   username: string;
   bio: string;
@@ -20,7 +22,7 @@ export interface ArticleDetails extends Article {
   tagList: string[];
   favorited: boolean;
   favoritesCount: number;
-  author: Author;
+  author: Author | UserFollowing;
 }
 
 export interface CreateArticle {

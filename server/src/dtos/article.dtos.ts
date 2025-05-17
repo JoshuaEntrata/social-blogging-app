@@ -6,3 +6,11 @@ export interface CreateCommentDTO {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface FilterDTO {
+  tag?: string;
+  author?: string;
+  favorited?: string;
+  limit?: string;
+  offset?: string;
+}

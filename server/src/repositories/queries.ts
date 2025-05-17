@@ -144,3 +144,32 @@ export const DELETE_COMMENT_BY_ID = `
   DELETE FROM comments
   WHERE id = ? AND articleId = ?;
 `;
+
+export const LIST_ARTICLES = {
+  BASE_QUERY: `
+    SELECT a.*
+    FROM articles a
+    LEFT JOIN users u  ON u.id = a.authorId
+  `,
+  TAG_NAME: `
+    t.name = ?
+  `,
+  JOIN_TAG: `
+    INNER JOIN article_tags at ON at.articleId = a.id
+    INNER JOIN tags ON t.id = at.tagId
+  `,
+  USERNAME_NAME: `
+    u.username = ?
+  `,
+  JOIN_FAVORITED: `
+    INNER JOIN favorites f ON f.articleId = a.id
+    INNER JOIN users uf ON uf.id = f.userId
+  `,
+  USER_FAVORITED_NAME: `
+    uf.username = ?
+  `,
+  WHERE: ` WHERE `,
+  AND: ` AND `,
+  ORDER_BY: ` ORDER BY a.createdAt DESC `,
+  LIMIT_OFFSET: ` LIMIT ? OFFSET ? `,
+};

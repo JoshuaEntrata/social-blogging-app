@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AuthRequest } from "../middlewares/auth.middleware";
 import { logger, Logger } from "../utils/logger";
 import { ArticleService } from "../services/article.service";
+import { FilterDTO } from "../dtos/article.dtos";
 
 export const ArticleController = (log: Logger = logger) => {
   const service = new ArticleService(log);
@@ -148,6 +149,34 @@ export const ArticleController = (log: Logger = logger) => {
         const result = await service.deleteArticle(slug, userId);
 
         res.status(200).json({ result });
+      } catch (err: any) {
+        logger.error(`${context} - ${err}`);
+        res.status(500).json({ message: err.message });
+      } finally {
+        log.info(`${context} - Ended`);
+      }
+    },
+
+    listArticles: async (req: AuthRequest, res: Response) => {
+      const context = "ArticleController.listArticles";
+      log.info(`${context} - Started`);
+
+      try {
+        const { tag, author, favorited, limit, offset } = req.query;
+        const userId = req.user?.id;
+
+        const articles = await service.listArticles(
+          {
+            tag: tag,
+            author: author,
+            favorited: favorited,
+            limit: limit ? parseInt(limit as string) : undefined,
+            offset: offset ? parseInt(offset as string) : undefined,
+          } as FilterDTO,
+          userId
+        );
+
+        res.status(200).json({ articles, articlesCount: articles.length });
       } catch (err: any) {
         logger.error(`${context} - ${err}`);
         res.status(500).json({ message: err.message });
