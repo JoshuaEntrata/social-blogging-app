@@ -1,0 +1,12 @@
+[
+  { "id": 1, "name": "Technology" },
+  { "id": 2, "name": "Health" },
+  { "id": 3, "name": "Travel" },
+  { "id": 4, "name": "Education" },
+  { "id": 5, "name": "Food" },
+  { "id": 6, "name": "Lifestyle" },
+  { "id": 7, "name": "Finance" },
+  { "id": 8, "name": "Sports" },
+  { "id": 9, "name": "Music" },
+  { "id": 10, "name": "Art" }
+]
