@@ -46,15 +46,11 @@ export const UserController = (log: Logger = logger) => {
           return;
         }
 
-        const token = await service.loginUser(user);
+        const userDetails = await service.loginUser(user);
         log.info(`${context} - User "${user.email}" logged in.`);
 
         res.status(200).json({
-          user: {
-            username: user.username,
-            email: user.email,
-            token: token,
-          },
+          user: userDetails,
         });
       } catch (err) {
         logger.error(`${context} - ${err}`);
