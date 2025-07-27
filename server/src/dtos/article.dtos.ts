@@ -7,10 +7,13 @@ export interface CreateCommentDTO {
   updatedAt: string;
 }
 
-export interface FilterDTO {
+export interface FeedArticleDTO {
+  limit?: string;
+  offset?: string;
+}
+
+export interface FilterDTO extends FeedArticleDTO {
   tag?: string;
   author?: string;
   favorited?: string;
-  limit?: string;
-  offset?: string;
 }

@@ -8,7 +8,11 @@ import {
 import { Logger } from "../utils/logger";
 import { generateSlug } from "../utils/helper";
 import { UserRepository } from "../repositories/user.repository";
-import { CreateCommentDTO, FilterDTO } from "../dtos/article.dtos";
+import {
+  CreateCommentDTO,
+  FeedArticleDTO,
+  FilterDTO,
+} from "../dtos/article.dtos";
 import { UserService } from "./user.service";
 
 export class ArticleService {
@@ -175,15 +179,15 @@ export class ArticleService {
     }
   }
 
-  async listArticles(
-    filters: FilterDTO,
-    userId?: number
+  async getArticleDetails(
+    articles: Article[],
+    userId?: number,
+    isFollowing: boolean = false
   ): Promise<ArticleDetails[]> {
-    const context = "ArticleService.listArticles";
+    const context = "ArticleService.getArticleDetails";
     this.logger.info(`${context} - Started.`);
 
     try {
-      const articles = await this.articleRepo.listArticles(filters);
       const result: ArticleDetails[] = [];
 
       for (const article of articles) {
@@ -200,8 +204,10 @@ export class ArticleService {
         const authorDetails = await this.userRepo.findById(article.authorId!);
         const author = await this.userService.getProfile(
           authorDetails.username,
-          authorDetails.id
+          userId!
         );
+
+        if (isFollowing && !author.following) continue;
 
         result.push({
           ...article,
@@ -213,6 +219,42 @@ export class ArticleService {
       }
 
       return result;
+    } catch (err) {
+      this.logger.error(`${context} - ${err}`);
+      throw err;
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
+  }
+
+  async listFeedArticles(
+    filters: FeedArticleDTO,
+    userId?: number
+  ): Promise<ArticleDetails[]> {
+    const context = "ArticleService.listFeedArticles";
+    this.logger.info(`${context} - Started.`);
+
+    try {
+      const articles = await this.articleRepo.listFeedArticles(filters);
+      return await this.getArticleDetails(articles, userId, true);
+    } catch (err) {
+      this.logger.error(`${context} - ${err}`);
+      throw err;
+    } finally {
+      this.logger.info(`${context} - Ended.`);
+    }
+  }
+
+  async listArticles(
+    filters: FilterDTO,
+    userId?: number
+  ): Promise<ArticleDetails[]> {
+    const context = "ArticleService.listArticles";
+    this.logger.info(`${context} - Started.`);
+
+    try {
+      const articles = await this.articleRepo.listArticles(filters);
+      return await this.getArticleDetails(articles, userId);
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;

@@ -8,9 +8,7 @@ const controller = ArticleController(logger);
 
 router.get("/articles", controller.listArticles);
 
-router.get("/articles/feed", (req: Request, res: Response) => {
-  // Feed Articles
-});
+router.get("/articles/feed", authMiddleware, controller.listFeedArticles);
 
 router.get("/articles/:slug", authMiddleware, controller.getArticleBySlug);
 

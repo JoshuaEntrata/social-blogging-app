@@ -157,6 +157,31 @@ export const ArticleController = (log: Logger = logger) => {
       }
     },
 
+    listFeedArticles: async (req: AuthRequest, res: Response) => {
+      const context = "ArticleController.listFeedArticles";
+      log.info(`${context} - Started`);
+
+      try {
+        const { limit, offset } = req.query;
+        const userId = req.user?.id;
+
+        const articles = await service.listFeedArticles(
+          {
+            limit: limit ? parseInt(limit as string) : undefined,
+            offset: offset ? parseInt(offset as string) : undefined,
+          } as FilterDTO,
+          userId
+        );
+
+        res.status(200).json({ articles, articlesCount: articles.length });
+      } catch (err: any) {
+        logger.error(`${context} - ${err}`);
+        res.status(500).json({ message: err.message });
+      } finally {
+        log.info(`${context} - Ended`);
+      }
+    },
+
     listArticles: async (req: AuthRequest, res: Response) => {
       const context = "ArticleController.listArticles";
       log.info(`${context} - Started`);

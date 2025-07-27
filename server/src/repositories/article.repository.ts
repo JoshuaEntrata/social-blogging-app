@@ -22,7 +22,11 @@ import {
   SAVE_ARTICLE,
   UPDATE_ARTICLE,
 } from "./queries";
-import { CreateCommentDTO, FilterDTO } from "../dtos/article.dtos";
+import {
+  CreateCommentDTO,
+  FeedArticleDTO,
+  FilterDTO,
+} from "../dtos/article.dtos";
 
 export class ArticleRepository {
   async findBySlug(slug: string): Promise<Article> {
@@ -118,6 +122,19 @@ export class ArticleRepository {
     if (where.length > 0) {
       baseQuery += LIST_ARTICLES.WHERE + where.join(LIST_ARTICLES.AND);
     }
+
+    baseQuery += LIST_ARTICLES.ORDER_BY;
+    baseQuery += LIST_ARTICLES.LIMIT_OFFSET;
+    params.push(filters.limit ?? 20);
+    params.push(filters.offset ?? 0);
+
+    const rows = db.prepare(baseQuery).all(...params) as Article[];
+    return rows;
+  }
+
+  async listFeedArticles(filters: FeedArticleDTO): Promise<Article[]> {
+    let baseQuery = LIST_ARTICLES.BASE_QUERY;
+    const params: any[] = [];
 
     baseQuery += LIST_ARTICLES.ORDER_BY;
     baseQuery += LIST_ARTICLES.LIMIT_OFFSET;
