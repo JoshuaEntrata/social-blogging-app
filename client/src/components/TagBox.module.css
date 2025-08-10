@@ -1,3 +1,10 @@
+.tag {
+  background-color: aliceblue;
+  color: #242424;
+  font-size: 14px;
+  border-radius: 8px;
+}
+
 .tagBox {
   background: #f8f9fa;
   border: 1px solid #e0e0e0;

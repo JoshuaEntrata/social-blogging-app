@@ -1,5 +1,5 @@
 import React from "react";
-import Tag from "./Tag";
+import { Tag } from "antd";
 import styles from "./TagBox.module.css";
 
 const TagBox = ({ tags }) => (
@@ -8,7 +8,9 @@ const TagBox = ({ tags }) => (
     <div className={styles.tagBox__list}>
       {Array.isArray(tags) &&
         tags.map((tag) => (
-          <Tag key={tag.id} label={tag.name} onClick={() => {}} />
+          <Tag key={tag.id} className={styles.tag}>
+            {tag.name}
+          </Tag>
         ))}
     </div>
   </div>

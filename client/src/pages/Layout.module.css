@@ -1,0 +1,10 @@
+.content {
+  width: fit-content;
+  min-height: calc(100vh - 100px);
+  margin-top: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 40px;
+  padding: 20px 80px;
+}
