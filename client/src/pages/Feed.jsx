@@ -1,5 +1,5 @@
 import { ArticleCard } from "../components";
-import { Divider } from "antd";
+import { Divider, Pagination } from "antd";
 import styles from "../styles/components/Feed.module.css";
 
 function Feed({ articles }) {
@@ -7,12 +7,20 @@ function Feed({ articles }) {
   return (
     <>
       <div className={styles.feeds}>
-        {articles.map((article, index) => (
-          <div key={article.id}>
-            <ArticleCard articleDetails={article} />
-            {index < articles.length - 1 && <Divider />}
-          </div>
-        ))}
+        <div>
+          {articles.map((article, index) => (
+            <div key={article.id}>
+              <ArticleCard articleDetails={article} />
+              {index < articles.length - 1 && <Divider />}
+            </div>
+          ))}
+        </div>
+
+        <Pagination
+          defaultCurrent={1}
+          defaultPageSize={3}
+          total={articles.length}
+        />
       </div>
     </>
   );
