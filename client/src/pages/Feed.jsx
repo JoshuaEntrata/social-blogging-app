@@ -1,13 +1,18 @@
+import { ArticleCard } from "../components";
+import { Divider } from "antd";
+import styles from "../styles/components/Feed.module.css";
+
 function Feed({ articles }) {
   console.log("articles", articles);
   return (
     <>
-      <h3>Feed</h3>
-      <div>
-        {Array.isArray(articles) &&
-          articles.map((article) => (
-            <div key={article.id}>{article.content}</div>
-          ))}
+      <div className={styles.feeds}>
+        {articles.map((article, index) => (
+          <div key={article.id}>
+            <ArticleCard articleDetails={article} />
+            {index < articles.length - 1 && <Divider />}
+          </div>
+        ))}
       </div>
     </>
   );

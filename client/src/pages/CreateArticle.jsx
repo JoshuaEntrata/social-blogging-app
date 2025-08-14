@@ -1,5 +1,5 @@
 import { useState } from "react";
-import styles from "./CreateArticle.module.css";
+import styles from "../styles/pages/CreateArticle.module.css";
 
 const CreateArticle = () => {
   const [form, setForm] = useState({

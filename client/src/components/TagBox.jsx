@@ -1,6 +1,5 @@
-import React from "react";
 import { Tag } from "antd";
-import styles from "./TagBox.module.css";
+import styles from "../styles/components/TagBox.module.css";
 
 const TagBox = ({ tags }) => (
   <div className={styles.tagBox}>

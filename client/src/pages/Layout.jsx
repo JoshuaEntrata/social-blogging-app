@@ -1,7 +1,7 @@
 import { Layout as AntdLayout } from "antd";
 import { Outlet } from "react-router-dom";
 import { Header, Footer } from "../components";
-import styles from "./Layout.module.css";
+import styles from "../styles/pages/Layout.module.css";
 
 const { Content } = AntdLayout;
 

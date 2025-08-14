@@ -1,0 +1,87 @@
+[
+  {
+    "slug": "rick-and-morty-3",
+    "title": "Rick and Morty 3",
+    "description": "Let it shine under 2 let it shine under 2 let it shine under 2 let it shine under 2 let it shine under 2 let it shine under 2 let it shine under 2 let it shine under 2 let it shine under 2 let it shine under 2",
+    "body": "The morning star. Who am I to you? 2",
+    "createdAt": "2025-08-08T07:30:00.043Z",
+    "updatedAt": "2025-08-08T07:30:00.043Z",
+    "author": {
+      "username": "Jacob2",
+      "bio": "Updated bio 2",
+      "image": "https://wallpapers.com/images/featured/rick-and-morty-pictures-b3e2pq02sb2fuvy3.jpg",
+      "following": true
+    },
+    "tagList": ["hbo", "netflix", "viva", "2"],
+    "favorited": false,
+    "favoritesCount": 0
+  },
+  {
+    "slug": "stranger-things-5",
+    "title": "Stranger Things 5",
+    "description": "A mysterious darkness spreads through Hawkins, drawing everyone into a fight for survival.",
+    "body": "It all began on a stormy night when the lights flickered...",
+    "createdAt": "2025-08-09T10:45:00.000Z",
+    "updatedAt": "2025-08-09T10:45:00.000Z",
+    "author": {
+      "username": "ElMax",
+      "bio": "Sci-fi fanatic and part-time waffle enthusiast.",
+      "image": "https://wallpapers.com/images/hd/stranger-things-poster-hd-f8yqxw0q1ejjgnb2.jpg",
+      "following": false
+    },
+    "tagList": ["netflix", "thriller", "drama"],
+    "favorited": true,
+    "favoritesCount": 3
+  },
+  {
+    "slug": "game-of-thrones-1",
+    "title": "Game of Thrones Season 1 Recap",
+    "description": "Winter is coming. Political intrigue and betrayal set the stage for the battle of the Iron Throne.",
+    "body": "The Starks of Winterfell find themselves entangled in a deadly game of power...",
+    "createdAt": "2025-08-10T08:00:00.000Z",
+    "updatedAt": "2025-08-10T08:00:00.000Z",
+    "author": {
+      "username": "AryaStark",
+      "bio": "No one.",
+      "image": "https://wallpapers.com/images/featured/game-of-thrones-pictures-x9kwz16y0h3szl9b.jpg",
+      "following": true
+    },
+    "tagList": ["hbo", "fantasy", "drama"],
+    "favorited": false,
+    "favoritesCount": 12
+  },
+  {
+    "slug": "breaking-bad-chemistry",
+    "title": "Breaking Bad: The Chemistry of Storytelling",
+    "description": "Walter White's transformation from teacher to kingpin is a masterclass in character development.",
+    "body": "Say my name... You're goddamn right.",
+    "createdAt": "2025-08-11T14:20:00.000Z",
+    "updatedAt": "2025-08-11T14:20:00.000Z",
+    "author": {
+      "username": "Heisenberg",
+      "bio": "Chemistry teacher, part-time empire builder.",
+      "image": "https://wallpapers.com/images/hd/breaking-bad-4k-poster-jq3n8v7hdxusuxod.jpg",
+      "following": false
+    },
+    "tagList": ["amc", "crime", "drama"],
+    "favorited": true,
+    "favoritesCount": 25
+  },
+  {
+    "slug": "the-office-humor",
+    "title": "The Office: A Study in Workplace Humor",
+    "description": "From awkward silences to outrageous pranks, The Office redefined comedy.",
+    "body": "Bears. Beets. Battlestar Galactica.",
+    "createdAt": "2025-08-12T09:15:00.000Z",
+    "updatedAt": "2025-08-12T09:15:00.000Z",
+    "author": {
+      "username": "JimHalpert",
+      "bio": "Salesman and prank mastermind.",
+      "image": "https://wallpapers.com/images/hd/the-office-tv-show-cast-photo-8p6azjv7r6pmy3lp.jpg",
+      "following": true
+    },
+    "tagList": ["nbc", "comedy", "sitcom"],
+    "favorited": false,
+    "favoritesCount": 8
+  }
+]
