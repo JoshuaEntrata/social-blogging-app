@@ -23,54 +23,60 @@ const CreateArticle = () => {
   };
 
   return (
-    <div className="create-article-page">
-      <h2>Create New Article</h2>
+    <div className={styles.body}>
       <form onSubmit={handleSubmit} className={styles.form}>
-        <div>
-          <label htmlFor="title">Title:</label>
+        <h1>Create content</h1>
+        <div className={styles.title}>
+          <label htmlFor="title">Title of post</label>
           <input
             type="text"
             id="title"
             name="title"
+            placeholder="Lorem ipsum dolor sit amet"
             value={form.title}
             onChange={handleChange}
             required
           />
         </div>
-        <div>
-          <label htmlFor="description">Description:</label>
+        <div className={styles.description}>
+          <label htmlFor="description">Description</label>
           <input
             type="text"
             id="description"
             name="description"
+            placeholder="Lorem ipsum dolor sit amet"
             value={form.description}
             onChange={handleChange}
             required
           />
         </div>
-        <div>
-          <label htmlFor="content">Content:</label>
-          <input
-            type="text"
+        <div className={styles.content}>
+          <label htmlFor="content">Content</label>
+          <textarea
             id="content"
             name="content"
+            placeholder="Lorem ipsum dolor sit amet"
             value={form.content}
             onChange={handleChange}
+            rows={5}
             required
           />
         </div>
-        <div>
-          <label htmlFor="tags">Tags:</label>
+        <div className={styles.tags}>
+          <label htmlFor="tags">Tags</label>
           <input
             type="text"
             id="tags"
             name="tags"
+            placeholder="Lorem, ipsum, dolor, sit, amet"
             value={form.tags}
             onChange={handleChange}
             required
           />
         </div>
-        <button type="submit">Create Article</button>
+        <div className={styles.buttonarea}>
+          <button type="submit">Create Article</button>
+        </div>
       </form>
     </div>
   );
