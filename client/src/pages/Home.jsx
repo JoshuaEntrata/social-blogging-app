@@ -1,8 +1,7 @@
 import { Tabs } from "antd";
-import Sider from "antd/es/layout/Sider";
 import { TagBox } from "../components";
-
 import { Feed } from ".";
+import Sider from "antd/es/layout/Sider";
 
 import styles from "../styles/pages/Home.module.css";
 import dummyTags from "../components/dummyTags.json";
