@@ -1,0 +1,71 @@
+.body {
+  width: 100%;
+  height: calc(100vh - 200px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form {
+  width: 700px;
+  background: white;
+  color: black;
+  padding: 24px 48px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.imageUrl,
+.username,
+.bio,
+.email,
+.password {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.imageUrl label,
+.username label,
+.bio label,
+.email label,
+.password label {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.imageUrl input,
+.username input,
+.email input,
+.password input,
+.bio textarea {
+  background: white;
+  color: black;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  padding: 8px 16px;
+  outline: none;
+}
+
+.buttonarea {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.buttonarea button {
+  width: 300px;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 24px;
+  cursor: pointer;
+}
+
+.bio textarea {
+  resize: none;
+}

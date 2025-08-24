@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import { CreateArticle, Home, Layout, Profile } from "./pages";
+import { CreateArticle, Home, Layout, Profile, Settings } from "./pages";
 
 function App() {
   return (
@@ -10,6 +10,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path="post" element={<CreateArticle />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </BrowserRouter>

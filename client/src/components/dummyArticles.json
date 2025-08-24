@@ -26,7 +26,7 @@
     "author": {
       "username": "ElMax",
       "bio": "Sci-fi fanatic and part-time waffle enthusiast.",
-      "image": "https://wallpapers.com/images/hd/stranger-things-poster-hd-f8yqxw0q1ejjgnb2.jpg",
+      "image": "https://i.pravatar.cc/300",
       "following": false
     },
     "tagList": ["netflix", "thriller", "drama"],
@@ -43,7 +43,7 @@
     "author": {
       "username": "AryaStark",
       "bio": "No one.",
-      "image": "https://wallpapers.com/images/featured/game-of-thrones-pictures-x9kwz16y0h3szl9b.jpg",
+      "image": "https://i.pravatar.cc/200",
       "following": true
     },
     "tagList": ["hbo", "fantasy", "drama"],
@@ -60,7 +60,7 @@
     "author": {
       "username": "Heisenberg",
       "bio": "Chemistry teacher, part-time empire builder.",
-      "image": "https://wallpapers.com/images/hd/breaking-bad-4k-poster-jq3n8v7hdxusuxod.jpg",
+      "image": "https://i.pravatar.cc/500",
       "following": false
     },
     "tagList": ["amc", "crime", "drama"],
@@ -77,7 +77,7 @@
     "author": {
       "username": "JimHalpert",
       "bio": "Salesman and prank mastermind.",
-      "image": "https://wallpapers.com/images/hd/the-office-tv-show-cast-photo-8p6azjv7r6pmy3lp.jpg",
+      "image": "https://i.pravatar.cc/400",
       "following": true
     },
     "tagList": ["nbc", "comedy", "sitcom"],
