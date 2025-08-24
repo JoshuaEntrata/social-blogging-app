@@ -1,31 +1,49 @@
 .header {
-  width: 100%;
-  min-height: 50px;
-  position: fixed;
-  top: 0;
-  z-index: 1000;
-  background-color: blue;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 80px;
+  padding: 20px 80px;
+  background-color: darkblue;
+  border-bottom: 1px solid #eaeaea;
 }
 
-.header__logo h1 {
-  font-size: 16px;
+.logo h1 {
+  font-size: 18px;
+  margin: 0;
 }
 
-.header__nav ul {
+.navLinks ul {
   display: flex;
-  gap: 30px;
-}
-
-.header__nav ul li {
+  align-items: center;
   list-style: none;
-  font-size: 12px;
+  margin: 0;
+  padding: 0;
+  gap: 40px;
 }
 
-a {
+.navLinks a {
   text-decoration: none;
-  color: inherit;
+  color: white;
+  font-size: 16px;
+  transition: color 0.2s ease;
+}
+
+.navLinks a:hover {
+  color: #b6b6b6;
+}
+
+.userMenu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.avatar {
+  border-radius: 50%;
+}
+
+.username {
+  font-size: 16px;
+  color: white;
 }
