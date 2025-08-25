@@ -20,11 +20,17 @@ const ArticleCard = ({ articleDetails }) => {
   return (
     <div className={styles.card}>
       <div className={styles.firstRow}>
-        <div className={styles.author}>
+        <div className={styles.meta}>
           <Avatar size={40} src={author.image} />
-          <div className={styles.authorDetails}>
-            <a>{author.username}</a>
-            <p>{createdAt}</p>
+          <div>
+            <span className={styles.author}>{author?.username}</span>
+            <span className={styles.date}>
+              {new Date(createdAt).toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
           </div>
         </div>
         <Button
@@ -42,10 +48,10 @@ const ArticleCard = ({ articleDetails }) => {
         <h3 className={styles.description}>{description}</h3>
       </div>
       <div className={styles.thirdRow}>
-        <a src={`/article/${slug}`}>Read more...</a>
+        <a href={`/article/${slug}`}>Read more...</a>
         <div className={styles.tags}>
-          {tagList.map((tag) => (
-            <Tag key={tag.id}>{tag}</Tag>
+          {tagList.map((tag, idx) => (
+            <Tag key={idx}>{tag}</Tag>
           ))}
         </div>
       </div>

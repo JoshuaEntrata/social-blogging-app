@@ -4,6 +4,12 @@
   gap: 20px;
 }
 
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* 0.75rem */
+}
+
 .firstRow {
   display: flex;
   justify-content: space-between;

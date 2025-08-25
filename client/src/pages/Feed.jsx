@@ -3,15 +3,14 @@ import { Divider, Pagination } from "antd";
 import styles from "../styles/components/Feed.module.css";
 
 function Feed({ articles }) {
-  console.log("articles", articles);
   return (
     <>
       <div className={styles.feeds}>
         <div>
-          {articles.map((article, index) => (
-            <div key={article.id}>
+          {articles.map((article, idx) => (
+            <div key={idx}>
               <ArticleCard articleDetails={article} />
-              {index < articles.length - 1 && <Divider />}
+              {idx !== articles.length - 1 && <Divider />}
             </div>
           ))}
         </div>

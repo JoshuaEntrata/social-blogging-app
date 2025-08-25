@@ -9,7 +9,7 @@ export const ArticleProvider = ({ children }) => {
   const [loadingItem, setLoadingItem] = useState(false);
   const [error, setError] = useState(null);
 
-  const listArticles = async (params) => {
+  const listArticles = useCallback(async (params) => {
     setLoadingList(true);
     setError(null);
 
@@ -23,9 +23,9 @@ export const ArticleProvider = ({ children }) => {
     } finally {
       setLoadingList(false);
     }
-  };
+  }, []);
 
-  const feedArticles = async (params) => {
+  const feedArticles = useCallback(async (params) => {
     setLoadingList(true);
     setError(null);
 
@@ -39,7 +39,7 @@ export const ArticleProvider = ({ children }) => {
     } finally {
       setLoadingList(false);
     }
-  };
+  }, []);
 
   const getArticle = useCallback(async (slug) => {
     setLoadingItem(true);
