@@ -7,11 +7,11 @@ const { Content } = AntdLayout;
 
 function Layout() {
   return (
-    <AntdLayout>
+    <AntdLayout className={styles.layout}>
       <Header />
       <AntdLayout>
-        <Content>
-          <Outlet className={styles.content} />
+        <Content className={styles.content}>
+          <Outlet className={styles.outlet} />
         </Content>
       </AntdLayout>
       <Footer />

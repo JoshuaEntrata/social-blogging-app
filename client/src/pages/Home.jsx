@@ -60,19 +60,17 @@ function Home() {
 
   return (
     <div className={styles.page}>
-      {loading ? (
-        <div className={styles.centered}>
-          <Spin size="large" />
-        </div>
-      ) : error ? (
-        <Alert message="Error" description={error} type="error" showIcon />
-      ) : (
-        <Tabs
-          defaultActiveKey="1"
-          items={items}
-          className={styles.tagContainer}
-        />
-      )}
+      <div className={styles.tagContainer}>
+        {loading ? (
+          <div className={styles.centered}>
+            <Spin size="large" />
+          </div>
+        ) : error ? (
+          <Alert message="Error" description={error} type="error" showIcon />
+        ) : (
+          <Tabs defaultActiveKey="1" items={items} />
+        )}
+      </div>
 
       <Sider className={styles.sider}>
         <TagBox tags={dummyTags} />
