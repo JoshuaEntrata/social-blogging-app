@@ -6,8 +6,9 @@
 .content {
   width: 100%;
   display: flex;
-  justify-content: space-between;
-  align-items: start;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
 }
 
 .outlet {

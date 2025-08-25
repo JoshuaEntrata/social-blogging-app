@@ -60,7 +60,7 @@ function Home() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.tagContainer}>
+      <div className={styles.feed}>
         {loading ? (
           <div className={styles.centered}>
             <Spin size="large" />
