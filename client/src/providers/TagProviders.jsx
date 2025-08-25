@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { tagService } from "../services";
 import { TagContext } from "../contexts/TagContext";
 
@@ -7,7 +7,7 @@ export const TagProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const getTags = async () => {
+  const getTags = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -21,7 +21,7 @@ export const TagProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   return (
     <TagContext.Provider value={{ tags, loading, error, getTags }}>

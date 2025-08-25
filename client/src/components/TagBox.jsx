@@ -5,9 +5,9 @@ const TagBox = ({ tags }) => (
   <div className={styles.tagBox}>
     <h3 className={styles.tagBox__header}>Popular Tags</h3>
     <div className={styles.tagBox__list}>
-      {tags.map((tag) => (
-        <Tag key={tag.id} className={styles.tag}>
-          {tag.name}
+      {tags.map((tag, idx) => (
+        <Tag key={idx} className={styles.tag}>
+          {tag}
         </Tag>
       ))}
     </div>

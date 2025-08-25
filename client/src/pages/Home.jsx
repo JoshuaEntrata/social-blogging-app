@@ -5,15 +5,17 @@ import { Feed } from ".";
 import Sider from "antd/es/layout/Sider";
 import { useAuth } from "../contexts/AuthContext";
 import { useArticles } from "../contexts/ArticleContext";
+import { useTags } from "../contexts/TagContext";
 import styles from "../styles/pages/Home.module.css";
-import dummyTags from "../components/dummyTags.json";
 
 function Home() {
   const { user } = useAuth();
   const { listArticles } = useArticles();
+  const { getTags } = useTags();
 
   const [myFeed, setMyFeed] = useState([]);
   const [globalFeed, setGlobalFeed] = useState([]);
+  const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -34,9 +36,21 @@ function Home() {
       }
     };
 
-    fetchFeed();
-  }, [user, listArticles]);
+    const fetchTags = async () => {
+      try {
+        const t = await getTags();
+        setTags(t);
+      } catch (err) {
+        setError(err.message || "Failed to load tags");
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchFeed();
+    fetchTags();
+  }, [user, listArticles, getTags]);
+  console.log("tags", tags);
   const items = [
     {
       key: "1",
@@ -73,7 +87,7 @@ function Home() {
       </div>
 
       <Sider className={styles.sider}>
-        <TagBox tags={dummyTags} />
+        <TagBox tags={tags} />
       </Sider>
     </div>
   );
