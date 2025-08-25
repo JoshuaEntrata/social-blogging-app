@@ -1,0 +1,103 @@
+.page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 32px; /* 2rem */
+}
+
+.container,
+.comments {
+  max-width: 700px;
+  width: 100%;
+  padding: 20px;
+}
+
+.likeComment {
+  display: flex;
+  align-items: center;
+}
+
+.title {
+  font-size: 40px; /* 2.5rem */
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.description {
+  font-size: 20px; /* 1.25rem */
+  color: #555;
+  margin-bottom: 24px; /* 1.5rem */
+  line-height: 1;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* 0.75rem */
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.author {
+  display: block;
+  font-weight: 600;
+  font-size: 16px; /* 1rem */
+}
+
+.date {
+  display: block;
+  font-size: 14px; /* 0.875rem */
+  color: #777;
+}
+
+.body {
+  font-size: 18px; /* 1.1rem */
+  line-height: 1.8;
+  color: #222;
+  margin-bottom: 32px; /* 2rem */
+}
+
+.body p {
+  margin-bottom: 20px; /* 1.25rem */
+}
+
+.comments {
+  display: flex;
+  flex-direction: column;
+}
+
+.commentHeader {
+  display: flex;
+  justify-content: space-between;
+}
+
+.commentCard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.commentBody {
+  font-size: 14px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px; /* 0.5rem */
+}
+
+.tag {
+  background: #f7ecec;
+  color: black;
+  padding: 6px 12px; /* 0.35rem 0.75rem */
+  border-color: none;
+  border-radius: 100px;
+  font-size: 14px; /* 0.875rem */
+}

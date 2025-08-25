@@ -50,6 +50,7 @@ export const ArticleController = (log: Logger = logger) => {
 
         if (!article?.title || !article?.description || !article?.body) {
           log.warn(`${context} - Missing required fields`);
+          log.warn(JSON.stringify(article));
           res.status(400).json({ message: "Missing required fields" });
           return;
         }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { commentService } from "../services";
 import { CommentContext } from "../contexts/CommentContext";
 
@@ -7,7 +7,7 @@ export const CommentProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const getComments = async (slug) => {
+  const getComments = useCallback(async (slug) => {
     setLoading(true);
     setError(null);
 
@@ -21,7 +21,7 @@ export const CommentProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const addComment = async (slug, body) => {
     const newComment = await commentService.add(slug, body);

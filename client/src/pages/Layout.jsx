@@ -10,8 +10,8 @@ function Layout() {
     <AntdLayout>
       <Header />
       <AntdLayout>
-        <Content className={styles.content}>
-          <Outlet />
+        <Content>
+          <Outlet className={styles.content} />
         </Content>
       </AntdLayout>
       <Footer />

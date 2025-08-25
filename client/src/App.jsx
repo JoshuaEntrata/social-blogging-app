@@ -8,6 +8,7 @@ import {
   Settings,
   Login,
   Register,
+  Article,
 } from "./pages";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import { AppProviders } from "./providers";
@@ -23,6 +24,7 @@ function App() {
             {/* Public routes */}
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
+            <Route path="/article/:slug" element={<Article />} />
 
             {/* Protected routes */}
             <Route

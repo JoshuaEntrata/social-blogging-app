@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { articleService } from "../services";
 import { ArticleContext } from "../contexts/ArticleContext";
 
@@ -41,7 +41,7 @@ export const ArticleProvider = ({ children }) => {
     }
   };
 
-  const getArticle = async (slug) => {
+  const getArticle = useCallback(async (slug) => {
     setLoadingItem(true);
     setError(null);
 
@@ -55,7 +55,7 @@ export const ArticleProvider = ({ children }) => {
     } finally {
       setLoadingItem(false);
     }
-  };
+  }, []);
 
   const createArticle = async (payload) => {
     const created = await articleService.create(payload);
