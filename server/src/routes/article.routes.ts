@@ -40,6 +40,6 @@ router.delete(
   controller.unfavoriteArticle
 );
 
-router.get("/tags", authMiddleware, controller.getAllTags);
+router.get("/tags", controller.getAllTags);
 
 export { router as articleRoutes };

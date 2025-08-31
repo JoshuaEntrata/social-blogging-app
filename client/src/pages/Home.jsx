@@ -50,7 +50,7 @@ function Home() {
     fetchFeed();
     fetchTags();
   }, [user, listArticles, getTags]);
-  console.log("tags", tags);
+
   const items = [
     {
       key: "1",
@@ -71,6 +71,7 @@ function Home() {
       ),
     },
   ];
+  const feedTabs = user ? items : [items[1]];
 
   return (
     <div className={styles.page}>
@@ -82,7 +83,7 @@ function Home() {
         ) : error ? (
           <Alert message="Error" description={error} type="error" showIcon />
         ) : (
-          <Tabs defaultActiveKey="1" items={items} />
+          <Tabs defaultActiveKey="1" items={feedTabs} />
         )}
       </div>
 

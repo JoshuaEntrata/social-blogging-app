@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import styles from "../styles/pages/Auth.module.css";
 
@@ -8,6 +9,7 @@ const Login = () => {
     email: "",
     password: "",
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({
@@ -24,6 +26,7 @@ const Login = () => {
     } catch (err) {
       console.error("❌ Login failed:", err.message);
     }
+    navigate("/");
   };
 
   return (

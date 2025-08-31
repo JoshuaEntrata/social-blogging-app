@@ -1,13 +1,24 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Avatar, Dropdown } from "antd";
 import {
   UserOutlined,
   SettingOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
+import { useAuth } from "../contexts/AuthContext";
 import styles from "../styles/components/Header.module.css";
 
 const Header = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleMenuClick = ({ key }) => {
+    if (key === "logout") {
+      logout();
+      navigate("/");
+    }
+  };
+
   const items = [
     {
       key: "profile",
@@ -22,16 +33,17 @@ const Header = () => {
     { type: "divider" },
     {
       key: "logout",
-      label: <Link to="/logout">Logout</Link>,
+      label: <Link to="/">Logout</Link>,
       icon: <LogoutOutlined />,
     },
   ];
-  const username = "Joshua";
 
   return (
     <header className={styles.header}>
       <div className={styles.logo}>
-        <h1>Social Blogging App</h1>
+        <Link to="/">
+          <h1>Social Blogging App</h1>
+        </Link>
       </div>
 
       <nav className={styles.navLinks}>
@@ -39,21 +51,32 @@ const Header = () => {
           <li>
             <Link to="/">Home</Link>
           </li>
-          <li>
-            <Link to="/post">Post</Link>
-          </li>
-          <li>
-            <Dropdown menu={{ items }} trigger={["click"]}>
-              <div className={styles.userMenu}>
-                <Avatar
-                  src="https://wallpapers.com/images/featured/rick-and-morty-pictures-b3e2pq02sb2fuvy3.jpg"
-                  alt="avatar"
-                  className={styles.avatar}
-                />
-                <span className={styles.username}>Hi, {username}</span>
-              </div>
-            </Dropdown>
-          </li>
+          {user ? (
+            <>
+              <li>
+                <Link to="/post">Post</Link>
+              </li>
+              <li>
+                <Dropdown
+                  menu={{ items, onClick: handleMenuClick }}
+                  trigger={["click"]}
+                >
+                  <div className={styles.userMenu}>
+                    <Avatar
+                      src={user.image}
+                      alt="avatar"
+                      className={styles.avatar}
+                    />
+                    <span className={styles.username}>{user.username}</span>
+                  </div>
+                </Dropdown>
+              </li>
+            </>
+          ) : (
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+          )}
         </ul>
       </nav>
     </header>

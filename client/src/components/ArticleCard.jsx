@@ -1,6 +1,7 @@
 import { Avatar, Button, Tag } from "antd";
 import { HeartOutlined, HeartFilled } from "@ant-design/icons";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import styles from "../styles/components/ArticleCard.module.css";
 
 const ArticleCard = ({ articleDetails }) => {
@@ -48,7 +49,7 @@ const ArticleCard = ({ articleDetails }) => {
         <h3 className={styles.description}>{description}</h3>
       </div>
       <div className={styles.thirdRow}>
-        <a href={`/article/${slug}`}>Read more...</a>
+        <Link to={`/article/${slug}`}>Read more...</Link>
         <div className={styles.tags}>
           {tagList.map((tag, idx) => (
             <Tag key={idx}>{tag}</Tag>
