@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Tabs, Spin, Alert, Empty } from "antd";
-import { TagBox } from "../components";
-import { Feed } from ".";
+import { Feed, TagBox } from "../components";
 import Sider from "antd/es/layout/Sider";
 import { useAuth } from "../contexts/AuthContext";
 import { useArticles } from "../contexts/ArticleContext";
@@ -13,22 +12,29 @@ function Home() {
   const { listArticles } = useArticles();
   const { getTags } = useTags();
 
-  const [myFeed, setMyFeed] = useState([]);
-  const [globalFeed, setGlobalFeed] = useState([]);
+  const [allMyFeed, setAllMyFeed] = useState([]);
+  const [allGlobalFeed, setAllGlobalFeed] = useState([]);
+
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [myPage, setMyPage] = useState(1);
+  const [globalPage, setGlobalPage] = useState(1);
+  const pageSize = 3;
 
   useEffect(() => {
     const fetchFeed = async () => {
       try {
         if (user) {
-          const arr = await listArticles({ author: user.username });
-          setMyFeed(arr);
+          const { articles } = await listArticles({
+            author: user.username,
+          });
+          setAllMyFeed(articles);
         }
 
-        const globalArr = await listArticles();
-        setGlobalFeed(globalArr);
+        const { articles: globalArticles } = await listArticles();
+        setAllGlobalFeed(globalArticles);
       } catch (err) {
         setError(err.message || "Failed to load feeds");
       } finally {
@@ -51,12 +57,24 @@ function Home() {
     fetchTags();
   }, [user, listArticles, getTags]);
 
+  const myFeed = allMyFeed.slice((myPage - 1) * pageSize, myPage * pageSize);
+  const globalFeed = allGlobalFeed.slice(
+    (globalPage - 1) * pageSize,
+    globalPage * pageSize
+  );
+
   const items = [
     {
       key: "1",
       label: "My Feed",
       children: myFeed.length ? (
-        <Feed articles={myFeed} />
+        <Feed
+          articles={myFeed}
+          total={allMyFeed.length}
+          page={myPage}
+          onPageChange={setMyPage}
+          pageSize={pageSize}
+        />
       ) : (
         <Empty description="No articles found in your feed" />
       ),
@@ -65,7 +83,13 @@ function Home() {
       key: "2",
       label: "Global Feed",
       children: globalFeed.length ? (
-        <Feed articles={globalFeed} />
+        <Feed
+          articles={globalFeed}
+          total={allGlobalFeed.length}
+          page={globalPage}
+          onPageChange={setGlobalPage}
+          pageSize={pageSize}
+        />
       ) : (
         <Empty description="No articles available" />
       ),

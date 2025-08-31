@@ -2,7 +2,7 @@ import { ArticleCard } from "../components";
 import { Divider, Pagination } from "antd";
 import styles from "../styles/components/Feed.module.css";
 
-function Feed({ articles }) {
+function Feed({ articles, total, page, onPageChange, pageSize }) {
   return (
     <>
       <div className={styles.feeds}>
@@ -16,9 +16,11 @@ function Feed({ articles }) {
         </div>
 
         <Pagination
-          defaultCurrent={1}
-          defaultPageSize={3}
-          total={articles.length}
+          current={page}
+          pageSize={pageSize}
+          total={total}
+          onChange={onPageChange}
+          showSizeChanger={false}
         />
       </div>
     </>

@@ -5,6 +5,7 @@ import { ArticleContext } from "../contexts/ArticleContext";
 export const ArticleProvider = ({ children }) => {
   const [articles, setArticles] = useState([]);
   const [article, setArticle] = useState(null);
+  const [articlesCount, setArticlesCount] = useState(0);
   const [loadingList, setLoadingList] = useState(false);
   const [loadingItem, setLoadingItem] = useState(false);
   const [error, setError] = useState(null);
@@ -14,9 +15,11 @@ export const ArticleProvider = ({ children }) => {
     setError(null);
 
     try {
-      const arr = await articleService.list(params);
-      setArticles(arr);
-      return arr;
+      const { articles: fetchedArticles, articlesCount: total } =
+        await articleService.list(params);
+      setArticles(fetchedArticles);
+      setArticlesCount(total);
+      return { articles: fetchedArticles, articlesCount: total };
     } catch (e) {
       setError(e);
       throw e;
@@ -30,9 +33,11 @@ export const ArticleProvider = ({ children }) => {
     setError(null);
 
     try {
-      const arr = await articleService.feed(params);
-      setArticles(arr);
-      return arr;
+      const { articles: fetchedArticles, articlesCount: total } =
+        await articleService.feed(params);
+      setArticles(fetchedArticles);
+      setArticlesCount(total);
+      return { articles: fetchedArticles, articlesCount: total };
     } catch (e) {
       setError(e);
       throw e;
@@ -95,6 +100,7 @@ export const ArticleProvider = ({ children }) => {
       value={{
         articles,
         article,
+        articlesCount,
         error,
         loadingList,
         loadingItem,

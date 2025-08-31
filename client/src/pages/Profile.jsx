@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Avatar, Button, Tabs } from "antd";
 import { SettingOutlined } from "@ant-design/icons";
-import { Feed } from ".";
+import { Feed } from "../components";
 import styles from "../styles/pages/Profile.module.css";
 import dummyArticles from "../components/dummyArticles.json";
 

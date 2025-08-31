@@ -4,7 +4,8 @@ const articleService = {
   // Public
   list: async (params = {}) => {
     const { data } = await api.get("/articles", { params });
-    return data.articles;
+    const { articles, articlesCount } = data;
+    return { articles, articlesCount };
   },
 
   get: async (slug) => {
@@ -18,7 +19,8 @@ const articleService = {
       params,
       requiresAuth: true,
     });
-    return data.articles;
+    const { articles, articlesCount } = data;
+    return { articles, articlesCount };
   },
 
   create: async (article) => {
