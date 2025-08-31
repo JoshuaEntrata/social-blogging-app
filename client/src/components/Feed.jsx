@@ -20,7 +20,6 @@ function Feed({ articles, total, page, onPageChange, pageSize }) {
           pageSize={pageSize}
           total={total}
           onChange={onPageChange}
-          showSizeChanger={false}
         />
       </div>
     </>
