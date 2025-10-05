@@ -1,5 +1,6 @@
 import { DataTypes, Model, Optional, Association } from "sequelize";
 import { sequelize } from "../database/sequelize";
+import { Article } from "./articles.model";
 
 interface UserAttributes {
   id: number;
@@ -35,17 +36,6 @@ class User
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 
-  public addFollower!: (user: User) => Promise<void>;
-  public removeFollower!: (user: User) => Promise<void>;
-  public hasFollower!: (user: User) => Promise<boolean>;
-
-  public addFollowing!: (user: User) => Promise<void>;
-  public removeFollowing!: (user: User) => Promise<void>;
-  public hasFollowing!: (user: User) => Promise<boolean>;
-
-  public getFollowers!: () => Promise<User[]>;
-  public getFollowing!: () => Promise<User[]>;
-
   public static associations: {
     Followers: Association<User, User>;
     Following: Association<User, User>;
@@ -63,19 +53,5 @@ User.init(
   },
   { sequelize, modelName: "User", tableName: "users", timestamps: true }
 );
-
-User.belongsToMany(User, {
-  through: "followers",
-  as: "Followers",
-  foreignKey: "userId",
-  otherKey: "followerId",
-});
-
-User.belongsToMany(User, {
-  through: "followers",
-  as: "Following",
-  foreignKey: "followerId",
-  otherKey: "userId",
-});
 
 export { User, UserAttributes, LoginAttributes, UserCreationAttributes };

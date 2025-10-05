@@ -29,14 +29,14 @@ export class UserRepository {
   }
 
   async follow(follower: User, following: User) {
-    await follower.addFollowing(following);
+    await (follower as any).addFollowing(following);
   }
 
   async unfollow(follower: User, following: User) {
-    await follower.removeFollowing(following);
+    await (follower as any).removeFollowing(following);
   }
 
   async isFollowing(follower: User, following: User) {
-    return await follower.hasFollowing(following);
+    return await (follower as any).hasFollowing(following);
   }
 }

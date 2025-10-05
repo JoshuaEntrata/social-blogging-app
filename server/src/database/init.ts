@@ -7,7 +7,7 @@ async function initDB() {
     await db.sequelize.authenticate();
     logger.info("Database connected...");
 
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: true });
     logger.info("Models synced...");
   } catch (err) {
     logger.error("DB init error:", err);
