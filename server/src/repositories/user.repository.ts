@@ -1,75 +1,42 @@
-import { db } from "../database/db";
-import {
-  FIND_USER_BY_EMAIL,
-  FIND_USER_BY_ID,
-  FIND_USER_BY_USERNAME,
-  FOLLOW_USER,
-  IS_FOLLOWING,
-  SAVE_USER,
-  UNFOLLOW_USER,
-  UPDATE_USER,
-} from "./queries";
-import { User } from "../models/user.model";
+import { User, UserCreationAttributes } from "../models/user.model";
 
 export class UserRepository {
-  async findByEmail(email: string): Promise<User | undefined> {
-    return db.prepare(FIND_USER_BY_EMAIL).get(email) as User | undefined;
+  async findByEmail(email: string) {
+    return await User.findOne({ where: { email } });
   }
 
-  async findById(id: number): Promise<User> {
-    return db.prepare(FIND_USER_BY_ID).get(id) as User;
+  async findById(id: number) {
+    return await User.findByPk(id);
   }
 
-  async findByUsername(userName: string): Promise<User> {
-    return db.prepare(FIND_USER_BY_USERNAME).get(userName) as User;
+  async findByUsername(username: string) {
+    return await User.findOne({ where: { username } });
   }
 
-  async emailTakenByOthers(email: string, userId: number): Promise<boolean> {
+  async emailTakenByOthers(email: string, userId: number) {
     const user = await this.findByEmail(email);
     return !!user && user.id !== userId;
   }
 
-  async save(user: Omit<User, "id">): Promise<number> {
-    const result = db
-      .prepare(SAVE_USER)
-      .run(
-        user.username,
-        user.email,
-        user.password,
-        user.bio,
-        user.image,
-        user.createdAt,
-        user.updatedAt
-      );
-    return result.lastInsertRowid as number;
+  async create(user: UserCreationAttributes) {
+    const userCreated = await User.create(user);
+    return userCreated.id;
   }
 
-  async update(user: User): Promise<User> {
-    db.prepare(UPDATE_USER).run(
-      user.email,
-      user.username,
-      user.password,
-      user.image,
-      user.bio,
-      user.updatedAt,
-      user.id
-    );
-
-    return (await this.findById(user.id)) as User;
+  async update(id: number, user: UserCreationAttributes) {
+    await User.update(user, { where: { id } });
+    return await this.findById(id);
   }
 
-  async follow(userId: number, followerId: number): Promise<void> {
-    db.prepare(FOLLOW_USER).run(userId, followerId);
+  async follow(follower: User, following: User) {
+    await follower.addFollowing(following);
   }
 
-  async unfollow(userId: number, followerId: number): Promise<void> {
-    db.prepare(UNFOLLOW_USER).run(userId, followerId);
+  async unfollow(follower: User, following: User) {
+    await follower.removeFollowing(following);
   }
 
-  async isFollowing(userId: number, followerId: number): Promise<boolean> {
-    const row = db.prepare(IS_FOLLOWING).get(userId, followerId) as {
-      count: number;
-    };
-    return row.count > 0;
+  async isFollowing(follower: User, following: User) {
+    return await follower.hasFollowing(following);
   }
 }

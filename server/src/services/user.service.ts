@@ -1,14 +1,15 @@
 import { UserRepository } from "../repositories/user.repository";
 import { Logger } from "../utils/logger";
-import { User, UserAuthentication, UserFollowing } from "../models/user.model";
+import { LoginAttributes, UserCreationAttributes } from "../models/user.model";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/jwt";
+
 export class UserService {
   private readonly repo = new UserRepository();
 
   constructor(private readonly logger: Logger) {}
 
-  async registerUser(user: User): Promise<UserAuthentication> {
+  async registerUser(user: UserCreationAttributes) {
     const context = "UserService.registerUser";
     this.logger.info(`${context} - Started`);
     try {
@@ -20,14 +21,12 @@ export class UserService {
       }
 
       const hashed = await bcrypt.hash(user.password, 10);
-      const userId = await this.repo.save({
+      const userId = await this.repo.create({
         username: user.username,
         email: user.email,
         password: hashed,
         bio: null,
         image: null,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
       });
 
       const token = generateToken(userId);
@@ -41,7 +40,7 @@ export class UserService {
     }
   }
 
-  async loginUser(userCreds: User): Promise<UserAuthentication> {
+  async loginUser(userCreds: LoginAttributes) {
     const context = "UserService.loginUser";
     this.logger.info(`${context} - Started`);
 
@@ -56,7 +55,7 @@ export class UserService {
 
       const isMatchPassword = await bcrypt.compare(password, user.password);
 
-      if (!user || !isMatchPassword) {
+      if (!isMatchPassword) {
         this.logger.warn(`${context} - Password mismatch`);
         throw new Error("Invalid credentials");
       }
@@ -71,7 +70,7 @@ export class UserService {
     }
   }
 
-  async getUser(userId: number, token: string): Promise<UserAuthentication> {
+  async getUser(userId: number, token: string) {
     const context = "UserService.getUser";
     this.logger.info(`${context} - Started`);
 
@@ -94,25 +93,28 @@ export class UserService {
     }
   }
 
-  async getProfile(
-    usernameParam: string,
-    userId: number
-  ): Promise<UserFollowing> {
+  async getProfile(usernameParam: string, userId: number) {
     const context = "UserService.getProfile";
     this.logger.info(`${context} - Started`);
 
     try {
-      const user = await this.repo.findByUsername(usernameParam);
+      const following = await this.repo.findByUsername(usernameParam);
+      const follower = await this.repo.findById(userId);
 
-      if (!user) {
+      if (!following || !follower) {
         this.logger.warn(`${context} - User does not exist`);
         throw new Error("User does not exist");
       }
 
-      const { username, id, bio, image } = user;
-      const isFollowing = await this.repo.isFollowing(id, userId);
+      const isFollowing = await this.repo.isFollowing(follower, following);
+      const { username, bio, image } = following;
 
-      return { username, bio, image, following: isFollowing } as UserFollowing;
+      return {
+        username,
+        bio,
+        image,
+        following: isFollowing,
+      };
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;
@@ -122,10 +124,10 @@ export class UserService {
   }
 
   async updateUser(
-    user: User,
+    user: UserCreationAttributes,
     userId: number,
     token: string
-  ): Promise<UserAuthentication> {
+  ) {
     const context = "UserService.updateUser";
     this.logger.info(`${context} - Started`);
 
@@ -140,7 +142,7 @@ export class UserService {
         throw new Error("Email is already taken");
       }
 
-      const updatedUser: User = {
+      const updatedUser: UserCreationAttributes = {
         email: user.email ?? currentUser?.email,
         username: user.username ?? currentUser?.username,
         password: user.password
@@ -148,11 +150,9 @@ export class UserService {
           : currentUser?.password!,
         image: user.image ?? currentUser?.image,
         bio: user.bio ?? currentUser?.bio,
-        updatedAt: new Date().toISOString(),
-        id: userId,
-      } as User;
+      };
 
-      await this.repo.update(updatedUser);
+      await this.repo.update(userId, updatedUser);
 
       return await this.getUser(userId, token);
     } catch (err) {
@@ -163,37 +163,34 @@ export class UserService {
     }
   }
 
-  async followUser(
-    usernameParam: string,
-    followerId: number
-  ): Promise<UserFollowing> {
+  async followUser(usernameParam: string, followerId: number) {
     const context = "UserService.followUser";
     this.logger.info(`${context} - Started`);
 
     try {
-      const user = await this.repo.findByUsername(usernameParam);
+      const following = await this.repo.findByUsername(usernameParam);
+      const follower = await this.repo.findById(followerId);
 
-      if (!user) {
+      if (!following || !follower) {
         this.logger.warn(`${context} - User does not exist`);
         throw new Error("User does not exist");
       }
 
-      if (user.id === followerId) {
+      if (following.id === followerId) {
         this.logger.warn(`${context} - User cannot follow itself`);
         throw new Error("User cannot follow itself");
       }
 
-      const { username, id, bio, image } = user;
-      await this.repo.follow(id, followerId);
-
-      const isFollowing = await this.repo.isFollowing(id, followerId);
+      await this.repo.follow(follower, following);
+      const isFollowing = await this.repo.isFollowing(follower, following);
+      const { username, bio, image } = following;
 
       return {
         username,
         bio,
         image,
         following: isFollowing,
-      } as UserFollowing;
+      };
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;
@@ -202,37 +199,34 @@ export class UserService {
     }
   }
 
-  async unfollowUser(
-    usernameParam: string,
-    followerId: number
-  ): Promise<UserFollowing> {
+  async unfollowUser(usernameParam: string, followerId: number) {
     const context = "UserService.followUser";
     this.logger.info(`${context} - Started`);
 
     try {
-      const user = await this.repo.findByUsername(usernameParam);
+      const following = await this.repo.findByUsername(usernameParam);
+      const follower = await this.repo.findById(followerId);
 
-      if (!user) {
+      if (!following || !follower) {
         this.logger.warn(`${context} - User does not exist`);
         throw new Error("User does not exist");
       }
 
-      if (user.id === followerId) {
-        this.logger.warn(`${context} - User cannot unfollow itself`);
-        throw new Error("User cannot unfollow itself");
+      if (following.id === followerId) {
+        this.logger.warn(`${context} - User cannot follow itself`);
+        throw new Error("User cannot follow itself");
       }
 
-      const { username, id, bio, image } = user;
-      await this.repo.unfollow(id, followerId);
-
-      const isFollowing = await this.repo.isFollowing(id, followerId);
+      await this.repo.unfollow(follower, following);
+      const isFollowing = await this.repo.isFollowing(follower, following);
+      const { username, bio, image } = following;
 
       return {
         username,
         bio,
         image,
         following: isFollowing,
-      } as UserFollowing;
+      };
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;

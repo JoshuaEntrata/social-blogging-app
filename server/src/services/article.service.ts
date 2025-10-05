@@ -201,9 +201,12 @@ export class ArticleService {
         const favoritesCount = await this.articleRepo.countFavorites(
           article.id!
         );
-        const authorDetails = await this.userRepo.findById(article.authorId!);
+        const user = await this.userRepo.findById(article.authorId!);
+        if (!user) {
+          throw Error("no user");
+        }
         const author = await this.userService.getProfile(
-          authorDetails.username,
+          user.username,
           userId!
         );
 
@@ -364,10 +367,12 @@ export class ArticleService {
       const commentId = await this.articleRepo.addComment(data);
       const comment = await this.articleRepo.findComment(commentId);
       const author = await this.userRepo.findById(comment.userId);
-      const isFollowing = await this.userRepo.isFollowing(
-        comment.userId,
-        userId
-      );
+      const commenter = await this.userRepo.findById(userId);
+      if (!author || !commenter) {
+        throw new Error("User not found");
+      }
+
+      const isFollowing = await this.userRepo.isFollowing(commenter, author);
 
       return {
         id: comment.id,
@@ -389,7 +394,7 @@ export class ArticleService {
     }
   }
 
-  async getComments(slug: string, userId?: number): Promise<CommentDetails[]> {
+  async getComments(slug: string, userId: number): Promise<CommentDetails[]> {
     const context = "ArticleService.getComments";
     this.logger.info(`${context} - Started.`);
     try {
@@ -407,9 +412,12 @@ export class ArticleService {
 
       for (const comment of comments) {
         const author = await this.userRepo.findById(comment.userId);
-        const isFollowing = userId
-          ? await this.userRepo.isFollowing(userId, comment.userId)
-          : false;
+        const commenter = await this.userRepo.findById(userId);
+        if (!author || !commenter) {
+          throw new Error("User not found");
+        }
+
+        const isFollowing = await this.userRepo.isFollowing(commenter, author);
 
         commentDetails.push({
           id: comment.id,

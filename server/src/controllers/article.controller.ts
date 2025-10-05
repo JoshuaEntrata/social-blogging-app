@@ -310,7 +310,7 @@ export const ArticleController = (log: Logger = logger) => {
 
       try {
         const { slug } = req.params;
-        const userId = req.user?.id;
+        const userId = req.user?.id ?? 1;
 
         const result = await service.getComments(slug, userId);
         log.info(`${context} - Comments for ${slug} retrieved.`);
