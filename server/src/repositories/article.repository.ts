@@ -1,211 +1,167 @@
-import { Article, ArticleUserFavorite, Tag } from "../models/article.model";
-import { db } from "../database/db";
-import {
-  ADD_COMMENT,
-  ADD_FAVORITE,
-  COUNT_FAVORITES,
-  DELETE_ARTICLE_BY_SLUG,
-  DELETE_COMMENT_BY_ID,
-  FIND_ARTICLE_BY_SLUG,
-  FIND_COMMENT,
-  GET_COMMENT_BY_ID,
-  GET_COMMENTS_BY_ARTICLE_ID,
-  GET_TAG_ID,
-  GET_TAGS_BY_ARTICLE_ID,
-  INSERT_TAG,
-  IS_ARTICLE_EXISTING,
-  IS_FAVORITED,
-  LINK_TAG,
-  LIST_ARTICLES,
-  REMOVE_FAVORITE,
-  RETRIVE_TAGS,
-  SAVE_ARTICLE,
-  UPDATE_ARTICLE,
-} from "./queries";
-import {
-  CreateCommentDTO,
-  FeedArticleDTO,
-  FilterDTO,
-} from "../dtos/article.dtos";
+import { Article, ArticleCreationAttributes } from "../models/article.model";
+import { Tag } from "../models/tag.model";
+import { User } from "../models/user.model";
+import { Comment } from "../models/comment.model";
 
 export class ArticleRepository {
-  async findBySlug(slug: string): Promise<Article> {
-    const row = db.prepare(FIND_ARTICLE_BY_SLUG).get(slug) as Article;
-
-    const article: Article = {
-      id: row.id,
-      slug: row.slug,
-      title: row.title,
-      description: row.description,
-      body: row.body,
-      authorId: row.authorId,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-    };
-
-    return article;
+  async findBySlug(slug: string) {
+    return await Article.findOne({ where: { slug } });
   }
 
-  async isArticleExisting(slug: string): Promise<boolean> {
-    const row = db.prepare(IS_ARTICLE_EXISTING).get(slug) as {
-      count: number;
-    };
-    return row.count > 0;
-  }
+  async create(article: ArticleCreationAttributes, tagList?: string[]) {
+    const articleCreated = await Article.create(article);
 
-  async save(article: Article, tagList?: string[]): Promise<void> {
-    const row = db
-      .prepare(SAVE_ARTICLE)
-      .run(
-        article.slug,
-        article.title,
-        article.description,
-        article.body,
-        article.authorId,
-        article.createdAt,
-        article.updatedAt
-      );
-
-    if (tagList) {
-      const insertTag = db.prepare(INSERT_TAG);
-      const getTagId = db.prepare(GET_TAG_ID);
-      const linkTag = db.prepare(LINK_TAG);
-      const articleId = row.lastInsertRowid as number;
-
-      for (const tag of tagList) {
-        insertTag.run(tag);
-        const tagRow = getTagId.get(tag) as { id: number };
-        linkTag.run(articleId, tagRow.id);
+    if (tagList && tagList.length > 0) {
+      for (const tagName of tagList) {
+        const [tag] = await Tag.findOrCreate({ where: { name: tagName } });
+        await (articleCreated as any).addTag(tag);
       }
     }
+
+    return articleCreated;
   }
 
-  async update(paramSlug: string, article: Article): Promise<Article> {
-    db.prepare(UPDATE_ARTICLE).run(
-      article.slug,
-      article.title,
-      article.description,
-      article.body,
-      article.updatedAt,
-      paramSlug
-    );
-
-    return await this.findBySlug(article.slug);
+  async update(slug: string, article: ArticleCreationAttributes) {
+    await Article.update(article, { where: { slug } });
+    return await this.findBySlug(slug);
   }
 
   async delete(slug: string) {
-    db.prepare(DELETE_ARTICLE_BY_SLUG).run(slug);
+    await Article.destroy({ where: { slug } });
+    return;
   }
 
-  async listArticles(filters: FilterDTO): Promise<Article[]> {
-    let baseQuery = LIST_ARTICLES.BASE_QUERY;
-    const where: string[] = [];
-    const params: any[] = [];
+  async listArticles(filters: {
+    tag?: string;
+    author?: string;
+    favorited?: string;
+    limit?: number;
+    offset?: number;
+  }) {
+    const { tag, author, favorited, limit = 20, offset = 0 } = filters;
+    const where: any = {};
+    const include: any[] = [
+      { model: User, as: "author", attributes: ["id", "username"] },
+      {
+        model: Tag,
+        as: "tags",
+        attributes: ["name"],
+        through: { attributes: [] },
+      },
+    ];
 
-    if (filters.tag) {
-      baseQuery += LIST_ARTICLES.JOIN_TAG;
-      where.push(LIST_ARTICLES.TAG_NAME);
-      params.push(filters.tag);
+    if (tag) {
+      include.push({
+        model: Tag,
+        as: "tags",
+        where: { name: tag },
+        through: { attributes: [] },
+      });
     }
 
-    if (filters.author) {
-      where.push(LIST_ARTICLES.USERNAME_NAME);
-      params.push(filters.author);
+    if (author) {
+      include.push({
+        model: User,
+        as: "author",
+        where: { username: author },
+      });
     }
 
-    if (filters.favorited) {
-      baseQuery += LIST_ARTICLES.JOIN_FAVORITED;
-      where.push(LIST_ARTICLES.USER_FAVORITED_NAME);
-      params.push(filters.favorited);
+    if (favorited) {
+      include.push({
+        model: User,
+        as: "favoritedBy",
+        where: { username: favorited },
+        through: { attributes: [] },
+      });
     }
 
-    if (where.length > 0) {
-      baseQuery += LIST_ARTICLES.WHERE + where.join(LIST_ARTICLES.AND);
-    }
-
-    baseQuery += LIST_ARTICLES.ORDER_BY;
-    baseQuery += LIST_ARTICLES.LIMIT_OFFSET;
-    params.push(filters.limit ?? 20);
-    params.push(filters.offset ?? 0);
-
-    const rows = db.prepare(baseQuery).all(...params) as Article[];
-    return rows;
+    return await Article.findAll({
+      where,
+      include,
+      limit,
+      offset,
+      order: [["createdAt", "DESC"]],
+    });
   }
 
-  async listFeedArticles(filters: FeedArticleDTO): Promise<Article[]> {
-    let baseQuery = LIST_ARTICLES.BASE_QUERY;
-    const params: any[] = [];
-
-    baseQuery += LIST_ARTICLES.ORDER_BY;
-    baseQuery += LIST_ARTICLES.LIMIT_OFFSET;
-    params.push(filters.limit ?? 20);
-    params.push(filters.offset ?? 0);
-
-    const rows = db.prepare(baseQuery).all(...params) as Article[];
-    return rows;
+  async listFeedArticles({
+    limit = 20,
+    offset = 0,
+  }: {
+    limit?: number;
+    offset?: number;
+  }) {
+    return await Article.findAll({
+      include: [{ model: User, as: "author", attributes: ["id", "username"] }],
+      limit,
+      offset,
+      order: [["createdAt", "DESC"]],
+    });
   }
 
-  async retrieveTags(): Promise<string[]> {
-    const rows = db.prepare(RETRIVE_TAGS).all() as Tag[];
-    return rows.map((r) => r.name);
+  async retrieveTags() {
+    const tags = await Tag.findAll({ attributes: ["name"] });
+    return tags.map((t) => t.name);
   }
 
-  async getTagsByArticleId(articleId: number): Promise<string[]> {
-    const rows = db.prepare(GET_TAGS_BY_ARTICLE_ID).all(articleId) as Tag[];
-    return rows.map((row) => row.name);
+  async getTagsByArticleId(articleId: number) {
+    const article = await Article.findByPk(articleId, {
+      include: [{ model: Tag, as: "tags", attributes: ["name"] }],
+    });
+    return article ? article.tags?.map((t: any) => t.name) : [];
   }
 
-  async favorite(ids: ArticleUserFavorite): Promise<void> {
-    db.prepare(ADD_FAVORITE).run(ids.userId, ids.articleId);
+  async favorite(userId: number, articleId: number) {
+    const article = await Article.findByPk(articleId);
+    const user = await User.findByPk(userId);
+    if (article && user) await (user as any).addFavoritedArticle(article);
   }
 
-  async unfavorite(ids: ArticleUserFavorite): Promise<void> {
-    db.prepare(REMOVE_FAVORITE).run(ids.userId, ids.articleId);
+  async unfavorite(userId: number, articleId: number) {
+    const article = await Article.findByPk(articleId);
+    const user = await User.findByPk(userId);
+    if (article && user) await (user as any).removeFavoritedArticle(article);
   }
 
-  async isFavorited(ids: ArticleUserFavorite): Promise<boolean> {
-    const row = db.prepare(IS_FAVORITED).get(ids.userId, ids.articleId) as {
-      count: number;
-    };
-    return row.count > 0;
+  async isFavorited(userId: number, articleId: number) {
+    const user = await User.findByPk(userId);
+    if (!user) return false;
+    return await (user as any).hasFavoritedArticle(articleId);
   }
 
-  async countFavorites(articleId: number): Promise<number> {
-    const row = db.prepare(COUNT_FAVORITES).get(articleId) as {
-      count: number;
-    };
-    return row.count;
+  async countFavorites(articleId: number) {
+    const article = await Article.findByPk(articleId, {
+      include: [{ model: User, as: "favoritedBy" }],
+    });
+    return article ? article.favoritedBy?.length : 0;
   }
 
-  async findComment(id: number): Promise<CreateCommentDTO> {
-    return db.prepare(FIND_COMMENT).get(id) as CreateCommentDTO;
+  async findComment(id: number) {
+    return await Comment.findOne({ where: { id } });
   }
 
-  async addComment(data: CreateCommentDTO): Promise<number> {
-    const result = db
-      .prepare(ADD_COMMENT)
-      .run(
-        data.body,
-        data.userId,
-        data.articleId,
-        data.createdAt,
-        data.updatedAt
-      );
-
-    return result.lastInsertRowid as number;
+  async addComment(data: { body: string; userId: number; articleId: number }) {
+    return await Comment.create(data);
   }
 
-  async getCommentsByArticleId(articleId: number): Promise<CreateCommentDTO[]> {
-    return db
-      .prepare(GET_COMMENTS_BY_ARTICLE_ID)
-      .all(articleId) as CreateCommentDTO[];
+  async getCommentsByArticleId(articleId: number) {
+    return await Comment.findAll({
+      where: { articleId },
+      include: [
+        { model: User, as: "author", attributes: ["id", "username", "email"] },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
   }
 
-  async getCommentById(commentId: number): Promise<CreateCommentDTO> {
-    return db.prepare(GET_COMMENT_BY_ID).get(commentId) as CreateCommentDTO;
+  async getCommentById(commentId: number) {
+    return await Comment.findByPk(commentId, {
+      include: [{ model: User, as: "author", attributes: ["username"] }],
+    });
   }
 
   async deleteCommentById(commentId: number, articleId: number) {
-    db.prepare(DELETE_COMMENT_BY_ID).run(commentId, articleId);
+    await Comment.destroy({ where: { id: commentId, articleId } });
   }
 }

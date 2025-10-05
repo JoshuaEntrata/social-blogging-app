@@ -1,5 +1,6 @@
-import { DataTypes, Model, Optional, Association } from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../database/sequelize";
+import "./associations";
 
 interface TagAttributes {
   id: number;

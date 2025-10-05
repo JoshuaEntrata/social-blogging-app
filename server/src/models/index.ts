@@ -1,6 +1,6 @@
 import { sequelize } from "../database/sequelize";
 import { User } from "./user.model";
-import { Article } from "./articles.model";
+import { Article } from "./article.model";
 import { Comment } from "./comment.model";
 import { Tag } from "./tag.model";
 import { setupAssociations } from "./associations";

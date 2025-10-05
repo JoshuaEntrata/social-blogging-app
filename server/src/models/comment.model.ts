@@ -1,5 +1,6 @@
-import { DataTypes, Model, Optional, Association } from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../database/sequelize";
+import "./associations";
 
 interface CommentAttributes {
   id: number;
@@ -23,6 +24,8 @@ class Comment
   public body!: string;
   public userId!: number;
   public articleId!: number;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
 Comment.init(

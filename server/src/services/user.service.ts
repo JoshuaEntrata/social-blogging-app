@@ -98,15 +98,19 @@ export class UserService {
     this.logger.info(`${context} - Started`);
 
     try {
+      let isFollowing = false;
       const following = await this.repo.findByUsername(usernameParam);
-      const follower = await this.repo.findById(userId);
 
-      if (!following || !follower) {
+      if (!following) {
         this.logger.warn(`${context} - User does not exist`);
         throw new Error("User does not exist");
       }
 
-      const isFollowing = await this.repo.isFollowing(follower, following);
+      if (userId) {
+        const follower = await this.repo.findById(userId);
+        isFollowing = await this.repo.isFollowing(follower!, following);
+      }
+
       const { username, bio, image } = following;
 
       return {

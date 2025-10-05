@@ -4,5 +4,6 @@ notes.md
 
 data.sqlite
 database.sqlite
+db.sqlite
 
 .env

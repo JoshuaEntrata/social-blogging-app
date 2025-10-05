@@ -1,19 +1,9 @@
 import { ArticleRepository } from "../repositories/article.repository";
-import {
-  Article,
-  ArticleDetails,
-  CommentDetails,
-  CreateArticle,
-} from "../models/article.model";
 import { Logger } from "../utils/logger";
 import { generateSlug } from "../utils/helper";
 import { UserRepository } from "../repositories/user.repository";
-import {
-  CreateCommentDTO,
-  FeedArticleDTO,
-  FilterDTO,
-} from "../dtos/article.dtos";
 import { UserService } from "./user.service";
+import { ArticleCreationAttributes } from "../models/article.model";
 
 export class ArticleService {
   private readonly articleRepo = new ArticleRepository();
@@ -22,7 +12,7 @@ export class ArticleService {
 
   constructor(private readonly logger: Logger) {}
 
-  async getArticle(slug: string, userId: number): Promise<ArticleDetails> {
+  async getArticle(slug: string, userId: number) {
     const context = "ArticleService.getArticle";
     this.logger.info(`${context} - Started.`);
     try {
@@ -33,14 +23,13 @@ export class ArticleService {
         throw new Error("Article not found");
       }
 
-      const { id: articleId, authorId, ...articleDetails } = article;
+      const plainArticle = article.get({ plain: true });
+      const { id: articleId, authorId, ...articleDetails } = plainArticle;
 
-      const tags = await this.articleRepo.getTagsByArticleId(articleId!);
-      const isFavorited = await this.articleRepo.isFavorited({
-        userId: userId,
-        articleId: articleId!,
-      });
-      const favoritesCount = await this.articleRepo.countFavorites(articleId!);
+      const tags = await this.articleRepo.getTagsByArticleId(articleId);
+      const isFavorited = await this.articleRepo.isFavorited(userId, articleId);
+      const favoritesCount = await this.articleRepo.countFavorites(articleId);
+
       const authorDetails = await this.userRepo.findById(authorId!);
       const author = {
         username: authorDetails?.username,
@@ -55,7 +44,7 @@ export class ArticleService {
         tagList: tags,
         favorited: isFavorited,
         favoritesCount: favoritesCount,
-      } as ArticleDetails;
+      };
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;
@@ -64,10 +53,7 @@ export class ArticleService {
     }
   }
 
-  async createArticle(
-    data: CreateArticle,
-    userId: number
-  ): Promise<ArticleDetails> {
+  async createArticle(data: ArticleCreationAttributes, userId: number) {
     const context = "ArticleService.createArticle";
     this.logger.info(`${context} - Started.`);
 
@@ -75,7 +61,7 @@ export class ArticleService {
       const title = data.title!;
       const slug = generateSlug(title);
 
-      const existing = await this.articleRepo.isArticleExisting(slug);
+      const existing = await this.articleRepo.findBySlug(slug);
 
       if (existing) {
         this.logger.warn(
@@ -84,19 +70,17 @@ export class ArticleService {
         throw new Error("An article with the same title already exists");
       }
 
-      const article: Article = {
-        slug,
-        title: title,
-        description: data.description!,
-        body: data.body!,
+      const article = {
+        description: data.description,
+        body: data.body,
         authorId: userId,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        slug,
+        title,
       };
-      await this.articleRepo.save(article, data?.tagList);
+      const tagList = (data as any).tagList ?? [];
+      await this.articleRepo.create(article, tagList);
 
-      const result = await this.getArticle(article.slug, userId);
-      return result;
+      return await this.getArticle(article.slug, userId);
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;
@@ -107,9 +91,9 @@ export class ArticleService {
 
   async updateArticle(
     paramSlug: string,
-    data: Partial<Article>,
+    data: ArticleCreationAttributes,
     userId: number
-  ): Promise<ArticleDetails> {
+  ) {
     const context = "ArticleService.updateArticle";
     this.logger.info(`${context} - Started.`);
 
@@ -126,13 +110,14 @@ export class ArticleService {
         throw new Error("Unauthorized to edit this");
       }
 
-      const article: Article = {
-        ...original,
-        slug: data.title ? generateSlug(data.title) : original.slug,
+      const articleSlug = data.title ? generateSlug(data.title) : original.slug;
+
+      const article = {
+        slug: articleSlug,
         title: data.title ?? original.title,
         description: data.description ?? original.description,
         body: data.body ?? original.body,
-        updatedAt: new Date().toISOString(),
+        authorId: userId,
       };
 
       const updatedArticle = await this.articleRepo.update(paramSlug, article);
@@ -152,7 +137,7 @@ export class ArticleService {
     this.logger.info(`${context} - Started`);
 
     try {
-      const existing = await this.articleRepo.isArticleExisting(slug);
+      const existing = await this.articleRepo.findBySlug(slug);
 
       if (!existing) {
         this.logger.warn(
@@ -162,6 +147,9 @@ export class ArticleService {
       }
 
       const article = await this.articleRepo.findBySlug(slug);
+      if (!article) {
+        throw new Error("article not found");
+      }
 
       if (article.authorId !== userId) {
         this.logger.warn(`${context} - Unauthorized to delete this`);
@@ -180,27 +168,23 @@ export class ArticleService {
   }
 
   async getArticleDetails(
-    articles: Article[],
-    userId?: number,
-    isFollowing: boolean = false
-  ): Promise<ArticleDetails[]> {
+    articles: ArticleCreationAttributes[],
+    userId?: number
+  ) {
     const context = "ArticleService.getArticleDetails";
     this.logger.info(`${context} - Started.`);
 
     try {
-      const result: ArticleDetails[] = [];
-
+      const result = [];
       for (const article of articles) {
         const tags = await this.articleRepo.getTagsByArticleId(article.id!);
         const isFavorited = userId
-          ? await this.articleRepo.isFavorited({
-              userId: userId,
-              articleId: article.id!,
-            })
+          ? await this.articleRepo.isFavorited(userId, article.id!)
           : false;
         const favoritesCount = await this.articleRepo.countFavorites(
           article.id!
         );
+
         const user = await this.userRepo.findById(article.authorId!);
         if (!user) {
           throw Error("no user");
@@ -209,8 +193,6 @@ export class ArticleService {
           user.username,
           userId!
         );
-
-        if (isFollowing && !author.following) continue;
 
         result.push({
           ...article,
@@ -231,15 +213,16 @@ export class ArticleService {
   }
 
   async listFeedArticles(
-    filters: FeedArticleDTO,
+    filters: { limit?: number; offset?: number },
     userId?: number
-  ): Promise<ArticleDetails[]> {
+  ) {
     const context = "ArticleService.listFeedArticles";
     this.logger.info(`${context} - Started.`);
 
     try {
       const articles = await this.articleRepo.listFeedArticles(filters);
-      return await this.getArticleDetails(articles, userId, true);
+      const plainArticles = articles.map((a) => a.get({ plain: true }));
+      return await this.getArticleDetails(plainArticles, userId);
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;
@@ -249,15 +232,21 @@ export class ArticleService {
   }
 
   async listArticles(
-    filters: FilterDTO,
+    filters: {
+      tag?: string;
+      author?: string;
+      favorited?: string;
+      limit?: number;
+      offset?: number;
+    },
     userId?: number
-  ): Promise<ArticleDetails[]> {
+  ) {
     const context = "ArticleService.listArticles";
     this.logger.info(`${context} - Started.`);
-
     try {
       const articles = await this.articleRepo.listArticles(filters);
-      return await this.getArticleDetails(articles, userId);
+      const plainArticles = articles.map((a) => a.get({ plain: true }));
+      return await this.getArticleDetails(plainArticles, userId);
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;
@@ -266,25 +255,19 @@ export class ArticleService {
     }
   }
 
-  async favoriteArticle(slug: string, userId: number): Promise<ArticleDetails> {
+  async favoriteArticle(slug: string, userId: number) {
     const context = "ArticleService.favoriteArticle";
     this.logger.info(`${context} - Started.`);
 
     try {
       const article = await this.articleRepo.findBySlug(slug);
-
       if (!article) {
         this.logger.warn(`${context} - Article does not exist`);
         throw new Error("Article does not exist");
       }
 
-      await this.articleRepo.favorite({
-        userId: userId,
-        articleId: article.id!,
-      });
-
-      const result = await this.getArticle(article.slug, userId);
-      return result;
+      await this.articleRepo.favorite(userId, article.id);
+      return await this.getArticle(article.slug, userId);
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;
@@ -293,28 +276,19 @@ export class ArticleService {
     }
   }
 
-  async unfavoriteArticle(
-    slug: string,
-    userId: number
-  ): Promise<ArticleDetails> {
+  async unfavoriteArticle(slug: string, userId: number) {
     const context = "ArticleService.unfavoriteArticle";
     this.logger.info(`${context} - Started.`);
 
     try {
       const article = await this.articleRepo.findBySlug(slug);
-
       if (!article) {
         this.logger.warn(`${context} - Article does not exist`);
         throw new Error("Article does not exist");
       }
 
-      await this.articleRepo.unfavorite({
-        userId: userId,
-        articleId: article.id!,
-      });
-
-      const result = await this.getArticle(article.slug, userId);
-      return result;
+      await this.articleRepo.unfavorite(userId, article.id);
+      return await this.getArticle(article.slug, userId);
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;
@@ -340,11 +314,7 @@ export class ArticleService {
     }
   }
 
-  async addComment(
-    body: string,
-    userId: number,
-    slug: string
-  ): Promise<CommentDetails> {
+  async addComment(body: string, userId: number, slug: string) {
     const context = "ArticleService.addComment";
     this.logger.info(`${context} - Started.`);
 
@@ -356,16 +326,13 @@ export class ArticleService {
         throw new Error("Article does not exist");
       }
 
-      const data: CreateCommentDTO = {
+      const data = {
         body: body,
         userId: userId,
-        articleId: article.id!,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        articleId: article.id,
       };
+      const comment = await this.articleRepo.addComment(data);
 
-      const commentId = await this.articleRepo.addComment(data);
-      const comment = await this.articleRepo.findComment(commentId);
       const author = await this.userRepo.findById(comment.userId);
       const commenter = await this.userRepo.findById(userId);
       if (!author || !commenter) {
@@ -394,7 +361,7 @@ export class ArticleService {
     }
   }
 
-  async getComments(slug: string, userId: number): Promise<CommentDetails[]> {
+  async getComments(slug: string, userId: number) {
     const context = "ArticleService.getComments";
     this.logger.info(`${context} - Started.`);
     try {
@@ -408,7 +375,7 @@ export class ArticleService {
       const comments = await this.articleRepo.getCommentsByArticleId(
         article.id!
       );
-      const commentDetails: CommentDetails[] = [];
+      const commentDetails = [];
 
       for (const comment of comments) {
         const author = await this.userRepo.findById(comment.userId);

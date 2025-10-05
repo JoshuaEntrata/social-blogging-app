@@ -1,6 +1,6 @@
 import { DataTypes, Model, Optional, Association } from "sequelize";
 import { sequelize } from "../database/sequelize";
-import { Article } from "./articles.model";
+import "./associations";
 
 interface UserAttributes {
   id: number;
