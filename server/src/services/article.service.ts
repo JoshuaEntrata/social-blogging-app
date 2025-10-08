@@ -4,6 +4,12 @@ import { generateSlug } from "../utils/helper";
 import { UserRepository } from "../repositories/user.repository";
 import { UserService } from "./user.service";
 import { ArticleCreationAttributes } from "../models/article.model";
+import {
+  getCache,
+  setCache,
+  delCache,
+  delCacheByPattern,
+} from "../utils/cache";
 
 export class ArticleService {
   private readonly articleRepo = new ArticleRepository();
@@ -15,9 +21,17 @@ export class ArticleService {
   async getArticle(slug: string, userId: number) {
     const context = "ArticleService.getArticle";
     this.logger.info(`${context} - Started.`);
-    try {
-      const article = await this.articleRepo.findBySlug(slug);
 
+    try {
+      const cacheKey = `article:${slug}:user:${userId}`;
+
+      const cached = await getCache(cacheKey);
+      if (cached) {
+        this.logger.info(`${context} - Cache hit.`);
+        return cached;
+      }
+
+      const article = await this.articleRepo.findBySlug(slug);
       if (!article) {
         this.logger.warn(`${context} - Article not found.`);
         throw new Error("Article not found");
@@ -38,13 +52,16 @@ export class ArticleService {
         following: true,
       };
 
-      return {
+      const result = {
         ...articleDetails,
         author: author,
         tagList: tags,
         favorited: isFavorited,
         favoritesCount: favoritesCount,
       };
+
+      await setCache(cacheKey, result);
+      return result;
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;
@@ -79,6 +96,10 @@ export class ArticleService {
       };
       const tagList = (data as any).tagList ?? [];
       await this.articleRepo.create(article, tagList);
+
+      await delCacheByPattern("articles:all*");
+      await delCacheByPattern(`feed:${userId}*`);
+      await delCacheByPattern(`article:*:user:*`);
 
       return await this.getArticle(article.slug, userId);
     } catch (err) {
@@ -122,6 +143,10 @@ export class ArticleService {
 
       const updatedArticle = await this.articleRepo.update(paramSlug, article);
 
+      await delCacheByPattern("articles:all*");
+      await delCacheByPattern(`feed:${userId}*`);
+      await delCacheByPattern(`article:*:user:*`);
+
       const result = await this.getArticle(updatedArticle?.slug!, userId);
       return result;
     } catch (err) {
@@ -158,6 +183,11 @@ export class ArticleService {
 
       await this.articleRepo.delete(article.slug);
       this.logger.info(`${context} - Article deleted`);
+
+      await delCacheByPattern("articles:all*");
+      await delCacheByPattern(`feed:${userId}*`);
+      await delCacheByPattern(`article:*:user:*`);
+
       return { message: "Article deleted." };
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
@@ -220,9 +250,19 @@ export class ArticleService {
     this.logger.info(`${context} - Started.`);
 
     try {
+      const cacheKey = `feed:${userId}:${JSON.stringify(filters)}`;
+      const cached = await getCache(cacheKey);
+      if (cached) {
+        this.logger.info(`${context} - Cache hit.`);
+        return cached;
+      }
+
       const articles = await this.articleRepo.listFeedArticles(filters);
       const plainArticles = articles.map((a) => a.get({ plain: true }));
-      return await this.getArticleDetails(plainArticles, userId);
+      const result = await this.getArticleDetails(plainArticles, userId);
+
+      await setCache(cacheKey, result);
+      return result;
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;
@@ -244,9 +284,20 @@ export class ArticleService {
     const context = "ArticleService.listArticles";
     this.logger.info(`${context} - Started.`);
     try {
+      const cacheKey = `articles:all:${JSON.stringify(filters)}`;
+      const cached = await getCache(cacheKey);
+
+      if (cached) {
+        this.logger.info(`${context} - Cache hit.`);
+        return cached;
+      }
+
       const articles = await this.articleRepo.listArticles(filters);
       const plainArticles = articles.map((a) => a.get({ plain: true }));
-      return await this.getArticleDetails(plainArticles, userId);
+      const result = await this.getArticleDetails(plainArticles, userId);
+
+      await setCache(cacheKey, result);
+      return result;
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
       throw err;
@@ -267,6 +318,8 @@ export class ArticleService {
       }
 
       await this.articleRepo.favorite(userId, article.id);
+      await delCache(`article:${slug}:user:${userId}`);
+
       return await this.getArticle(article.slug, userId);
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
@@ -288,6 +341,8 @@ export class ArticleService {
       }
 
       await this.articleRepo.unfavorite(userId, article.id);
+      await delCache(`article:${slug}:user:${userId}`);
+
       return await this.getArticle(article.slug, userId);
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
@@ -301,8 +356,14 @@ export class ArticleService {
     const context = "ArticleService.getAllTags";
     this.logger.info(`${context} - Started.`);
     try {
-      const tags = await this.articleRepo.retrieveTags();
+      const cacheKey = "tags:all";
+      const cached = await getCache(cacheKey);
+      if (cached) {
+        this.logger.info(`${context} - Cache hit.`);
+        return cached;
+      }
 
+      const tags = await this.articleRepo.retrieveTags();
       if (!tags) this.logger.warn(`${context} - Empty tags.`);
 
       return tags;
