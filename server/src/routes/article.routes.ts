@@ -1,16 +1,27 @@
 import express, { Request, Response } from "express";
 import { ArticleController } from "../controllers/article.controller";
 import { logger } from "../utils/logger";
-import { authMiddleware } from "../middlewares/auth.middleware";
+import {
+  authMiddleware,
+  optionalAuthMiddleware,
+} from "../middlewares/auth.middleware";
 
 const router = express.Router();
 const controller = ArticleController(logger);
 
 router.get("/articles", controller.listArticles);
 
-router.get("/articles/feed", authMiddleware, controller.listFeedArticles);
+router.get(
+  "/articles/feed",
+  optionalAuthMiddleware,
+  controller.listFeedArticles
+);
 
-router.get("/articles/:slug", authMiddleware, controller.getArticleBySlug);
+router.get(
+  "/articles/:slug",
+  optionalAuthMiddleware,
+  controller.getArticleBySlug
+);
 
 router.post("/articles", authMiddleware, controller.createArticle);
 

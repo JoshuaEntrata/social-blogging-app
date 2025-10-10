@@ -47,8 +47,7 @@ const Article = () => {
   if (loading) return <p>Loading article...</p>;
   if (error) return <p className={styles.error}>{error}</p>;
   if (!article) return <p>No article found</p>;
-  console.log("article", article);
-  console.log("comments", comments);
+
   return (
     <div className={styles.page}>
       <article className={styles.container}>

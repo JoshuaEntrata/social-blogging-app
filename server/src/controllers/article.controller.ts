@@ -14,13 +14,7 @@ export const ArticleController = (log: Logger = logger) => {
 
       try {
         const { slug } = req.params;
-        const userId = req.user?.id;
-
-        if (!userId) {
-          log.warn(`${context} - Unauthorized access`);
-          res.status(401).json({ message: "Unauthorized access" });
-          return;
-        }
+        const userId = req.user?.id ?? 0;
 
         const article = await service.getArticle(slug, userId);
 
@@ -40,7 +34,6 @@ export const ArticleController = (log: Logger = logger) => {
       try {
         const { article } = req.body;
         const userId = req.user?.id;
-        console.log("userId", userId);
 
         if (!userId) {
           log.warn(`${context} - Unauthorized access`);
@@ -164,7 +157,7 @@ export const ArticleController = (log: Logger = logger) => {
 
       try {
         const { limit, offset } = req.query;
-        const userId = req.user?.id;
+        const userId = req.user?.id ?? 0;
 
         const articles = await service.listFeedArticles(
           {
@@ -190,7 +183,6 @@ export const ArticleController = (log: Logger = logger) => {
       try {
         const { tag, author, favorited, limit, offset } = req.query;
         const userId = req.user?.id;
-        console.log("userid", userId);
 
         const articles = await service.listArticles(
           {
