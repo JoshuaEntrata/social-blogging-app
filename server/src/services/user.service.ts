@@ -3,6 +3,7 @@ import { Logger } from "../utils/logger";
 import { LoginAttributes, UserCreationAttributes } from "../models/user.model";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/jwt";
+import { getCache, setCache, delCacheByPattern } from "../utils/cache";
 
 export class UserService {
   private readonly repo = new UserRepository();
@@ -75,6 +76,13 @@ export class UserService {
     this.logger.info(`${context} - Started`);
 
     try {
+      const cacheKey = `user:${userId}`;
+      const cached = await getCache(cacheKey);
+      if (cached) {
+        this.logger.info(`${context} - Cache hit.`);
+        return cached;
+      }
+
       const user = await this.repo.findById(userId);
 
       if (!user) {
@@ -84,6 +92,7 @@ export class UserService {
 
       const { email, username, bio, image } = user;
 
+      await setCache(cacheKey, { email, username, bio, image });
       return { email, token, username, bio, image };
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
@@ -156,8 +165,12 @@ export class UserService {
         bio: user.bio ?? currentUser?.bio,
       };
 
-      await this.repo.update(userId, updatedUser);
+      await delCacheByPattern("articles:all*");
+      await delCacheByPattern(`feed:*`);
+      await delCacheByPattern(`article:*:user:*`);
+      await delCacheByPattern(`user:*`);
 
+      await this.repo.update(userId, updatedUser);
       return await this.getUser(userId, token);
     } catch (err) {
       this.logger.error(`${context} - ${err}`);
@@ -187,8 +200,13 @@ export class UserService {
 
       await this.repo.follow(follower, following);
       const isFollowing = await this.repo.isFollowing(follower, following);
-      const { username, bio, image } = following;
 
+      await delCacheByPattern("articles:all*");
+      await delCacheByPattern(`feed:*`);
+      await delCacheByPattern(`article:*:user:*`);
+      await delCacheByPattern(`user:*`);
+
+      const { username, bio, image } = following;
       return {
         username,
         bio,
@@ -223,8 +241,13 @@ export class UserService {
 
       await this.repo.unfollow(follower, following);
       const isFollowing = await this.repo.isFollowing(follower, following);
-      const { username, bio, image } = following;
 
+      await delCacheByPattern("articles:all*");
+      await delCacheByPattern(`feed:*`);
+      await delCacheByPattern(`article:*:user:*`);
+      await delCacheByPattern(`user:*`);
+
+      const { username, bio, image } = following;
       return {
         username,
         bio,

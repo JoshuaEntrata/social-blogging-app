@@ -86,10 +86,14 @@ const Profile = () => {
     <div className={styles.body}>
       <div className={styles.profileHeader}>
         <Avatar size={120} src={user.image} style={{ marginBottom: 16 }} />
+        <h3>{user.username}</h3>
+        <h4>{user.bio}</h4>
+
         <Button
           type="primary"
           icon={<SettingOutlined />}
           onClick={() => navigate("/settings")}
+          style={{ marginTop: 16 }}
         >
           Settings
         </Button>
