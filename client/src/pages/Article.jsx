@@ -1,21 +1,46 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { useArticles } from "../contexts/ArticleContext";
 import { useComments } from "../contexts/CommentContext";
-import { Avatar, Button, Divider, Tag } from "antd";
+import { Avatar, Button, Divider, Input, Tag } from "antd";
 import { CommentCard } from "../components";
 import { CommentOutlined, HeartOutlined, HeartFilled } from "@ant-design/icons";
 import styles from "../styles/pages/Article.module.css";
 
+const { TextArea } = Input;
+
 const Article = () => {
+  const { user } = useAuth();
   const { slug } = useParams();
   const { getArticle } = useArticles();
-  const { getComments } = useComments();
+  const { addComment, getComments } = useComments();
 
   const [article, setArticle] = useState(null);
   const [comments, setComments] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [commentText, setCommentText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleAddComment = async () => {
+    if (!commentText.trim()) {
+      console.warning("Please enter a comment before submitting.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const newComment = await addComment(slug, commentText.trim());
+      setComments((prev) => [newComment, ...prev]);
+      setCommentText("");
+    } catch (err) {
+      console.error(err.message || "Failed to add comment");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -104,7 +129,24 @@ const Article = () => {
         )}
       </article>
 
-      <Divider />
+      <Divider className={styles.divider} />
+
+      <div className={styles.addComment}>
+        <div className={styles.userDetails}>
+          <Avatar size={40} src={user.image} />
+          <p>{user.username}</p>
+        </div>
+
+        <TextArea
+          value={commentText}
+          onChange={(e) => setCommentText(e.target.value)}
+          placeholder="What are your thoughts?"
+          autoSize={{ minRows: 3, maxRows: 5 }}
+        />
+        <button type="submit" disabled={submitting} onClick={handleAddComment}>
+          {submitting ? "Adding..." : "Add Comment"}
+        </button>
+      </div>
 
       {comments?.length > 0 && (
         <div className={styles.comments}>

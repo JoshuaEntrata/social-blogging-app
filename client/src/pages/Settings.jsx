@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { Input } from "antd";
 import styles from "../styles/pages/Settings.module.css";
+
+const { TextArea } = Input;
 
 const Settings = () => {
   const { updateUser } = useAuth();
@@ -51,64 +54,64 @@ const Settings = () => {
       {error && <p>{error}</p>}
 
       <form onSubmit={handleSubmit} className={styles.form}>
-        <h1>Settings</h1>
+        <h1>Account Settings</h1>
         <div className={styles.username}>
           <label htmlFor="username">Username</label>
-          <input
+          <Input
             type="text"
             id="username"
             name="username"
-            placeholder="Username"
+            placeholder="Enter your display name"
             value={form.username}
             onChange={handleChange}
           />
         </div>
         <div className={styles.imageUrl}>
           <label htmlFor="image">Image URL</label>
-          <input
+          <Input
             id="image"
             name="image"
-            placeholder="Image URL"
+            placeholder="Paste a link to your profile picture"
             value={form.image}
             onChange={handleChange}
           />
         </div>
         <div className={styles.bio}>
           <label htmlFor="bio">Bio</label>
-          <textarea
+          <TextArea
             id="bio"
             name="bio"
-            placeholder="Short bio about you"
+            placeholder="Tell us something about yourself” or “Write a short bio (e.g. nurse, developer, coffee lover ☕)"
             value={form.bio}
             onChange={handleChange}
-            rows={3}
+            autoSize={{ minRows: 3 }}
           />
         </div>
         <div className={styles.email}>
           <label htmlFor="email">Email</label>
-          <input
+          <Input
             type="text"
             id="email"
             name="email"
-            placeholder="Email"
+            placeholder="Enter your email address"
             value={form.email}
             onChange={handleChange}
           />
         </div>
         <div className={styles.password}>
           <label htmlFor="password">Password</label>
-          <input
+          <Input
             type="password"
             id="password"
             name="password"
-            placeholder="Password"
+            placeholder="Enter a new password (leave blank to keep current)"
             value={form.password}
             onChange={handleChange}
           />
         </div>
         <div className={styles.buttonarea}>
           <button type="submit" disabled={loading}>
-            {loading ? "Updating..." : "Update information"}
+            {loading ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </form>

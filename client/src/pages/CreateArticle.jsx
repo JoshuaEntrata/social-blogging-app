@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useArticles } from "../contexts/ArticleContext";
+import { Input } from "antd";
 import styles from "../styles/pages/CreateArticle.module.css";
+
+const { TextArea } = Input;
 
 const CreateArticle = () => {
   const { createArticle } = useArticles();
@@ -52,14 +55,14 @@ const CreateArticle = () => {
       {error && <p>{error}</p>}
 
       <form onSubmit={handleSubmit} className={styles.form}>
-        <h1>Create content</h1>
+        <h1>Write a New Article</h1>
         <div className={styles.title}>
-          <label htmlFor="title">Title of post</label>
-          <input
+          <label htmlFor="title">Title</label>
+          <Input
             type="text"
             id="title"
             name="title"
-            placeholder="Lorem ipsum dolor sit amet"
+            placeholder="Enter your article title"
             value={form.title}
             onChange={handleChange}
             required
@@ -67,11 +70,11 @@ const CreateArticle = () => {
         </div>
         <div className={styles.description}>
           <label htmlFor="description">Description</label>
-          <input
+          <Input
             type="text"
             id="description"
             name="description"
-            placeholder="Lorem ipsum dolor sit amet"
+            placeholder="A short summary of your article"
             value={form.description}
             onChange={handleChange}
             required
@@ -79,23 +82,23 @@ const CreateArticle = () => {
         </div>
         <div className={styles.content}>
           <label htmlFor="body">Content</label>
-          <textarea
+          <TextArea
             id="body"
             name="body"
-            placeholder="Lorem ipsum dolor sit amet"
+            placeholder="Write your article content here.."
             value={form.body}
             onChange={handleChange}
-            rows={5}
+            autoSize={{ minRows: 3 }}
             required
           />
         </div>
         <div className={styles.tags}>
           <label htmlFor="tagList">Tags</label>
-          <input
+          <Input
             type="text"
             id="tagList"
             name="tagList"
-            placeholder="Lorem, ipsum, dolor, sit, amet"
+            placeholder="Add tags separated by commas (e.g. tech, design, startup)"
             value={form.tagList}
             onChange={handleChange}
             required

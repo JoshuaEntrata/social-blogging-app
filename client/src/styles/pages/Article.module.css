@@ -3,14 +3,19 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  padding: 32px; /* 2rem */
+  padding: 32px;
 }
 
 .container,
 .comments {
-  max-width: 700px;
   width: 100%;
   padding: 20px;
+  width: 700px;
+}
+
+.divider {
+  width: 750px;
+  border-top-width: 2px;
 }
 
 .likeComment {
@@ -19,22 +24,22 @@
 }
 
 .title {
-  font-size: 40px; /* 2.5rem */
+  font-size: 40px;
   font-weight: 700;
   line-height: 1.2;
 }
 
 .description {
-  font-size: 20px; /* 1.25rem */
+  font-size: 20px;
   color: #555;
-  margin-bottom: 24px; /* 1.5rem */
+  margin-bottom: 24px;
   line-height: 1;
 }
 
 .meta {
   display: flex;
   align-items: center;
-  gap: 12px; /* 0.75rem */
+  gap: 12px;
 }
 
 .avatar {
@@ -47,24 +52,24 @@
 .author {
   display: block;
   font-weight: 600;
-  font-size: 16px; /* 1rem */
+  font-size: 16px;
 }
 
 .date {
   display: block;
-  font-size: 14px; /* 0.875rem */
+  font-size: 14px;
   color: #777;
 }
 
 .body {
-  font-size: 18px; /* 1.1rem */
+  font-size: 18px;
   line-height: 1.8;
   color: #222;
-  margin-bottom: 32px; /* 2rem */
+  margin-bottom: 32px;
 }
 
 .body p {
-  margin-bottom: 20px; /* 1.25rem */
+  margin-bottom: 20px;
 }
 
 .comments {
@@ -90,14 +95,35 @@
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px; /* 0.5rem */
+  gap: 8px;
 }
 
 .tag {
   background: #f7ecec;
   color: black;
-  padding: 6px 12px; /* 0.35rem 0.75rem */
+  padding: 6px 12px;
   border-color: none;
   border-radius: 100px;
-  font-size: 14px; /* 0.875rem */
+  font-size: 14px;
+}
+
+.addComment {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 700px;
+  width: 100%;
+}
+
+.addComment button {
+  padding: 10px 0;
+}
+
+.userDetails {
+  display: flex;
+  gap: 5px;
+}
+
+.userDetails p {
+  font-weight: 600;
 }
