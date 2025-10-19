@@ -318,7 +318,9 @@ export class ArticleService {
       }
 
       await this.articleRepo.favorite(userId, article.id);
-      await delCache(`article:${slug}:user:${userId}`);
+      await delCacheByPattern("articles:all*");
+      await delCacheByPattern(`feed:${userId}*`);
+      await delCacheByPattern(`article:*:user:*`);
 
       return await this.getArticle(article.slug, userId);
     } catch (err) {
@@ -341,7 +343,9 @@ export class ArticleService {
       }
 
       await this.articleRepo.unfavorite(userId, article.id);
-      await delCache(`article:${slug}:user:${userId}`);
+      await delCacheByPattern("articles:all*");
+      await delCacheByPattern(`feed:${userId}*`);
+      await delCacheByPattern(`article:*:user:*`);
 
       return await this.getArticle(article.slug, userId);
     } catch (err) {

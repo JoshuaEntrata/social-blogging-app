@@ -9,7 +9,7 @@ import {
 const router = express.Router();
 const controller = ArticleController(logger);
 
-router.get("/articles", controller.listArticles);
+router.get("/articles", optionalAuthMiddleware, controller.listArticles);
 
 router.get(
   "/articles/feed",

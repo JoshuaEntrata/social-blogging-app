@@ -131,22 +131,28 @@ const Article = () => {
 
       <Divider className={styles.divider} />
 
-      <div className={styles.addComment}>
-        <div className={styles.userDetails}>
-          <Avatar size={40} src={user.image} />
-          <p>{user.username}</p>
-        </div>
+      {user && (
+        <div className={styles.addComment}>
+          <div className={styles.userDetails}>
+            <Avatar size={40} src={user.image} />
+            <p>{user.username}</p>
+          </div>
 
-        <TextArea
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-          placeholder="What are your thoughts?"
-          autoSize={{ minRows: 3, maxRows: 5 }}
-        />
-        <button type="submit" disabled={submitting} onClick={handleAddComment}>
-          {submitting ? "Adding..." : "Add Comment"}
-        </button>
-      </div>
+          <TextArea
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            placeholder="What are your thoughts?"
+            autoSize={{ minRows: 3, maxRows: 5 }}
+          />
+          <Button
+            type="primary"
+            disabled={submitting}
+            onClick={handleAddComment}
+          >
+            {submitting ? "Adding..." : "Add Comment"}
+          </Button>
+        </div>
+      )}
 
       {comments?.length > 0 && (
         <div className={styles.comments}>

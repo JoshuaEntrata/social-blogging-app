@@ -1,10 +1,14 @@
 import { Avatar, Button, Tag } from "antd";
 import { HeartOutlined, HeartFilled } from "@ant-design/icons";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { useArticles } from "../contexts/ArticleContext";
 import styles from "../styles/components/ArticleCard.module.css";
 
 const ArticleCard = ({ articleDetails }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const {
     slug,
     title,
@@ -17,6 +21,38 @@ const ArticleCard = ({ articleDetails }) => {
   } = articleDetails;
 
   const [liked, setLiked] = useState(favorited);
+  const [count, setCount] = useState(favoritesCount);
+  const { favorite, unfavorite } = useArticles();
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    setLiked(favorited);
+  }, [favorited]);
+
+  useEffect(() => {
+    setCount(favoritesCount);
+  }, [favoritesCount]);
+
+  const handleFavorite = async () => {
+    if (!user) {
+      navigate(`/login`);
+      return;
+    }
+
+    try {
+      if (liked) {
+        const updated = await unfavorite(slug);
+        setLiked(false);
+        setCount(updated.favoritesCount);
+      } else {
+        const updated = await favorite(slug);
+        setLiked(true);
+        setCount(updated.favoritesCount);
+      }
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    }
+  };
 
   return (
     <div className={styles.card}>
@@ -34,14 +70,15 @@ const ArticleCard = ({ articleDetails }) => {
             </span>
           </div>
         </div>
+        {error && <h1>Error</h1>}
         <Button
           type="text"
           icon={
             liked ? <HeartFilled style={{ color: "red" }} /> : <HeartOutlined />
           }
-          onClick={() => setLiked(!liked)}
+          onClick={handleFavorite}
         >
-          {liked ? `( ${favoritesCount + 1} )` : `( ${favoritesCount} )`}
+          ({count})
         </Button>
       </div>
       <div className={styles.secondRow}>

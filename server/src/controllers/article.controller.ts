@@ -182,7 +182,7 @@ export const ArticleController = (log: Logger = logger) => {
 
       try {
         const { tag, author, favorited, limit, offset } = req.query;
-        const userId = req.user?.id;
+        const userId = req.user?.id ?? 0;
 
         const articles = await service.listArticles(
           {
