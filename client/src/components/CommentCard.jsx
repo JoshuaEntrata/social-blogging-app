@@ -1,8 +1,10 @@
-import { Avatar } from "antd";
-import { EllipsisOutlined } from "@ant-design/icons";
+import { Avatar, Button } from "antd";
+import { useAuth } from "../contexts/AuthContext";
 import styles from "../styles/components/CommentCard.module.css";
 
-const CommentCard = ({ comment }) => {
+const CommentCard = ({ comment, onDelete }) => {
+  const { user } = useAuth();
+
   return (
     <div className={styles.card}>
       <div className={styles.header}>
@@ -19,7 +21,11 @@ const CommentCard = ({ comment }) => {
             </span>
           </div>
         </div>
-        <EllipsisOutlined />
+        {comment.author?.username == user.username && (
+          <Button onClick={() => onDelete(comment.id)} danger>
+            X
+          </Button>
+        )}
       </div>
 
       <div className={styles.body}>{comment.body}</div>

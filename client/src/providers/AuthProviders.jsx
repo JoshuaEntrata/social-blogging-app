@@ -52,7 +52,9 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  return (
+  return loading ? (
+    <p>Loading...</p>
+  ) : (
     <AuthContext.Provider
       value={{ user, loading, error, login, register, updateUser, logout }}
     >

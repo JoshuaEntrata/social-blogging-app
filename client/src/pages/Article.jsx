@@ -15,7 +15,7 @@ const Article = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { getArticle } = useArticles();
-  const { addComment, getComments } = useComments();
+  const { addComment, getComments, deleteComment } = useComments();
 
   const [article, setArticle] = useState(null);
   const [comments, setComments] = useState(null);
@@ -40,6 +40,15 @@ const Article = () => {
       console.error(err.message || "Failed to add comment");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await deleteComment(slug, commentId);
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+    } catch (err) {
+      console.error("Failed to delete comment:", err);
     }
   };
 
@@ -165,7 +174,7 @@ const Article = () => {
         <div className={styles.comments}>
           {comments.map((comment, idx) => (
             <div key={idx}>
-              <CommentCard comment={comment} />
+              <CommentCard comment={comment} onDelete={handleDeleteComment} />
               {idx !== comments.length - 1 && <Divider />}
             </div>
           ))}
