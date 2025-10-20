@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { Button } from "antd";
 import styles from "../styles/pages/Auth.module.css";
 
 const Login = () => {
@@ -58,7 +59,9 @@ const Login = () => {
           />
         </div>
         <div className={styles.buttonarea}>
-          <button type="submit">Login</button>
+          <Button type="primary" htmlType="submit">
+            Login
+          </Button>
         </div>
       </form>
     </div>
