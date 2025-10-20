@@ -142,12 +142,13 @@ export class ArticleService {
       };
 
       const updatedArticle = await this.articleRepo.update(paramSlug, article);
+      const newSlug = updatedArticle?.slug ?? articleSlug;
 
       await delCacheByPattern("articles:all*");
       await delCacheByPattern(`feed:${userId}*`);
       await delCacheByPattern(`article:*:user:*`);
 
-      const result = await this.getArticle(updatedArticle?.slug!, userId);
+      const result = await this.getArticle(newSlug, userId);
       return result;
     } catch (err) {
       this.logger.error(`${context} - ${err}`);

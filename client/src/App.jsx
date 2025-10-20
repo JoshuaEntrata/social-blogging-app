@@ -9,6 +9,7 @@ import {
   Login,
   Register,
   Article,
+  EditArticle,
 } from "./pages";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import { AppProviders } from "./providers";
@@ -32,6 +33,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CreateArticle />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/article/:slug/edit"
+              element={
+                <ProtectedRoute>
+                  <EditArticle />
                 </ProtectedRoute>
               }
             />

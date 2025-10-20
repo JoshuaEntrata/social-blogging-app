@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useArticles } from "../contexts/ArticleContext";
 import { useComments } from "../contexts/CommentContext";
@@ -13,6 +13,7 @@ const { TextArea } = Input;
 const Article = () => {
   const { user } = useAuth();
   const { slug } = useParams();
+  const navigate = useNavigate();
   const { getArticle } = useArticles();
   const { addComment, getComments } = useComments();
 
@@ -75,6 +76,12 @@ const Article = () => {
 
   return (
     <div className={styles.page}>
+      {user.username == article.author.username && (
+        <Button onClick={() => navigate(`/article/${article.slug}/edit`)}>
+          Edit Article
+        </Button>
+      )}
+
       <article className={styles.container}>
         <h1 className={styles.title}>{article.title}</h1>
         <p className={styles.description}>{article.description}</p>
