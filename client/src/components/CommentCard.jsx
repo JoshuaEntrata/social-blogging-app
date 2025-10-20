@@ -21,7 +21,7 @@ const CommentCard = ({ comment, onDelete }) => {
             </span>
           </div>
         </div>
-        {comment.author?.username == user.username && (
+        {comment.author?.username == user?.username && (
           <Button onClick={() => onDelete(comment.id)} danger>
             X
           </Button>

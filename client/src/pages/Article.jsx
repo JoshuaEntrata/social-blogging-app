@@ -85,7 +85,7 @@ const Article = () => {
 
   return (
     <div className={styles.page}>
-      {user.username == article.author.username && (
+      {user?.username == article.author.username && (
         <Button onClick={() => navigate(`/article/${article.slug}/edit`)}>
           Edit Article
         </Button>
