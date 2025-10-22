@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { profileService } from "../services";
 import { ProfileContext } from "../contexts/ProfileContext";
 
@@ -7,35 +7,38 @@ export const ProfileProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const getProfile = async (username, { authenticated = false } = {}) => {
-    setLoading(true);
-    setError(null);
+  const getProfile = useCallback(
+    async (username, { authenticated = false } = {}) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      const p = await profileService.getProfile(username, { authenticated });
-      setProfile(p);
-      return p;
-    } catch (e) {
-      setError(e);
-      throw e;
-    } finally {
-      setLoading(false);
-    }
-  };
+      try {
+        const p = await profileService.getProfile(username, { authenticated });
+        setProfile(p);
+        return p;
+      } catch (e) {
+        setError(e);
+        throw e;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
 
-  const follow = async (username) => {
+  const follow = useCallback(async (username) => {
     setError(null);
     const p = await profileService.follow(username);
     setProfile(p);
     return p;
-  };
+  }, []);
 
-  const unfollow = async (username) => {
+  const unfollow = useCallback(async (username) => {
     setError(null);
     const p = await profileService.unfollow(username);
     setProfile(p);
     return p;
-  };
+  }, []);
 
   return (
     <ProfileContext.Provider

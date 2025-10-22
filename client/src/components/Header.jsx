@@ -22,7 +22,7 @@ const Header = () => {
   const items = [
     {
       key: "profile",
-      label: <Link to="/profile">Profile</Link>,
+      label: <Link to={`/profile/${user?.username}`}>Profile</Link>,
       icon: <UserOutlined />,
     },
     {

@@ -58,7 +58,12 @@ const ArticleCard = ({ articleDetails }) => {
     <div className={styles.card}>
       <div className={styles.firstRow}>
         <div className={styles.meta}>
-          <Avatar size={40} src={author.image} />
+          <Avatar
+            size={40}
+            src={author.image}
+            onClick={() => navigate(`/profile/${author?.username}`)}
+            style={{ cursor: "pointer" }}
+          />
           <div>
             <span className={styles.author}>{author?.username}</span>
             <span className={styles.date}>

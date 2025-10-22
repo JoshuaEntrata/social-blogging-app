@@ -96,7 +96,12 @@ const Article = () => {
         <p className={styles.description}>{article.description}</p>
 
         <div className={styles.meta}>
-          <Avatar size={40} src={article.author.image} />
+          <Avatar
+            size={40}
+            src={article.author.image}
+            onClick={() => navigate(`/profile/${article.author?.username}`)}
+            style={{ cursor: "pointer" }}
+          />
           <div>
             <span className={styles.author}>{article.author?.username}</span>
             <span className={styles.date}>
