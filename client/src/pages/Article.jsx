@@ -14,7 +14,7 @@ const Article = () => {
   const { user } = useAuth();
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { getArticle } = useArticles();
+  const { getArticle, favorite, unfavorite } = useArticles();
   const { addComment, getComments, deleteComment } = useComments();
 
   const [article, setArticle] = useState(null);
@@ -24,6 +24,9 @@ const Article = () => {
 
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const [liked, setLiked] = useState(false);
+  const [count, setCount] = useState(0);
 
   const handleAddComment = async () => {
     if (!commentText.trim()) {
@@ -57,6 +60,8 @@ const Article = () => {
       try {
         const a = await getArticle(slug);
         setArticle(a);
+        setLiked(a.favorited);
+        setCount(a.favoritesCount);
       } catch (err) {
         setError(err.message || "Failed to load article");
       } finally {
@@ -78,6 +83,27 @@ const Article = () => {
     fetchArticle();
     fetchComments();
   }, [slug, getArticle, getComments]);
+
+  const handleFavorite = async () => {
+    if (!user) {
+      navigate(`/login`);
+      return;
+    }
+
+    try {
+      if (liked) {
+        const updated = await unfavorite(slug);
+        setLiked(false);
+        setCount(updated.favoritesCount);
+      } else {
+        const updated = await favorite(slug);
+        setLiked(true);
+        setCount(updated.favoritesCount);
+      }
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    }
+  };
 
   if (loading) return <p>Loading article...</p>;
   if (error) return <p className={styles.error}>{error}</p>;
@@ -119,14 +145,15 @@ const Article = () => {
             type="link"
             size="large"
             icon={
-              article.favorited ? (
+              liked ? (
                 <HeartFilled style={{ color: "red" }} />
               ) : (
                 <HeartOutlined />
               )
             }
+            onClick={handleFavorite}
           >
-            {article.favoritesCount}
+            {count}
           </Button>
           <Button type="link" size="large" icon={<CommentOutlined />}>
             {comments?.length}
@@ -134,15 +161,15 @@ const Article = () => {
         </div>
 
         <div className={styles.body}>
-          {article.body.split("\n").map((para, i) => (
-            <p key={i}>{para}</p>
+          {article.body.split("\n").map((para) => (
+            <p key={para}>{para}</p>
           ))}
         </div>
 
         {article.tagList?.length > 0 && (
           <div className={styles.tags}>
-            {article.tagList.map((tag, idx) => (
-              <Tag key={idx} className={styles.tag}>
+            {article.tagList.map((tag) => (
+              <Tag key={tag} className={styles.tag}>
                 {tag}
               </Tag>
             ))}
@@ -177,10 +204,10 @@ const Article = () => {
 
       {comments?.length > 0 && (
         <div className={styles.comments}>
-          {comments.map((comment, idx) => (
-            <div key={idx}>
+          {comments.map((comment) => (
+            <div key={comment.id}>
               <CommentCard comment={comment} onDelete={handleDeleteComment} />
-              {idx !== comments.length - 1 && <Divider />}
+              {comment.id !== comments.length - 1 && <Divider />}
             </div>
           ))}
         </div>
