@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { Input } from "antd";
+import { Divider, Input } from "antd";
 import styles from "../styles/pages/Settings.module.css";
 
 const { TextArea } = Input;
@@ -55,6 +55,12 @@ const Settings = () => {
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <h1>Account Settings</h1>
+        <h3>
+          Update your profile and account details here. Leave blank to keep your
+          current details.
+        </h3>
+
+        <h2>Profile Information</h2>
         <div className={styles.username}>
           <label htmlFor="username">Username</label>
           <Input
@@ -87,6 +93,10 @@ const Settings = () => {
             autoSize={{ minRows: 3 }}
           />
         </div>
+
+        <Divider />
+
+        <h2>Account Security</h2>
         <div className={styles.email}>
           <label htmlFor="email">Email</label>
           <Input
@@ -109,11 +119,9 @@ const Settings = () => {
             onChange={handleChange}
           />
         </div>
-        <div className={styles.buttonarea}>
-          <button type="submit" disabled={loading}>
-            {loading ? "Saving..." : "Save Changes"}
-          </button>
-        </div>
+        <button type="submit" disabled={loading} className={styles.saveButton}>
+          {loading ? "Saving..." : "Save Changes"}
+        </button>
       </form>
     </div>
   );

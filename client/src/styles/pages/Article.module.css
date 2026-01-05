@@ -3,15 +3,14 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  padding: 128px;
+  padding: 42px 128px;
+  width: 100%;
 }
 
-/* .container,
+.container,
 .comments {
   width: 100%;
-  padding: 20px;
-  width: 700px;
-} */
+}
 
 .divider {
   width: 750px;
