@@ -55,9 +55,12 @@ const CreateArticle = () => {
       {error && <p>{error}</p>}
 
       <form onSubmit={handleSubmit} className={styles.form}>
-        <h1>Write a New Article</h1>
+        <div className={styles.heading}>
+          <h1>Create New Article</h1>
+          <h3>Share your insights and stories with the community.</h3>
+        </div>
         <div className={styles.title}>
-          <label htmlFor="title">Title</label>
+          <label htmlFor="title">Article Title</label>
           <Input
             type="text"
             id="title"
@@ -88,7 +91,7 @@ const CreateArticle = () => {
             placeholder="Write your article content here.."
             value={form.body}
             onChange={handleChange}
-            autoSize={{ minRows: 3 }}
+            autoSize={{ minRows: 6 }}
             required
           />
         </div>
@@ -106,7 +109,7 @@ const CreateArticle = () => {
         </div>
         <div className={styles.buttonarea}>
           <button type="submit" disabled={loading}>
-            {loading ? "Creating..." : "Create Article"}
+            {loading ? "Publishing..." : "Publish Article"}
           </button>
         </div>
       </form>
