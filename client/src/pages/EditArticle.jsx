@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useArticles } from "../contexts/ArticleContext";
-import { Button, Input, message } from "antd";
+import { Input, message } from "antd";
 import styles from "../styles/pages/CreateArticle.module.css";
 import "antd/dist/reset.css";
 
@@ -99,7 +99,10 @@ const EditArticle = () => {
       {error && <p>{error}</p>}
 
       <form onSubmit={handleSubmit} className={styles.form}>
-        <h1>Update Article</h1>
+        <div className={styles.heading}>
+          <h1>Update Article</h1>
+          <h3>Share your insights and stories with the community.</h3>
+        </div>
         <div className={styles.title}>
           <label htmlFor="title">Title</label>
           <Input
@@ -134,23 +137,25 @@ const EditArticle = () => {
           />
         </div>
         <div className={styles.buttonarea}>
-          <Button
+          <button
             type="primary"
             htmlType="submit"
             loading={loading}
+            disabled={loading}
             style={{ marginRight: "1rem" }}
           >
-            Update Article
-          </Button>
+            {loading ? "Updating..." : "Update Article"}
+          </button>
 
-          <Button
-            danger
+          <button
             htmlType="button"
             onClick={handleDelete}
             loading={deleting}
+            disabled={deleting}
+            className={styles.deleteButton}
           >
-            Delete Article
-          </Button>
+            {deleting ? "Deleting..." : "Delete Article"}
+          </button>
         </div>
       </form>
     </div>

@@ -91,3 +91,7 @@
 .content textarea {
   resize: none;
 }
+
+.deleteButton {
+  background: red !important;
+}
