@@ -2,13 +2,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 80px;
-  background-color: darkblue;
-  border-bottom: 1px solid #eaeaea;
+  padding: 12px 32px;
+  background-color: white;
+  color: black;
+  border-bottom: 2px solid #364f6b14;
 }
 
 .logo h1 {
   font-size: 18px;
+  font-weight: 800;
+  color: #364f68;
   margin: 0;
 }
 
@@ -18,18 +21,27 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  gap: 40px;
+  gap: 24px;
+}
+
+.navLinksLi {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.navLinksLi:hover {
+  background: #f4f4f4;
+  cursor: pointer;
 }
 
 .navLinks a {
   text-decoration: none;
-  color: white;
+  color: black;
   font-size: 16px;
   transition: color 0.2s ease;
-}
-
-.navLinks a:hover {
-  color: #b6b6b6;
 }
 
 .userMenu {
@@ -45,5 +57,5 @@
 
 .username {
   font-size: 16px;
-  color: white;
+  color: black;
 }

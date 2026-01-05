@@ -1,5 +1,5 @@
 import { Avatar, Button, Tag } from "antd";
-import { HeartOutlined, HeartFilled } from "@ant-design/icons";
+import { HeartOutlined, HeartFilled, CommentOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -56,47 +56,63 @@ const ArticleCard = ({ articleDetails }) => {
 
   return (
     <div className={styles.card}>
-      <div className={styles.firstRow}>
-        <div className={styles.meta}>
-          <Avatar
-            size={40}
-            src={author.image}
-            onClick={() => navigate(`/profile/${author?.username}`)}
-            style={{ cursor: "pointer" }}
-          />
-          <div>
-            <span className={styles.author}>{author?.username}</span>
-            <span className={styles.date}>
-              {new Date(createdAt).toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </span>
-          </div>
-        </div>
-        {error && <h1>Error</h1>}
-        <Button
-          type="text"
-          icon={
-            liked ? <HeartFilled style={{ color: "red" }} /> : <HeartOutlined />
-          }
-          onClick={handleFavorite}
-        >
-          ({count})
-        </Button>
-      </div>
-      <div className={styles.secondRow}>
+      {error && <h1>Error</h1>}
+      <div className={styles.articleText}>
         <h1 className={styles.title}>{title}</h1>
         <h3 className={styles.description}>{description}</h3>
       </div>
-      <div className={styles.thirdRow}>
-        <Link to={`/article/${slug}`}>Read more...</Link>
-        <div className={styles.tags}>
-          {tagList.map((tag, idx) => (
-            <Tag key={idx}>{tag}</Tag>
-          ))}
+      <div className={styles.authorDetails}>
+        <Avatar
+          size={32}
+          src={author.image}
+          onClick={() => navigate(`/profile/${author?.username}`)}
+          style={{ cursor: "pointer" }}
+        />
+        <p className={styles.author}>{author?.username} </p>
+        <div className={styles.dot} />
+        <span className={styles.datePosted}>
+          {new Date(createdAt).toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })}
+        </span>
+      </div>
+      <div className={styles.tags}>
+        {tagList.map((tag, idx) => (
+          <Tag key={idx} className={styles.tag}>
+            {tag}
+          </Tag>
+        ))}
+      </div>
+      <div className={styles.endRow}>
+        <div className={styles.metrics}>
+          <Button
+            type="text"
+            icon={
+              liked ? (
+                <HeartFilled style={{ color: "red" }} size={16} />
+              ) : (
+                <HeartOutlined size={16} />
+              )
+            }
+            className={styles.metricButton}
+            onClick={handleFavorite}
+          >
+            {count} Likes
+          </Button>
+          <Button
+            type="text"
+            icon={<CommentOutlined size={16} />}
+            className={styles.metricButton}
+            onClick={handleFavorite}
+          >
+            {count} Comments
+          </Button>
         </div>
+        <Link to={`/article/${slug}`} className={styles.readMore}>
+          Read more...
+        </Link>
       </div>
     </div>
   );

@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Avatar, Dropdown } from "antd";
 import {
+  HomeOutlined,
+  PlusCircleOutlined,
   UserOutlined,
   SettingOutlined,
   LogoutOutlined,
@@ -48,13 +50,15 @@ const Header = () => {
 
       <nav className={styles.navLinks}>
         <ul>
-          <li>
+          <li className={styles.navLinksLi}>
+            <HomeOutlined />
             <Link to="/">Home</Link>
           </li>
           {user ? (
             <>
-              <li>
-                <Link to="/post">Post</Link>
+              <li className={styles.navLinksLi}>
+                <PlusCircleOutlined />
+                <Link to="/post">Create Article</Link>
               </li>
               <li>
                 <Dropdown
@@ -73,7 +77,7 @@ const Header = () => {
               </li>
             </>
           ) : (
-            <li>
+            <li className={styles.navLinksLi}>
               <Link to="/login">Login</Link>
             </li>
           )}

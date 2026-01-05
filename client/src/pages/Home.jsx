@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Tabs, Spin, Alert, Empty } from "antd";
+import { Divider, Tag, Spin, Alert, Empty } from "antd";
 import { Feed, TagBox } from "../components";
 import Sider from "antd/es/layout/Sider";
 import { useAuth } from "../contexts/AuthContext";
@@ -12,27 +12,18 @@ function Home() {
   const { listArticles } = useArticles();
   const { getTags } = useTags();
 
-  const [allMyFeed, setAllMyFeed] = useState([]);
   const [allGlobalFeed, setAllGlobalFeed] = useState([]);
 
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [myPage, setMyPage] = useState(1);
   const [globalPage, setGlobalPage] = useState(1);
   const pageSize = 3;
 
   useEffect(() => {
     const fetchFeed = async () => {
       try {
-        if (user) {
-          const { articles } = await listArticles({
-            author: user.username,
-          });
-          setAllMyFeed(articles);
-        }
-
         const { articles: globalArticles } = await listArticles();
         setAllGlobalFeed(globalArticles);
       } catch (err) {
@@ -57,45 +48,10 @@ function Home() {
     fetchTags();
   }, [user, listArticles, getTags]);
 
-  const myFeed = allMyFeed.slice((myPage - 1) * pageSize, myPage * pageSize);
   const globalFeed = allGlobalFeed.slice(
     (globalPage - 1) * pageSize,
     globalPage * pageSize
   );
-
-  const items = [
-    {
-      key: "1",
-      label: "My Feed",
-      children: myFeed.length ? (
-        <Feed
-          articles={myFeed}
-          total={allMyFeed.length}
-          page={myPage}
-          onPageChange={setMyPage}
-          pageSize={pageSize}
-        />
-      ) : (
-        <Empty description="No articles found in your feed" />
-      ),
-    },
-    {
-      key: "2",
-      label: "Global Feed",
-      children: globalFeed.length ? (
-        <Feed
-          articles={globalFeed}
-          total={allGlobalFeed.length}
-          page={globalPage}
-          onPageChange={setGlobalPage}
-          pageSize={pageSize}
-        />
-      ) : (
-        <Empty description="No articles available" />
-      ),
-    },
-  ];
-  const feedTabs = user ? items : [items[1]];
 
   return (
     <div className={styles.page}>
@@ -107,13 +63,41 @@ function Home() {
         ) : error ? (
           <Alert message="Error" description={error} type="error" showIcon />
         ) : (
-          <Tabs defaultActiveKey="1" items={feedTabs} />
+          <section className={styles.sections}>
+            <div className={styles.tagsSection}>
+              <h1>Explore Topics</h1>
+              <div className={styles.tagList}>
+                {tags.slice(0, 5).map((tag, idx) => (
+                  <Tag key={idx} className={styles.tag}>
+                    {tag}
+                  </Tag>
+                ))}
+
+                {tags.length > 5 && (
+                  <Tag className={styles.tag}>+{tags.length - 5} more</Tag>
+                )}
+              </div>
+            </div>
+            <div className={styles.articlesSection}>
+              <h1>Recently Published</h1>
+              <div className={styles.center}>
+                {globalFeed.length ? (
+                  <Feed
+                    articles={globalFeed}
+                    total={allGlobalFeed.length}
+                    page={globalPage}
+                    onPageChange={setGlobalPage}
+                    pageSize={pageSize}
+                  />
+                ) : (
+                  <Empty description="No articles available" />
+                )}
+              </div>
+              <Divider />
+            </div>
+          </section>
         )}
       </div>
-
-      <Sider className={styles.sider}>
-        <TagBox tags={tags} />
-      </Sider>
     </div>
   );
 }
