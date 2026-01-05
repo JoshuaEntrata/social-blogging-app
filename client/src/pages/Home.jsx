@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Divider, Tag, Spin, Alert, Empty } from "antd";
-import { Feed, TagBox } from "../components";
-import Sider from "antd/es/layout/Sider";
+import { Feed } from "../components";
 import { useAuth } from "../contexts/AuthContext";
 import { useArticles } from "../contexts/ArticleContext";
 import { useTags } from "../contexts/TagContext";

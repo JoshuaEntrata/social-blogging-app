@@ -1,5 +1,7 @@
 .card {
   padding: 10px 0;
+  display: flex;
+  gap: 16px;
 }
 
 .header {
@@ -8,10 +10,11 @@
   align-items: start;
 }
 
-.meta {
+.text {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 10px;
+  flex: 1;
 }
 
 .author {
@@ -27,7 +30,12 @@
 }
 
 .body {
-  margin-top: 12px;
+  font-family: "Open Sans" !important;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 23px;
+  color: #171a1f;
+}
+
+.closeButton {
+  font-size: 10px;
 }

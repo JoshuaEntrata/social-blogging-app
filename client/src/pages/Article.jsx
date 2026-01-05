@@ -121,43 +121,64 @@ const Article = () => {
         <h1 className={styles.title}>{article.title}</h1>
         <p className={styles.description}>{article.description}</p>
 
-        <div className={styles.meta}>
-          <Avatar
-            size={40}
-            src={article.author.image}
-            onClick={() => navigate(`/profile/${article.author?.username}`)}
-            style={{ cursor: "pointer" }}
-          />
-          <div>
-            <span className={styles.author}>{article.author?.username}</span>
-            <span className={styles.date}>
-              {new Date(article.createdAt).toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </span>
-          </div>
-        </div>
+        <div className={styles.articleDetails}>
+          <div className={styles.meta}>
+            <Avatar
+              size={48}
+              src={article.author.image}
+              onClick={() => navigate(`/profile/${article.author?.username}`)}
+              style={{ cursor: "pointer" }}
+            />
+            <div>
+              <h4 className={styles.author}>{article.author?.username}</h4>
+              <div className={styles.row}>
+                <span className={styles.date}>
+                  {new Date(article.createdAt).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
+                <div className={styles.tagList}>
+                  {article.tagList.slice(0, 5).map((tag, idx) => (
+                    <Tag key={idx} className={styles.tag}>
+                      {tag}
+                    </Tag>
+                  ))}
 
-        <div className={styles.likeComment}>
-          <Button
-            type="link"
-            size="large"
-            icon={
-              liked ? (
-                <HeartFilled style={{ color: "red" }} />
-              ) : (
-                <HeartOutlined />
-              )
-            }
-            onClick={handleFavorite}
-          >
-            {count}
-          </Button>
-          <Button type="link" size="large" icon={<CommentOutlined />}>
-            {comments?.length}
-          </Button>
+                  {article.tagList.length > 5 && (
+                    <Tag className={styles.tag}>
+                      +{article.tagList.length - 5} more
+                    </Tag>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={styles.metrics}>
+            <Button
+              type="text"
+              icon={
+                liked ? (
+                  <HeartFilled style={{ color: "red" }} size={16} />
+                ) : (
+                  <HeartOutlined size={16} />
+                )
+              }
+              className={styles.metricButton}
+              onClick={handleFavorite}
+            >
+              {count}
+            </Button>
+            <Button
+              type="text"
+              icon={<CommentOutlined size={16} />}
+              className={styles.metricButton}
+              onClick={handleFavorite}
+            >
+              {comments?.length}
+            </Button>
+          </div>
         </div>
 
         <div className={styles.body}>
@@ -165,40 +186,34 @@ const Article = () => {
             <p key={para}>{para}</p>
           ))}
         </div>
-
-        {article.tagList?.length > 0 && (
-          <div className={styles.tags}>
-            {article.tagList.map((tag) => (
-              <Tag key={tag} className={styles.tag}>
-                {tag}
-              </Tag>
-            ))}
-          </div>
-        )}
       </article>
 
       <Divider className={styles.divider} />
 
       {user && (
         <div className={styles.addComment}>
-          <div className={styles.userDetails}>
-            <Avatar size={40} src={user.image} />
-            <p>{user.username}</p>
-          </div>
+          <h1>Comments</h1>
 
-          <TextArea
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            placeholder="What are your thoughts?"
-            autoSize={{ minRows: 3, maxRows: 5 }}
-          />
-          <Button
-            type="primary"
-            disabled={submitting}
-            onClick={handleAddComment}
-          >
-            {submitting ? "Adding..." : "Add Comment"}
-          </Button>
+          <div className={styles.newComment}>
+            <div className={styles.row}>
+              <Avatar size={40} src={user.image} />
+              <TextArea
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="What are your thoughts?"
+                autoSize={{ minRows: 3, maxRows: 5 }}
+              />
+            </div>
+
+            <Button
+              type="primary"
+              className={styles.postButton}
+              disabled={submitting}
+              onClick={handleAddComment}
+            >
+              {submitting ? "Posting..." : "Post Comment"}
+            </Button>
+          </div>
         </div>
       )}
 
