@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { Button } from "antd";
+import { Button, Divider } from "antd";
 import styles from "../styles/pages/Auth.module.css";
 
 const Login = () => {
@@ -32,10 +32,13 @@ const Login = () => {
 
   return (
     <div className={styles.body}>
+      <Link to={`/`}>
+        <img src={"/vite.svg"} alt="" />
+      </Link>
+
       <form onSubmit={handleSubmit} className={styles.form}>
-        <h1>Login</h1>
+        <h1>Sign In to Social Blogging</h1>
         <div className={styles.email}>
-          <label htmlFor="email">Email</label>
           <input
             type="text"
             id="email"
@@ -47,7 +50,6 @@ const Login = () => {
           />
         </div>
         <div className={styles.password}>
-          <label htmlFor="password">Password</label>
           <input
             type="password"
             id="password"
@@ -58,11 +60,18 @@ const Login = () => {
             required
           />
         </div>
-        <div className={styles.buttonarea}>
-          <Button type="primary" htmlType="submit">
-            Login
-          </Button>
-        </div>
+        <button htmlType="submit" className={styles.submitBtn}>
+          Sign In
+        </button>
+
+        <Divider />
+
+        <span className={styles.register}>
+          Don't have an account?{" "}
+          <Link to={`/register`} className={styles.registerLink}>
+            Sign Up
+          </Link>
+        </span>
       </form>
     </div>
   );

@@ -1,13 +1,31 @@
 .footer {
   width: 100%;
-  min-height: 50px;
-  background-color: red;
+  height: 60px;
+  background-color: #f3f4f6;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 80px;
+  border-top: 2px solid #364f6b14;
 }
 
-.footer__logo h1 {
-  font-size: 16px;
+.logo h1 {
+  font-family: "Open Sans" !important;
+  font-size: 14px;
+  line-height: 20px;
+  color: #566d6d;
+}
+
+.items {
+  display: flex;
+  gap: 15px;
+  justify-content: end;
+}
+
+.items span {
+  font-family: "Open Sans" !important;
+  font-size: 14px;
+  line-height: 20px;
+  color: #566d6d;
+  cursor: pointer;
 }

@@ -19,12 +19,14 @@ function App() {
     <BrowserRouter>
       <AppProviders>
         <Routes>
+          <Route path="/" element={<Layout disableHeader={true} />}>
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
+          </Route>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
 
             {/* Public routes */}
-            <Route path="login" element={<Login />} />
-            <Route path="register" element={<Register />} />
             <Route path="/article/:slug" element={<Article />} />
 
             {/* Protected routes */}

@@ -5,10 +5,10 @@ import styles from "../styles/pages/Layout.module.css";
 
 const { Content } = AntdLayout;
 
-function Layout() {
+function Layout({ disableHeader = false }) {
   return (
     <AntdLayout className={styles.layout}>
-      <Header />
+      {!disableHeader && <Header />}
       <AntdLayout>
         <Content className={styles.content}>
           <Outlet className={styles.outlet} />

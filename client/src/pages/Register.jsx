@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Divider } from "antd";
 import { useAuth } from "../contexts/AuthContext";
 import styles from "../styles/pages/Auth.module.css";
 
@@ -29,10 +31,13 @@ const Register = () => {
 
   return (
     <div className={styles.body}>
+      <Link to={`/`}>
+        <img src={"/vite.svg"} alt="" />
+      </Link>
+
       <form onSubmit={handleSubmit} className={styles.form}>
         <h1>Register</h1>
         <div className={styles.username}>
-          <label htmlFor="username">Username</label>
           <input
             type="text"
             id="username"
@@ -44,7 +49,6 @@ const Register = () => {
           />
         </div>
         <div className={styles.email}>
-          <label htmlFor="email">Email</label>
           <input
             type="text"
             id="email"
@@ -56,7 +60,6 @@ const Register = () => {
           />
         </div>
         <div className={styles.password}>
-          <label htmlFor="password">Password</label>
           <input
             type="password"
             id="password"
@@ -67,9 +70,18 @@ const Register = () => {
             required
           />
         </div>
-        <div className={styles.buttonarea}>
-          <button type="submit">Register</button>
-        </div>
+        <button type="submit" className={styles.submitBtn}>
+          Register
+        </button>
+
+        <Divider />
+
+        <span className={styles.register}>
+          Already have an account?{" "}
+          <Link to={`/login`} className={styles.registerLink}>
+            Sign In
+          </Link>
+        </span>
       </form>
     </div>
   );

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useArticles } from "../contexts/ArticleContext";
 import { useComments } from "../contexts/CommentContext";
-import { Avatar, Button, Divider, Input, Tag } from "antd";
+import { Avatar, Button, Divider, Input, Tag, Empty } from "antd";
 import { CommentCard } from "../components";
 import { CommentOutlined, HeartOutlined, HeartFilled } from "@ant-design/icons";
 import styles from "../styles/pages/Article.module.css";
@@ -190,10 +190,9 @@ const Article = () => {
 
       <Divider className={styles.divider} />
 
-      {user && (
-        <div className={styles.addComment}>
-          <h1>Comments</h1>
-
+      <div className={styles.addComment}>
+        <h1>Comments</h1>
+        {user && (
           <div className={styles.newComment}>
             <div className={styles.row}>
               <Avatar size={40} src={user.image} />
@@ -214,10 +213,10 @@ const Article = () => {
               {submitting ? "Posting..." : "Post Comment"}
             </Button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {comments?.length > 0 && (
+      {comments?.length > 0 ? (
         <div className={styles.comments}>
           {comments.map((comment) => (
             <div key={comment.id}>
@@ -226,6 +225,8 @@ const Article = () => {
             </div>
           ))}
         </div>
+      ) : (
+        <Empty />
       )}
     </div>
   );
