@@ -88,6 +88,12 @@
   cursor: pointer;
 }
 
+.buttonarea button:disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
+
 .content textarea {
   resize: none;
 }

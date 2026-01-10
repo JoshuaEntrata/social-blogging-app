@@ -108,7 +108,12 @@ const CreateArticle = () => {
           />
         </div>
         <div className={styles.buttonarea}>
-          <button type="submit" disabled={loading}>
+          <button
+            type="submit"
+            disabled={
+              loading || Object.values(form).every((value) => value === "")
+            }
+          >
             {loading ? "Publishing..." : "Publish Article"}
           </button>
         </div>

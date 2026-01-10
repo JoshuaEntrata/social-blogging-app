@@ -77,7 +77,7 @@
   outline: none;
 }
 
-.saveButton {
+.saveBtn {
   margin-top: 32px;
   width: 100%;
   font-size: 16px;
@@ -89,9 +89,15 @@
   padding: 12px 18px;
 }
 
-.saveButton:hover {
+.saveBtn:hover {
   background: #171717;
   cursor: pointer;
+}
+
+.saveBtn:disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
 }
 
 .bio textarea {

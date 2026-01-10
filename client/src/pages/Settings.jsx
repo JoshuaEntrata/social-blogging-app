@@ -120,7 +120,13 @@ const Settings = () => {
             onChange={handleChange}
           />
         </div>
-        <button type="submit" disabled={loading} className={styles.saveButton}>
+        <button
+          type="submit"
+          disabled={
+            loading || Object.values(form).every((value) => value === "")
+          }
+          className={styles.saveBtn}
+        >
           {loading ? "Saving..." : "Save Changes"}
         </button>
       </form>
