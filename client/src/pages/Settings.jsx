@@ -7,7 +7,7 @@ import styles from "../styles/pages/Settings.module.css";
 const { TextArea } = Input;
 
 const Settings = () => {
-  const { updateUser } = useAuth();
+  const { updateUser, user: currentUser } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -39,9 +39,10 @@ const Settings = () => {
           ([, value]) => value !== undefined && value !== ""
         )
       );
+      const username = updatedFields.username ?? currentUser.username;
 
       await updateUser(updatedFields);
-      navigate(`/profile`);
+      navigate(`/profile/${username}`);
     } catch (err) {
       setError(err.message || "Failed to update user");
     } finally {

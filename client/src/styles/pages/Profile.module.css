@@ -5,11 +5,83 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
+  padding: 42px 0;
 }
 
 .profileHeader {
   display: flex;
+  align-items: start;
+  gap: 24px;
+}
+
+.userDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.userDetails h1 {
+  font-family: "Open Sans" !important;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 40px;
+}
+
+.userDetails span {
+  font-family: "Open Sans" !important;
+  font-size: 18x;
+  color: #565d6d;
+  line-height: 28px;
+}
+
+.userDetails button {
+  width: fit-content;
+  margin-top: 18px;
+  border: 1px solid #dee1e6;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-family: "Open Sans" !important;
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.editBtn {
+  color: #171a1f;
+}
+
+.editBtnn:hover {
+  color: #171a1f;
+  background: #ffffff;
+}
+
+.followed {
+  color: #ffffffff;
+  background-color: #3b82f6;
+}
+
+.followed:hover {
+  background-color: #1e3a8a;
+}
+
+.unfollowed {
+  color: #1e3a8a;
+  background-color: #e0e7ff;
+}
+
+.unfollowed:hover {
+  background-color: #c7d2fe;
+}
+
+.articles {
+  width: 100%;
+  display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
+  gap: 32px;
+}
+
+.divider {
+  margin: 0;
 }

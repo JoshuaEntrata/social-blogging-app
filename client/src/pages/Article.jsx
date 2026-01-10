@@ -216,7 +216,7 @@ const Article = () => {
         )}
       </div>
 
-      {comments?.length > 0 ? (
+      {comments?.length > 0 && (
         <div className={styles.comments}>
           {comments.map((comment) => (
             <div key={comment.id}>
@@ -225,9 +225,9 @@ const Article = () => {
             </div>
           ))}
         </div>
-      ) : (
-        <Empty />
       )}
+
+      {!user && comments?.length === 0 && <Empty />}
     </div>
   );
 };
