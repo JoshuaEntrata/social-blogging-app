@@ -66,14 +66,19 @@ function Home() {
             <div className={styles.tagsSection}>
               <h1>Explore Topics</h1>
               <div className={styles.tagList}>
-                {tags.slice(0, 5).map((tag, idx) => (
-                  <Tag key={idx} className={styles.tag}>
-                    {tag}
-                  </Tag>
-                ))}
-
-                {tags.length > 5 && (
-                  <Tag className={styles.tag}>+{tags.length - 5} more</Tag>
+                {tags.length === 0 ? (
+                  <Empty />
+                ) : (
+                  <>
+                    {tags.slice(0, 5).map((tag, idx) => (
+                      <Tag key={idx} className={styles.tag}>
+                        {tag}
+                      </Tag>
+                    ))}
+                    {tags.length > 5 && (
+                      <Tag className={styles.tag}>+{tags.length - 5} more</Tag>
+                    )}
+                  </>
                 )}
               </div>
             </div>

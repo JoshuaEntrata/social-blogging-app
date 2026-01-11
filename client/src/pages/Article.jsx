@@ -139,19 +139,21 @@ const Article = () => {
                     year: "numeric",
                   })}
                 </span>
-                <div className={styles.tagList}>
-                  {article.tagList.slice(0, 5).map((tag, idx) => (
-                    <Tag key={idx} className={styles.tag}>
-                      {tag}
-                    </Tag>
-                  ))}
+                {article.tagList.length > 0 && (
+                  <div className={styles.tagList}>
+                    {article.tagList.slice(0, 5).map((tag, idx) => (
+                      <Tag key={idx} className={styles.tag}>
+                        {tag}
+                      </Tag>
+                    ))}
 
-                  {article.tagList.length > 5 && (
-                    <Tag className={styles.tag}>
-                      +{article.tagList.length - 5} more
-                    </Tag>
-                  )}
-                </div>
+                    {article.tagList.length > 5 && (
+                      <Tag className={styles.tag}>
+                        +{article.tagList.length - 5} more
+                      </Tag>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
