@@ -66,10 +66,6 @@ jobs:
           cache: "npm"
           cache-dependency-path: client/package-lock.json
 
-      - name: Install Netlify CLI
-        run: npm install -g netlify-cli
-        working-directory: client
-
       - name: Install dependencies
         run: npm install
         working-directory: client
@@ -82,7 +78,6 @@ jobs:
         uses: netlify/actions/cli@master
         with:
           args: deploy --dir=client/dist --prod
-        working-directory: client
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
