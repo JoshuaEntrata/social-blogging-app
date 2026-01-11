@@ -66,7 +66,7 @@ function Home() {
             <div className={styles.tagsSection}>
               <h1>Explore Topics</h1>
               <div className={styles.tagList}>
-                {tags.length === 0 ? (
+                {!tags || tags.length === 0 ? (
                   <Empty />
                 ) : (
                   <>

@@ -139,7 +139,7 @@ const Article = () => {
                     year: "numeric",
                   })}
                 </span>
-                {article.tagList.length > 0 && (
+                {article.tagList && article.tagList.length > 0 && (
                   <div className={styles.tagList}>
                     {article.tagList.slice(0, 5).map((tag, idx) => (
                       <Tag key={idx} className={styles.tag}>
