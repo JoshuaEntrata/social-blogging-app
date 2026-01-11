@@ -75,7 +75,7 @@ jobs:
         working-directory: client
 
       - name: Deploy to Netlify
-        run: netlify deploy --dir=dist --prod
+        run: npx netlify-cli deploy --dir=dist --prod
         working-directory: client
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
