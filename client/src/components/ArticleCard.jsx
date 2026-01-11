@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useArticles } from "../contexts/ArticleContext";
+import { useComments } from "../contexts/CommentContext";
 import styles from "../styles/components/ArticleCard.module.css";
 
 const ArticleCard = ({ articleDetails }) => {
@@ -23,6 +24,8 @@ const ArticleCard = ({ articleDetails }) => {
   const [liked, setLiked] = useState(favorited);
   const [count, setCount] = useState(favoritesCount);
   const { favorite, unfavorite } = useArticles();
+  const { getComments } = useComments();
+  const [commentsCount, setCommentsCount] = useState(0);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -32,6 +35,19 @@ const ArticleCard = ({ articleDetails }) => {
   useEffect(() => {
     setCount(favoritesCount);
   }, [favoritesCount]);
+
+  useEffect(() => {
+    const fetchCommentsCount = async () => {
+      try {
+        const comments = await getComments(slug);
+        setCommentsCount(comments.length);
+      } catch (err) {
+        console.log(err);
+        setCommentsCount(0);
+      }
+    };
+    fetchCommentsCount();
+  }, [slug, getComments]);
 
   const handleFavorite = async () => {
     if (!user) {
@@ -107,7 +123,7 @@ const ArticleCard = ({ articleDetails }) => {
             className={styles.metricButton}
             onClick={handleFavorite}
           >
-            {count} Comments
+            {commentsCount} Comments
           </Button>
         </div>
         <Link to={`/article/${slug}`} className={styles.readMore}>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { Button, Divider } from "antd";
+import { Button, Divider, message } from "antd";
 import styles from "../styles/pages/Auth.module.css";
 
 const Login = () => {
@@ -10,6 +10,7 @@ const Login = () => {
     email: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -21,13 +22,18 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       await login(form.email, form.password);
-      console.log("✅ Logged in!");
+      message.success("Logged in successfully!");
+      navigate("/");
     } catch (err) {
-      console.error("❌ Login failed:", err.message);
+      message.error(
+        err.message || "Login failed. Please check your credentials."
+      );
+    } finally {
+      setLoading(false);
     }
-    navigate("/");
   };
 
   return (
@@ -60,8 +66,8 @@ const Login = () => {
             required
           />
         </div>
-        <button htmlType="submit" className={styles.submitBtn}>
-          Sign In
+        <button type="submit" className={styles.submitBtn} disabled={loading}>
+          {loading ? "Signing In..." : "Sign In"}
         </button>
 
         <Divider />

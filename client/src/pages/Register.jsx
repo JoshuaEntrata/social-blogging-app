@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Divider } from "antd";
+import { Link, useNavigate } from "react-router-dom";
+import { Divider, message } from "antd";
 import { useAuth } from "../contexts/AuthContext";
 import styles from "../styles/pages/Auth.module.css";
 
 const Register = () => {
   const { register } = useAuth();
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     username: "",
     email: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({
@@ -21,11 +23,15 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       await register(form.username, form.email, form.password);
-      console.log("✅ Registered successfully!");
+      message.success("Registered successfully! Please log in.");
+      navigate("/login");
     } catch (err) {
-      console.error("❌ Registration failed:", err.message);
+      message.error(err.message || "Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,8 +76,8 @@ const Register = () => {
             required
           />
         </div>
-        <button type="submit" className={styles.submitBtn}>
-          Register
+        <button type="submit" className={styles.submitBtn} disabled={loading}>
+          {loading ? "Registering..." : "Register"}
         </button>
 
         <Divider />
