@@ -9,9 +9,9 @@ export const logger: Logger = {
     console.log(`[INFO] ${new Date().toISOString()} - ${msg}`, ...args);
   },
   warn: (msg: string, ...args: any[]) => {
-    console.log(`[WARN] ${new Date().toISOString()} - ${msg}`, ...args);
+    console.warn(`[WARN] ${new Date().toISOString()} - ${msg}`, ...args);
   },
   error: (msg: string, ...args: any[]) => {
-    console.log(`[ERROR] ${new Date().toISOString()} - ${msg}`, ...args);
+    console.error(`[ERROR] ${new Date().toISOString()} - ${msg}`, ...args);
   },
 };
