@@ -20,10 +20,13 @@ export const sequelize = new Sequelize({
     timestamps: true,
     underscored: true,
   },
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false,
-    },
-  },
+  dialectOptions:
+    process.env.DB_SSL === "true"
+      ? {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false,
+          },
+        }
+      : {},
 });
