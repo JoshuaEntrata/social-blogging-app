@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useArticles } from "../contexts/ArticleContext";
 import { useProfile } from "../contexts/ProfileContext";
-import { Alert, Avatar, Divider, Segmented, Spin, Tabs } from "antd";
+import { Alert, Avatar, Divider, Segmented, Skeleton } from "antd";
 import { Feed } from "../components";
 import styles from "../styles/pages/Profile.module.css";
 
@@ -83,11 +83,11 @@ const Profile = () => {
 
   const myArticles = allMyArticles.slice(
     (myPage - 1) * pageSize,
-    myPage * pageSize
+    myPage * pageSize,
   );
   const favoritedArticles = allFavoritedArticles.slice(
     (favoritedPage - 1) * pageSize,
-    favoritedPage * pageSize
+    favoritedPage * pageSize,
   );
 
   const isMyProfile = currentUser?.username === profileUser?.username;
@@ -123,7 +123,7 @@ const Profile = () => {
       <div className={styles.feed}>
         {loading ? (
           <div className={styles.centered}>
-            <Spin size="large" />
+            <Skeleton />
           </div>
         ) : error ? (
           <Alert message="Error" description={error} type="error" showIcon />

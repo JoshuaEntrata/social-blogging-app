@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Divider, Tag, Spin, Alert, Empty } from "antd";
+import { Divider, Tag, Skeleton, Alert, Empty } from "antd";
 import { Feed } from "../components";
 import { useAuth } from "../contexts/AuthContext";
 import { useArticles } from "../contexts/ArticleContext";
@@ -49,7 +49,7 @@ function Home() {
 
   const globalFeed = allGlobalFeed.slice(
     (globalPage - 1) * pageSize,
-    globalPage * pageSize
+    globalPage * pageSize,
   );
 
   return (
@@ -57,7 +57,7 @@ function Home() {
       <div className={styles.feed}>
         {loading ? (
           <div className={styles.centered}>
-            <Spin size="large" />
+            <Skeleton />
           </div>
         ) : error ? (
           <Alert message="Error" description={error} type="error" showIcon />

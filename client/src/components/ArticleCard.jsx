@@ -117,14 +117,15 @@ const ArticleCard = ({ articleDetails }) => {
           >
             {count} Likes
           </Button>
-          <Button
-            type="text"
-            icon={<CommentOutlined size={16} />}
-            className={styles.metricButton}
-            onClick={handleFavorite}
-          >
-            {commentsCount} Comments
-          </Button>
+          <Link to={`/article/${slug}`} className={styles.readMore}>
+            <Button
+              type="text"
+              icon={<CommentOutlined size={16} />}
+              className={styles.metricButton}
+            >
+              {commentsCount} Comments
+            </Button>
+          </Link>
         </div>
         <Link to={`/article/${slug}`} className={styles.readMore}>
           Read more...
