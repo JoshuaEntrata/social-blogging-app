@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useArticles } from "../contexts/ArticleContext";
 import { useProfile } from "../contexts/ProfileContext";
-import { Alert, Avatar, Divider, Segmented, Skeleton } from "antd";
+import { Alert, Avatar, Button, Divider, Segmented, Skeleton } from "antd";
 import { Feed } from "../components";
 import styles from "../styles/pages/Profile.module.css";
 
@@ -101,19 +101,19 @@ const Profile = () => {
           {profileUser?.bio && <span>{profileUser?.bio}</span>}
 
           {isMyProfile ? (
-            <button
+            <Button
               onClick={() => navigate("/settings")}
               className={styles.editBtn}
             >
               Edit Profile
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               onClick={handleFollow}
               className={followed ? styles.followed : styles.unfollowed}
             >
               {followed ? "Followed" : "Follow"}
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -133,7 +133,7 @@ const Profile = () => {
               value={tabValue}
               onChange={setTabValue}
               options={["My Articles", "Favorited Articles"]}
-              classNames={styles.segmentedTabs}
+              className={styles.segmentedTabs}
             />
             {tabValue === "My Articles" ? (
               <Feed

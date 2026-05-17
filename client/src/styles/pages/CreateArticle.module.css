@@ -1,38 +1,38 @@
 .body {
   width: 100%;
-  padding: 42px 0;
+  padding: 48px clamp(18px, 5vw, 72px) 72px;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .form {
-  width: 700px;
+  width: min(100%, 760px);
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  background: white;
-  padding: 24px 32px;
+  gap: 22px;
+  background: var(--color-bg);
+  padding: clamp(24px, 4vw, 42px);
   border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
 }
 
 .heading h1 {
-  font-size: 36px;
+  font-size: clamp(34px, 6vw, 52px);
   font-weight: 700;
-  font-family: "Open Sans" !important;
-  line-height: 40px;
-  margin: 0 0 10px;
-  text-align: center;
+  font-family: var(--font-serif) !important;
+  line-height: 1.08;
+  margin: 0 0 12px;
 }
 
 .heading h3 {
-  font-size: 18px;
-  font-family: "Open Sans" !important;
-  line-height: 18px;
-  text-align: center;
+  max-width: 560px;
+  font-size: 17px;
+  font-family: var(--font-sans) !important;
+  line-height: 1.6;
   margin: 0;
-  color: #565d6d;
+  color: var(--color-muted);
 }
 
 .title,
@@ -50,44 +50,63 @@
 .content label {
   font-size: 14px;
   font-weight: 500;
-  font-family: "Open Sans" !important;
+  font-family: var(--font-sans) !important;
   line-height: 22px;
+  color: var(--color-text);
 }
 
 .title input,
 .description input,
 .tags input,
 .content textarea {
-  background: white;
-  color: black;
+  background: var(--color-bg);
+  color: var(--color-text);
   width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-  font-family: "Open Sans" !important;
-
-  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: var(--font-sans) !important;
+  padding: 10px 12px;
   outline: none;
+}
+
+.title input:focus,
+.description input:focus,
+.tags input:focus,
+.content textarea:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(26, 137, 23, 0.12);
 }
 
 .buttonarea {
   width: 100%;
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   justify-content: end;
   margin-top: 20px;
 }
 
+.primaryButton,
 .buttonarea button {
+  min-height: 44px;
   font-size: 16px;
   font-weight: 500;
-  background: #171717;
+  background: var(--color-text);
   color: white;
-  border-radius: 6px;
+  border-radius: 999px;
   border: none;
   padding: 12px 18px;
   cursor: pointer;
 }
 
+.primaryButton:hover,
+.buttonarea button:hover {
+  background: var(--color-accent) !important;
+  color: white !important;
+}
+
+.primaryButton:disabled,
 .buttonarea button:disabled {
   background: #ccc;
   color: #666;
@@ -99,5 +118,17 @@
 }
 
 .deleteButton {
-  background: red !important;
+  min-height: 44px;
+  border-radius: 999px;
+}
+
+@media (max-width: 560px) {
+  .buttonarea {
+    justify-content: stretch;
+  }
+
+  .primaryButton,
+  .deleteButton {
+    width: 100%;
+  }
 }

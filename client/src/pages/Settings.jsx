@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { Divider, Input } from "antd";
+import { Alert, Button, Divider, Input } from "antd";
 import styles from "../styles/pages/Settings.module.css";
 
 const { TextArea } = Input;
@@ -52,9 +52,10 @@ const Settings = () => {
 
   return (
     <div className={styles.body}>
-      {error && <p>{error}</p>}
-
       <form onSubmit={handleSubmit} className={styles.form}>
+        {error && (
+          <Alert message="Could not save changes" description={error} type="error" />
+        )}
         <h1>Account Settings</h1>
         <h3>
           Update your profile and account details here. Leave blank to keep your
@@ -120,15 +121,17 @@ const Settings = () => {
             onChange={handleChange}
           />
         </div>
-        <button
-          type="submit"
+        <Button
+          htmlType="submit"
+          type="primary"
+          loading={loading}
           disabled={
             loading || Object.values(form).every((value) => value === "")
           }
           className={styles.saveBtn}
         >
           {loading ? "Saving..." : "Save Changes"}
-        </button>
+        </Button>
       </form>
     </div>
   );

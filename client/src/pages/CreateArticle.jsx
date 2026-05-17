@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useArticles } from "../contexts/ArticleContext";
-import { Input } from "antd";
+import { Alert, Button, Input } from "antd";
 import styles from "../styles/pages/CreateArticle.module.css";
 
 const { TextArea } = Input;
@@ -52,9 +52,10 @@ const CreateArticle = () => {
 
   return (
     <div className={styles.body}>
-      {error && <p>{error}</p>}
-
       <form onSubmit={handleSubmit} className={styles.form}>
+        {error && (
+          <Alert message="Could not publish" description={error} type="error" />
+        )}
         <div className={styles.heading}>
           <h1>Create New Article</h1>
           <h3>Share your insights and stories with the community.</h3>
@@ -108,14 +109,17 @@ const CreateArticle = () => {
           />
         </div>
         <div className={styles.buttonarea}>
-          <button
-            type="submit"
+          <Button
+            htmlType="submit"
+            type="primary"
+            loading={loading}
             disabled={
               loading || Object.values(form).every((value) => value === "")
             }
+            className={styles.primaryButton}
           >
             {loading ? "Publishing..." : "Publish Article"}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

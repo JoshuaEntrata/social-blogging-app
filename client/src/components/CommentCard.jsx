@@ -29,7 +29,7 @@ const CommentCard = ({ comment, onDelete }) => {
         </div>
         <div className={styles.body}>{comment.body}</div>
       </div>
-      {comment.author?.username == user?.username && (
+      {comment.author?.username === user?.username && (
         <Button
           onClick={() => onDelete(comment.id)}
           icon={<CloseOutlined />}

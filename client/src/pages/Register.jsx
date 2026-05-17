@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Divider, message } from "antd";
+import { Button, Divider, message } from "antd";
 import { useAuth } from "../contexts/AuthContext";
 import styles from "../styles/pages/Auth.module.css";
 
@@ -76,9 +76,15 @@ const Register = () => {
             required
           />
         </div>
-        <button type="submit" className={styles.submitBtn} disabled={loading}>
+        <Button
+          htmlType="submit"
+          type="primary"
+          className={styles.submitBtn}
+          loading={loading}
+          disabled={loading}
+        >
           {loading ? "Registering..." : "Register"}
-        </button>
+        </Button>
 
         <Divider />
 

@@ -66,9 +66,15 @@ const Login = () => {
             required
           />
         </div>
-        <button type="submit" className={styles.submitBtn} disabled={loading}>
+        <Button
+          htmlType="submit"
+          type="primary"
+          className={styles.submitBtn}
+          loading={loading}
+          disabled={loading}
+        >
           {loading ? "Signing In..." : "Sign In"}
-        </button>
+        </Button>
 
         <Divider />
 

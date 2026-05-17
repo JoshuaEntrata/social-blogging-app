@@ -4,7 +4,7 @@ const Footer = () => {
   return (
     <footer className={styles.footer}>
       <div className={styles.logo}>
-        <h1>© 2026 Social Blogging. All rights reserved.</h1>
+        <h1>© 2026 Social Blogging</h1>
       </div>
       <div className={styles.items}>
         <span>Privacy Policy</span>

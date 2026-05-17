@@ -1,18 +1,20 @@
 .tag {
-  background-color: aliceblue;
-  color: #242424;
-  font-size: 14px;
-  border-radius: 8px;
+  margin: 0;
+  background-color: var(--color-surface-muted);
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
 }
 
 .tagBox {
-  background: #f8f9fa;
-  border: 1px solid #e0e0e0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 24px 20px;
   max-width: 400px;
   margin: 0 auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .tagBox__list {
@@ -22,7 +24,9 @@
 }
 
 .tagBox__header {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #333;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-text);
+  margin: 0 0 16px;
 }

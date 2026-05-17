@@ -2,42 +2,45 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 42px 0;
+  align-items: flex-start;
+  padding: 48px clamp(18px, 5vw, 72px) 72px;
 }
 
 .form {
-  width: 700px;
-  background: white;
-  color: black;
-  padding: 24px 48px;
+  width: min(100%, 760px);
+  background: var(--color-bg);
+  color: var(--color-text);
+  padding: clamp(24px, 4vw, 42px);
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 
 .form h1 {
-  font-size: 30px;
-  line-height: 36px;
+  font-size: clamp(34px, 6vw, 52px);
+  line-height: 1.08;
   font-weight: 700;
-  font-family: "Open Sans" !important;
+  font-family: var(--font-serif) !important;
   margin: 0;
 }
 
 .form h3 {
-  font-size: 16px;
-  line-height: 24px;
-  font-family: "Open Sans" !important;
-  color: #565d6d;
+  max-width: 560px;
+  font-size: 17px;
+  line-height: 1.6;
+  font-family: var(--font-sans) !important;
+  color: var(--color-muted);
+  margin: -8px 0 8px;
 }
 
 .form h2 {
   font-size: 20px;
   line-height: 28px;
-  font-weight: 600;
-  font-family: "Open Sans" !important;
+  font-weight: 800;
+  font-family: var(--font-sans) !important;
   margin: 0;
 }
 
@@ -57,7 +60,7 @@
 .email label,
 .password label {
   font-size: 14px;
-  font-family: "Open Sans" !important;
+  font-family: var(--font-sans) !important;
   font-weight: 500;
   line-height: 22px;
 }
@@ -67,30 +70,40 @@
 .email input,
 .password input,
 .bio textarea {
-  background: white;
-  color: black;
+  background: var(--color-bg);
+  color: var(--color-text);
   width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-  padding: 8px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 15px;
+  padding: 10px 12px;
   outline: none;
+}
+
+.imageUrl input:focus,
+.username input:focus,
+.email input:focus,
+.password input:focus,
+.bio textarea:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(26, 137, 23, 0.12);
 }
 
 .saveBtn {
   margin-top: 32px;
   width: 100%;
+  min-height: 46px;
   font-size: 16px;
   font-weight: 500;
-  background: #171717;
+  background: var(--color-text);
   color: white;
-  border-radius: 6px;
+  border-radius: 999px;
   border: none;
   padding: 12px 18px;
 }
 
 .saveBtn:hover {
-  background: #171717;
+  background: var(--color-accent) !important;
   cursor: pointer;
 }
 

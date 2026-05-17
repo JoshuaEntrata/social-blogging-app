@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useArticles } from "../contexts/ArticleContext";
 import { useComments } from "../contexts/CommentContext";
-import { Avatar, Button, Divider, Input, Tag, Empty } from "antd";
+import { Avatar, Button, Divider, Input, Tag, Empty, message } from "antd";
 import { CommentCard } from "../components";
 import { CommentOutlined, HeartOutlined, HeartFilled } from "@ant-design/icons";
 import styles from "../styles/pages/Article.module.css";
@@ -27,10 +27,11 @@ const Article = () => {
 
   const [liked, setLiked] = useState(false);
   const [count, setCount] = useState(0);
+  const commentsRef = useRef(null);
 
   const handleAddComment = async () => {
     if (!commentText.trim()) {
-      console.warning("Please enter a comment before submitting.");
+      message.warning("Please enter a comment before submitting.");
       return;
     }
 
@@ -40,7 +41,7 @@ const Article = () => {
       setComments((prev) => [newComment, ...prev]);
       setCommentText("");
     } catch (err) {
-      console.error(err.message || "Failed to add comment");
+      message.error(err.message || "Failed to add comment");
     } finally {
       setSubmitting(false);
     }
@@ -51,7 +52,7 @@ const Article = () => {
       await deleteComment(slug, commentId);
       setComments((prev) => prev.filter((c) => c.id !== commentId));
     } catch (err) {
-      console.error("Failed to delete comment:", err);
+      message.error(err.message || "Failed to delete comment");
     }
   };
 
@@ -105,14 +106,21 @@ const Article = () => {
     }
   };
 
+  const handleCommentMetricClick = () => {
+    commentsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   if (loading) return <p>Loading article...</p>;
   if (error) return <p className={styles.error}>{error}</p>;
   if (!article) return <p>No article found</p>;
 
   return (
     <div className={styles.page}>
-      {user?.username == article.author.username && (
-        <Button onClick={() => navigate(`/article/${article.slug}/edit`)}>
+      {user?.username === article.author.username && (
+        <Button
+          className={styles.editButton}
+          onClick={() => navigate(`/article/${article.slug}/edit`)}
+        >
           Edit Article
         </Button>
       )}
@@ -176,7 +184,7 @@ const Article = () => {
               type="text"
               icon={<CommentOutlined size={16} />}
               className={styles.metricButton}
-              onClick={handleFavorite}
+              onClick={handleCommentMetricClick}
             >
               {comments?.length}
             </Button>
@@ -192,7 +200,7 @@ const Article = () => {
 
       <Divider className={styles.divider} />
 
-      <div className={styles.addComment}>
+      <div className={styles.addComment} ref={commentsRef}>
         <h1>Comments</h1>
         {user && (
           <div className={styles.newComment}>
@@ -220,10 +228,10 @@ const Article = () => {
 
       {comments?.length > 0 && (
         <div className={styles.comments}>
-          {comments.map((comment) => (
+          {comments.map((comment, index) => (
             <div key={comment.id}>
               <CommentCard comment={comment} onDelete={handleDeleteComment} />
-              {comment.id !== comments.length - 1 && <Divider />}
+              {index !== comments.length - 1 && <Divider />}
             </div>
           ))}
         </div>

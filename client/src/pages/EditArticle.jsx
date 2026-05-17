@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useArticles } from "../contexts/ArticleContext";
-import { Input, message } from "antd";
+import { Alert, Button, Input, message } from "antd";
 import styles from "../styles/pages/CreateArticle.module.css";
 import "antd/dist/reset.css";
 
@@ -13,7 +13,6 @@ const EditArticle = () => {
   const { getArticle, updateArticle, deleteArticle } = useArticles();
   const { slug } = useParams();
   const navigate = useNavigate();
-  console.log("slug", slug);
 
   const [form, setForm] = useState({
     title: "",
@@ -91,14 +90,15 @@ const EditArticle = () => {
   };
 
   if (articleLoading) return <p>Loading article...</p>;
-  if (articleError) return <p className={styles.error}>{error}</p>;
+  if (articleError) return <p className={styles.error}>{articleError}</p>;
   if (!article) return <p>No article found</p>;
 
   return (
     <div className={styles.body}>
-      {error && <p>{error}</p>}
-
       <form onSubmit={handleSubmit} className={styles.form}>
+        {error && (
+          <Alert message="Could not update" description={error} type="error" />
+        )}
         <div className={styles.heading}>
           <h1>Update Article</h1>
           <h3>Share your insights and stories with the community.</h3>
@@ -137,25 +137,26 @@ const EditArticle = () => {
           />
         </div>
         <div className={styles.buttonarea}>
-          <button
+          <Button
             type="primary"
             htmlType="submit"
             loading={loading}
             disabled={loading}
-            style={{ marginRight: "1rem" }}
+            className={styles.primaryButton}
           >
             {loading ? "Updating..." : "Update Article"}
-          </button>
+          </Button>
 
-          <button
+          <Button
             htmlType="button"
             onClick={handleDelete}
             loading={deleting}
             disabled={deleting}
+            danger
             className={styles.deleteButton}
           >
             {deleting ? "Deleting..." : "Delete Article"}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

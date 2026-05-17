@@ -1,17 +1,43 @@
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 32px;
-  background-color: white;
-  color: black;
-  border-bottom: 2px solid #364f6b14;
+  gap: 32px;
+  padding: 14px clamp(20px, 5vw, 72px);
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
+  backdrop-filter: blur(14px);
+}
+
+.logo a {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logoMark {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-text);
+  border-radius: 50%;
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .logo h1 {
-  font-size: 18px;
-  font-weight: 800;
-  color: #364f68;
+  font-family: var(--font-serif);
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -21,26 +47,41 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  gap: 24px;
+  gap: 10px;
 }
 
 .navLinksLi {
-  display: flex;
-  gap: 16px;
+  display: inline-flex;
+  gap: 8px;
   align-items: center;
-  padding: 12px;
-  border-radius: 10px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--color-muted);
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .navLinksLi:hover {
-  background: #f4f4f4;
+  background: var(--color-surface-muted);
+  color: var(--color-text);
   cursor: pointer;
+}
+
+.active {
+  color: var(--color-text);
+  border-color: var(--color-border);
+  background: var(--color-surface);
 }
 
 .navLinks a {
   text-decoration: none;
-  color: black;
-  font-size: 16px;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 600;
   transition: color 0.2s ease;
 }
 
@@ -48,7 +89,19 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-height: 38px;
+  padding: 0 8px 0 4px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
   cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.userMenu:hover {
+  background: var(--color-surface-muted);
+  border-color: var(--color-border-strong);
 }
 
 .avatar {
@@ -56,6 +109,35 @@
 }
 
 .username {
-  font-size: 16px;
-  color: black;
+  max-width: 120px;
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+    padding: 14px 18px;
+  }
+
+  .navLinks,
+  .navLinks ul {
+    width: 100%;
+  }
+
+  .navLinks ul {
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .navLinksLi {
+    flex: 0 0 auto;
+  }
 }

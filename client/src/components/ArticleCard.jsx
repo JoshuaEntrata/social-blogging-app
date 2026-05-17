@@ -42,7 +42,6 @@ const ArticleCard = ({ articleDetails }) => {
         const comments = await getComments(slug);
         setCommentsCount(comments.length);
       } catch (err) {
-        console.log(err);
         setCommentsCount(0);
       }
     };
@@ -115,7 +114,7 @@ const ArticleCard = ({ articleDetails }) => {
             className={styles.metricButton}
             onClick={handleFavorite}
           >
-            {count} Likes
+            {count}
           </Button>
           <Link to={`/article/${slug}`} className={styles.readMore}>
             <Button
@@ -123,12 +122,12 @@ const ArticleCard = ({ articleDetails }) => {
               icon={<CommentOutlined size={16} />}
               className={styles.metricButton}
             >
-              {commentsCount} Comments
+              {commentsCount}
             </Button>
           </Link>
         </div>
         <Link to={`/article/${slug}`} className={styles.readMore}>
-          Read more...
+          Read story
         </Link>
       </div>
     </div>

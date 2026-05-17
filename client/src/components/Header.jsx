@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Avatar, Dropdown } from "antd";
 import {
   HomeOutlined,
@@ -6,6 +6,7 @@ import {
   UserOutlined,
   SettingOutlined,
   LogoutOutlined,
+  LoginOutlined,
 } from "@ant-design/icons";
 import { useAuth } from "../contexts/AuthContext";
 import styles from "../styles/components/Header.module.css";
@@ -13,6 +14,7 @@ import styles from "../styles/components/Header.module.css";
 const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleMenuClick = ({ key }) => {
     if (key === "logout") {
@@ -20,6 +22,8 @@ const Header = () => {
       navigate("/");
     }
   };
+
+  const isActive = (path) => location.pathname === path;
 
   const items = [
     {
@@ -43,22 +47,37 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <div className={styles.logo}>
-        <Link to="/">
-          <h1>Social Blogging App</h1>
+        <Link to="/" aria-label="Go to home">
+          <span className={styles.logoMark}>S</span>
+          <h1>Social Blogging</h1>
         </Link>
       </div>
 
       <nav className={styles.navLinks}>
         <ul>
-          <li className={styles.navLinksLi}>
-            <HomeOutlined />
-            <Link to="/">Home</Link>
+          <li>
+            <Link
+              to="/"
+              className={`${styles.navLinksLi} ${
+                isActive("/") ? styles.active : ""
+              }`}
+            >
+              <span>Home</span>
+              <HomeOutlined />
+            </Link>
           </li>
           {user ? (
             <>
-              <li className={styles.navLinksLi}>
-                <PlusCircleOutlined />
-                <Link to="/post">Create Article</Link>
+              <li>
+                <Link
+                  to="/post"
+                  className={`${styles.navLinksLi} ${
+                    isActive("/post") ? styles.active : ""
+                  }`}
+                >
+                  <span>Create Article</span>
+                  <PlusCircleOutlined />
+                </Link>
               </li>
               <li>
                 <Dropdown
@@ -70,6 +89,7 @@ const Header = () => {
                       src={user.image}
                       alt="avatar"
                       className={styles.avatar}
+                      icon={<UserOutlined />}
                     />
                     <span className={styles.username}>{user.username}</span>
                   </div>
@@ -77,8 +97,16 @@ const Header = () => {
               </li>
             </>
           ) : (
-            <li className={styles.navLinksLi}>
-              <Link to="/login">Login</Link>
+            <li>
+              <Link
+                to="/login"
+                className={`${styles.navLinksLi} ${
+                  isActive("/login") ? styles.active : ""
+                }`}
+              >
+                <span>Login</span>
+                <LoginOutlined />
+              </Link>
             </li>
           )}
         </ul>

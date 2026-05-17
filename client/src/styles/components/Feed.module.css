@@ -1,7 +1,12 @@
 .feeds {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 40px;
+  align-items: stretch;
+  gap: 0;
   width: 100%;
+}
+
+.feeds :global(.ant-pagination) {
+  align-self: center;
+  margin-top: 32px;
 }
