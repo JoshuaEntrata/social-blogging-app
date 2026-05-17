@@ -4,6 +4,7 @@ import { LoginAttributes, UserCreationAttributes } from "../models/user.model";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/jwt";
 import { getCache, setCache, delCacheByPattern } from "../utils/cache";
+import { ApiError, formatLogError } from "../utils/apiError";
 
 export class UserService {
   private readonly repo = new UserRepository();
@@ -17,8 +18,8 @@ export class UserService {
       const existing = await this.repo.findByEmail(user.email);
 
       if (existing) {
-        this.logger.warn(`${context} - User "${user.email}" already exists`);
-        throw new Error("A user with the same email already exists");
+        this.logger.warn(`${context} - User already exists`);
+        throw new ApiError(409, "A user with the same email already exists");
       }
 
       const hashed = await bcrypt.hash(user.password, 10);
@@ -34,7 +35,7 @@ export class UserService {
 
       return await this.getUser(userId, token);
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
@@ -51,20 +52,20 @@ export class UserService {
 
       if (!user) {
         this.logger.warn(`${context} - User not found`);
-        throw new Error("Invalid credentials");
+        throw new ApiError(401, "Invalid credentials");
       }
 
       const isMatchPassword = await bcrypt.compare(password, user.password);
 
       if (!isMatchPassword) {
         this.logger.warn(`${context} - Password mismatch`);
-        throw new Error("Invalid credentials");
+        throw new ApiError(401, "Invalid credentials");
       }
 
       const token = generateToken(user.id);
       return await this.getUser(user.id, token);
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
@@ -80,14 +81,14 @@ export class UserService {
       const cached = await getCache(cacheKey);
       if (cached) {
         this.logger.info(`${context} - Cache hit.`);
-        return cached;
+        return { ...cached, token };
       }
 
       const user = await this.repo.findById(userId);
 
       if (!user) {
         this.logger.warn(`${context} - User does not exist`);
-        throw new Error("User does not exist");
+        throw new ApiError(404, "User does not exist");
       }
 
       const { email, username, bio, image } = user;
@@ -95,14 +96,14 @@ export class UserService {
       await setCache(cacheKey, { email, username, bio, image });
       return { email, token, username, bio, image };
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
     }
   }
 
-  async getProfile(usernameParam: string, userId: number) {
+  async getProfile(usernameParam: string, userId?: number) {
     const context = "UserService.getProfile";
     this.logger.info(`${context} - Started`);
 
@@ -112,12 +113,14 @@ export class UserService {
 
       if (!following) {
         this.logger.warn(`${context} - User does not exist`);
-        throw new Error("User does not exist");
+        throw new ApiError(404, "User does not exist");
       }
 
       if (userId) {
         const follower = await this.repo.findById(userId);
-        isFollowing = await this.repo.isFollowing(follower!, following);
+        isFollowing = follower
+          ? await this.repo.isFollowing(follower, following)
+          : false;
       }
 
       const { username, bio, image } = following;
@@ -129,7 +132,7 @@ export class UserService {
         following: isFollowing,
       };
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
@@ -146,13 +149,17 @@ export class UserService {
 
     try {
       const currentUser = await this.repo.findById(userId);
+      if (!currentUser) {
+        this.logger.warn(`${context} - User does not exist`);
+        throw new ApiError(404, "User does not exist");
+      }
 
       if (
         user.email &&
         (await this.repo.emailTakenByOthers(user.email, userId))
       ) {
         this.logger.warn(`${context} - Email is already taken`);
-        throw new Error("Email is already taken");
+        throw new ApiError(409, "Email is already taken");
       }
 
       const updatedUser: UserCreationAttributes = {
@@ -173,7 +180,7 @@ export class UserService {
       await this.repo.update(userId, updatedUser);
       return await this.getUser(userId, token);
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
@@ -190,12 +197,12 @@ export class UserService {
 
       if (!following || !follower) {
         this.logger.warn(`${context} - User does not exist`);
-        throw new Error("User does not exist");
+        throw new ApiError(404, "User does not exist");
       }
 
       if (following.id === followerId) {
         this.logger.warn(`${context} - User cannot follow itself`);
-        throw new Error("User cannot follow itself");
+        throw new ApiError(400, "User cannot follow itself");
       }
 
       await this.repo.follow(follower, following);
@@ -214,7 +221,7 @@ export class UserService {
         following: isFollowing,
       };
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
@@ -222,7 +229,7 @@ export class UserService {
   }
 
   async unfollowUser(usernameParam: string, followerId: number) {
-    const context = "UserService.followUser";
+    const context = "UserService.unfollowUser";
     this.logger.info(`${context} - Started`);
 
     try {
@@ -231,12 +238,12 @@ export class UserService {
 
       if (!following || !follower) {
         this.logger.warn(`${context} - User does not exist`);
-        throw new Error("User does not exist");
+        throw new ApiError(404, "User does not exist");
       }
 
       if (following.id === followerId) {
         this.logger.warn(`${context} - User cannot follow itself`);
-        throw new Error("User cannot follow itself");
+        throw new ApiError(400, "User cannot follow itself");
       }
 
       await this.repo.unfollow(follower, following);
@@ -255,7 +262,7 @@ export class UserService {
         following: isFollowing,
       };
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);

@@ -10,6 +10,7 @@ import {
   delCache,
   delCacheByPattern,
 } from "../utils/cache";
+import { ApiError, formatLogError } from "../utils/apiError";
 
 export class ArticleService {
   private readonly articleRepo = new ArticleRepository();
@@ -18,23 +19,23 @@ export class ArticleService {
 
   constructor(private readonly logger: Logger) {}
 
-  async getArticle(slug: string, userId: number) {
+  async getArticle(id: string, userId: number) {
     const context = "ArticleService.getArticle";
     this.logger.info(`${context} - Started.`);
 
     try {
-      const cacheKey = `article:${slug}:user:${userId}`;
+      const cacheKey = `article:${id}:user:${userId}`;
 
       const cached = await getCache(cacheKey);
       if (cached) {
         this.logger.info(`${context} - Cache hit.`);
         return cached;
       }
-
-      const article = await this.articleRepo.findBySlug(slug);
+      
+      const article = await this.articleRepo.findById(id);
       if (!article) {
         this.logger.warn(`${context} - Article not found.`);
-        throw new Error("Article not found");
+        throw new ApiError(404, "Article not found");
       }
 
       const plainArticle = article.get({ plain: true });
@@ -54,6 +55,7 @@ export class ArticleService {
 
       const result = {
         ...articleDetails,
+        id,
         author: author,
         tagList: tags,
         favorited: isFavorited,
@@ -63,7 +65,7 @@ export class ArticleService {
       await setCache(cacheKey, result);
       return result;
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
@@ -81,10 +83,8 @@ export class ArticleService {
       const existing = await this.articleRepo.findBySlug(slug);
 
       if (existing) {
-        this.logger.warn(
-          `${context} - Article with title "${title}" already exists`
-        );
-        throw new Error("An article with the same title already exists");
+        this.logger.warn(`${context} - Article already exists`);
+        throw new ApiError(409, "An article with the same title already exists");
       }
 
       const article = {
@@ -95,15 +95,16 @@ export class ArticleService {
         title,
       };
       const tagList = (data as any).tagList ?? [];
-      await this.articleRepo.create(article, tagList);
+      const created = await this.articleRepo.create(article, tagList);
 
       await delCacheByPattern("articles:all*");
       await delCacheByPattern(`feed:${userId}*`);
       await delCacheByPattern(`article:*:user:*`);
+      await delCache("tags:all");
 
-      return await this.getArticle(article.slug, userId);
+      return await this.getArticle(created.id as string, userId);
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
@@ -111,7 +112,7 @@ export class ArticleService {
   }
 
   async updateArticle(
-    paramSlug: string,
+    paramId: string,
     data: ArticleCreationAttributes,
     userId: number
   ) {
@@ -119,16 +120,16 @@ export class ArticleService {
     this.logger.info(`${context} - Started.`);
 
     try {
-      const original = await this.articleRepo.findBySlug(paramSlug);
+      const original = await this.articleRepo.findById(paramId);
 
       if (!original) {
         this.logger.warn(`${context} - Article does not exist`);
-        throw new Error("Article does not exist");
+        throw new ApiError(404, "Article does not exist");
       }
 
       if (original.authorId !== userId) {
         this.logger.warn(`${context} - Unauthorized to edit this`);
-        throw new Error("Unauthorized to edit this");
+        throw new ApiError(403, "Unauthorized to edit this");
       }
 
       const articleSlug = data.title ? generateSlug(data.title) : original.slug;
@@ -141,48 +142,46 @@ export class ArticleService {
         authorId: userId,
       };
 
-      const updatedArticle = await this.articleRepo.update(paramSlug, article);
+      const updatedArticle = await this.articleRepo.updateById(paramId, article as any);
       const newSlug = updatedArticle?.slug ?? articleSlug;
 
       await delCacheByPattern("articles:all*");
       await delCacheByPattern(`feed:${userId}*`);
       await delCacheByPattern(`article:*:user:*`);
 
-      const result = await this.getArticle(newSlug, userId);
+      const result = await this.getArticle(paramId, userId);
       return result;
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
     }
   }
 
-  async deleteArticle(slug: string, userId: number) {
+  async deleteArticle(id: string, userId: number) {
     const context = "ArticleService.deleteArticle";
     this.logger.info(`${context} - Started`);
 
     try {
-      const existing = await this.articleRepo.findBySlug(slug);
+      const existing = await this.articleRepo.findById(id);
 
       if (!existing) {
-        this.logger.warn(
-          `${context} - Article with title "${slug}" does not exist`
-        );
-        throw new Error("Article does not exist.");
+        this.logger.warn(`${context} - Article does not exist`);
+        throw new ApiError(404, "Article does not exist.");
       }
 
-      const article = await this.articleRepo.findBySlug(slug);
+      const article = await this.articleRepo.findById(id);
       if (!article) {
-        throw new Error("article not found");
+        throw new ApiError(404, "Article not found");
       }
 
       if (article.authorId !== userId) {
         this.logger.warn(`${context} - Unauthorized to delete this`);
-        throw new Error("Unauthorized to delete this");
+        throw new ApiError(403, "Unauthorized to delete this");
       }
 
-      await this.articleRepo.delete(article.slug);
+      await this.articleRepo.deleteById(article.id as string);
       this.logger.info(`${context} - Article deleted`);
 
       await delCacheByPattern("articles:all*");
@@ -191,7 +190,7 @@ export class ArticleService {
 
       return { message: "Article deleted." };
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
@@ -218,12 +217,9 @@ export class ArticleService {
 
         const user = await this.userRepo.findById(article.authorId!);
         if (!user) {
-          throw Error("no user");
+          throw new ApiError(404, "Author not found");
         }
-        const author = await this.userService.getProfile(
-          user.username,
-          userId!
-        );
+        const author = await this.userService.getProfile(user.username, userId);
 
         result.push({
           ...article,
@@ -236,7 +232,7 @@ export class ArticleService {
 
       return result;
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
@@ -258,14 +254,15 @@ export class ArticleService {
         return cached;
       }
 
-      const articles = await this.articleRepo.listFeedArticles(filters);
-      const plainArticles = articles.map((a) => a.get({ plain: true }));
-      const result = await this.getArticleDetails(plainArticles, userId);
+      const { rows, count } = await this.articleRepo.listFeedArticles(filters);
+      const plainArticles = rows.map((a) => a.get({ plain: true }));
+      const articles = await this.getArticleDetails(plainArticles, userId);
+      const result = { articles, articlesCount: count };
 
       await setCache(cacheKey, result);
       return result;
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
@@ -285,7 +282,9 @@ export class ArticleService {
     const context = "ArticleService.listArticles";
     this.logger.info(`${context} - Started.`);
     try {
-      const cacheKey = `articles:all:${JSON.stringify(filters)}`;
+      const cacheKey = `articles:all:user:${userId ?? 0}:${JSON.stringify(
+        filters
+      )}`;
       const cached = await getCache(cacheKey);
 
       if (cached) {
@@ -293,29 +292,30 @@ export class ArticleService {
         return cached;
       }
 
-      const articles = await this.articleRepo.listArticles(filters);
-      const plainArticles = articles.map((a) => a.get({ plain: true }));
-      const result = await this.getArticleDetails(plainArticles, userId);
+      const { rows, count } = await this.articleRepo.listArticles(filters);
+      const plainArticles = rows.map((a) => a.get({ plain: true }));
+      const articles = await this.getArticleDetails(plainArticles, userId);
+      const result = { articles, articlesCount: count };
 
       await setCache(cacheKey, result);
       return result;
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
     }
   }
 
-  async favoriteArticle(slug: string, userId: number) {
+  async favoriteArticle(id: string, userId: number) {
     const context = "ArticleService.favoriteArticle";
     this.logger.info(`${context} - Started.`);
 
     try {
-      const article = await this.articleRepo.findBySlug(slug);
+      const article = await this.articleRepo.findById(id);
       if (!article) {
         this.logger.warn(`${context} - Article does not exist`);
-        throw new Error("Article does not exist");
+        throw new ApiError(404, "Article does not exist");
       }
 
       await this.articleRepo.favorite(userId, article.id);
@@ -323,24 +323,24 @@ export class ArticleService {
       await delCacheByPattern(`feed:${userId}*`);
       await delCacheByPattern(`article:*:user:*`);
 
-      return await this.getArticle(article.slug, userId);
+      return await this.getArticle(article.id as string, userId);
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
     }
   }
 
-  async unfavoriteArticle(slug: string, userId: number) {
+  async unfavoriteArticle(id: string, userId: number) {
     const context = "ArticleService.unfavoriteArticle";
     this.logger.info(`${context} - Started.`);
 
     try {
-      const article = await this.articleRepo.findBySlug(slug);
+      const article = await this.articleRepo.findById(id);
       if (!article) {
         this.logger.warn(`${context} - Article does not exist`);
-        throw new Error("Article does not exist");
+        throw new ApiError(404, "Article does not exist");
       }
 
       await this.articleRepo.unfavorite(userId, article.id);
@@ -348,9 +348,9 @@ export class ArticleService {
       await delCacheByPattern(`feed:${userId}*`);
       await delCacheByPattern(`article:*:user:*`);
 
-      return await this.getArticle(article.slug, userId);
+      return await this.getArticle(article.id as string, userId);
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
@@ -371,38 +371,39 @@ export class ArticleService {
       const tags = await this.articleRepo.retrieveTags();
       if (!tags) this.logger.warn(`${context} - Empty tags.`);
 
+      await setCache(cacheKey, tags);
       return tags;
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
     }
   }
 
-  async addComment(body: string, userId: number, slug: string) {
+  async addComment(body: string, userId: number, id: string) {
     const context = "ArticleService.addComment";
     this.logger.info(`${context} - Started.`);
 
     try {
-      const article = await this.articleRepo.findBySlug(slug);
+      const article = await this.articleRepo.findById(id);
 
       if (!article) {
         this.logger.warn(`${context} - Article does not exist`);
-        throw new Error("Article does not exist");
+        throw new ApiError(404, "Article does not exist");
       }
 
       const data = {
         body: body,
         userId: userId,
         articleId: article.id,
-      };
+      } as any;
       const comment = await this.articleRepo.addComment(data);
 
       const author = await this.userRepo.findById(comment.userId);
       const commenter = await this.userRepo.findById(userId);
       if (!author || !commenter) {
-        throw new Error("User not found");
+        throw new ApiError(404, "User not found");
       }
 
       const isFollowing = await this.userRepo.isFollowing(commenter, author);
@@ -420,37 +421,39 @@ export class ArticleService {
         },
       };
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);
     }
   }
 
-  async getComments(slug: string, userId: number) {
+  async getComments(id: string, userId?: number) {
     const context = "ArticleService.getComments";
     this.logger.info(`${context} - Started.`);
     try {
-      const article = await this.articleRepo.findBySlug(slug);
+      const article = await this.articleRepo.findById(id);
 
       if (!article) {
         this.logger.warn(`${context} - Article does not exist`);
-        throw new Error("Article does not exist");
+        throw new ApiError(404, "Article does not exist");
       }
 
       const comments = await this.articleRepo.getCommentsByArticleId(
-        article.id!
+        article.id as string
       );
       const commentDetails = [];
+      const commenter = userId ? await this.userRepo.findById(userId) : null;
 
       for (const comment of comments) {
         const author = await this.userRepo.findById(comment.userId);
-        const commenter = await this.userRepo.findById(userId);
-        if (!author || !commenter) {
-          throw new Error("User not found");
+        if (!author) {
+          throw new ApiError(404, "User not found");
         }
 
-        const isFollowing = await this.userRepo.isFollowing(commenter, author);
+        const isFollowing = commenter
+          ? await this.userRepo.isFollowing(commenter, author)
+          : false;
 
         commentDetails.push({
           id: comment.id,
@@ -468,41 +471,41 @@ export class ArticleService {
 
       return commentDetails;
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended`);
     }
   }
 
-  async deleteComment(commentId: number, slug: string, userId: number) {
+  async deleteComment(commentId: number, id: string, userId: number) {
     const context = "ArticleService.deleteComment";
     this.logger.info(`${context} - Started`);
 
     try {
-      const article = await this.articleRepo.findBySlug(slug);
+      const article = await this.articleRepo.findById(id);
 
       if (!article) {
         this.logger.warn(`${context} - Article does not exist`);
-        return { message: "Article does not exist." };
+        throw new ApiError(404, "Article does not exist.");
       }
 
       const comment = await this.articleRepo.getCommentById(commentId);
       if (!comment) {
         this.logger.warn(`${context} - Comment does not exist`);
-        return { message: "Comment does not exist." };
+        throw new ApiError(404, "Comment does not exist.");
       }
 
       if (comment.userId !== userId) {
         this.logger.warn(`${context} - Unauthorized to delete this`);
-        throw new Error("Unauthorized to delete this");
+        throw new ApiError(403, "Unauthorized to delete this");
       }
 
-      await this.articleRepo.deleteCommentById(commentId, article.id!);
+      await this.articleRepo.deleteCommentById(commentId, article.id as string);
       this.logger.info(`${context} - Comment deleted`);
       return { message: "Comment deleted." };
     } catch (err) {
-      this.logger.error(`${context} - ${err}`);
+      this.logger.error(`${context} - ${formatLogError(err)}`);
       throw err;
     } finally {
       this.logger.info(`${context} - Ended.`);

@@ -12,7 +12,7 @@ const { TextArea } = Input;
 
 const Article = () => {
   const { user } = useAuth();
-  const { slug } = useParams();
+  const { id, slug } = useParams();
   const navigate = useNavigate();
   const { getArticle, favorite, unfavorite } = useArticles();
   const { addComment, getComments, deleteComment } = useComments();
@@ -37,7 +37,7 @@ const Article = () => {
 
     try {
       setSubmitting(true);
-      const newComment = await addComment(slug, commentText.trim());
+      const newComment = await addComment(id, slug, commentText.trim());
       setComments((prev) => [newComment, ...prev]);
       setCommentText("");
     } catch (err) {
@@ -49,7 +49,7 @@ const Article = () => {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      await deleteComment(slug, commentId);
+      await deleteComment(id, slug, commentId);
       setComments((prev) => prev.filter((c) => c.id !== commentId));
     } catch (err) {
       message.error(err.message || "Failed to delete comment");
@@ -59,7 +59,7 @@ const Article = () => {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const a = await getArticle(slug);
+        const a = await getArticle(id, slug);
         setArticle(a);
         setLiked(a.favorited);
         setCount(a.favoritesCount);
@@ -72,7 +72,7 @@ const Article = () => {
 
     const fetchComments = async () => {
       try {
-        const c = await getComments(slug);
+        const c = await getComments(id, slug);
         setComments(c);
       } catch (err) {
         setError(err.message || "Failed to get comments");
@@ -83,7 +83,7 @@ const Article = () => {
 
     fetchArticle();
     fetchComments();
-  }, [slug, getArticle, getComments]);
+  }, [id, slug, getArticle, getComments]);
 
   const handleFavorite = async () => {
     if (!user) {
@@ -93,11 +93,11 @@ const Article = () => {
 
     try {
       if (liked) {
-        const updated = await unfavorite(slug);
+        const updated = await unfavorite(id, slug);
         setLiked(false);
         setCount(updated.favoritesCount);
       } else {
-        const updated = await favorite(slug);
+        const updated = await favorite(id, slug);
         setLiked(true);
         setCount(updated.favoritesCount);
       }

@@ -11,7 +11,7 @@ import { Tag } from "./tag.model";
 import "./associations";
 
 interface ArticleAttributes {
-  id: number;
+  id: string;
   slug: string;
   title: string;
   description: string;
@@ -30,7 +30,7 @@ class Article
   extends Model<ArticleAttributes, ArticleCreationAttributes>
   implements ArticleAttributes
 {
-  public id!: number;
+  public id!: string;
   public slug!: string;
   public title!: string;
   public description!: string;
@@ -50,7 +50,11 @@ class Article
 
 Article.init(
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
     slug: { type: DataTypes.STRING, allowNull: false, unique: true },
     title: { type: DataTypes.STRING, allowNull: false },
     description: { type: DataTypes.STRING, allowNull: false },

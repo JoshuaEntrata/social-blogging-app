@@ -1,7 +1,10 @@
 import express, { Request, Response } from "express";
 import { UserController } from "../controllers/user.controller";
 import { logger } from "../utils/logger";
-import { authMiddleware } from "../middlewares/auth.middleware";
+import {
+  authMiddleware,
+  optionalAuthMiddleware,
+} from "../middlewares/auth.middleware";
 
 const router = express.Router();
 const controller = UserController(logger);
@@ -14,7 +17,7 @@ router.get("/user", authMiddleware, controller.currentUser);
 
 router.put("/user", authMiddleware, controller.updateUser);
 
-router.get("/profiles/:username", authMiddleware, controller.getProfile);
+router.get("/profiles/:username", optionalAuthMiddleware, controller.getProfile);
 
 router.post(
   "/profiles/:username/follow",

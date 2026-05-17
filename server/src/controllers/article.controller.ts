@@ -2,26 +2,28 @@ import { Request, Response } from "express";
 import { AuthRequest } from "../middlewares/auth.middleware";
 import { logger, Logger } from "../utils/logger";
 import { ArticleService } from "../services/article.service";
+import { ApiError, formatLogError, sendErrorResponse } from "../utils/apiError";
+import { parseQueryInt } from "../utils/helper";
 
 export const ArticleController = (log: Logger = logger) => {
   const service = new ArticleService(log);
   let context;
 
   return {
-    getArticleBySlug: async (req: AuthRequest, res: Response) => {
-      context = "ArticleController.getArticleBySlug";
+    getArticleById: async (req: AuthRequest, res: Response) => {
+      context = "ArticleController.getArticleById";
       log.info(`${context} - Started`);
 
       try {
-        const { slug } = req.params;
+        const { id } = req.params;
         const userId = req.user?.id ?? 0;
 
-        const article = await service.getArticle(slug, userId);
+        const article = await service.getArticle(id, userId);
 
         res.status(200).json({ article });
       } catch (err) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: err });
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -36,14 +38,12 @@ export const ArticleController = (log: Logger = logger) => {
         const userId = req.user?.id;
 
         if (!userId) {
-          log.warn(`${context} - Unauthorized access`);
-          res.status(401).json({ message: "Unauthorized access" });
-          return;
+          log.warn(`${context} - Unauthorized access. | Reason: User ID is missing.`);
+          throw new ApiError(401, "Unauthorized access");
         }
 
         if (!article?.title || !article?.description || !article?.body) {
           log.warn(`${context} - Missing required fields`);
-          log.warn(JSON.stringify(article));
           res.status(400).json({ message: "Missing required fields" });
           return;
         }
@@ -52,15 +52,9 @@ export const ArticleController = (log: Logger = logger) => {
         log.info(`${context} - Article created`);
 
         res.status(201).json({ article: result });
-      } catch (err: any) {
-        logger.error(`${context} - ${err}`);
-
-        if (err.message.includes("already exists")) {
-          res.status(409).json({ message: err.message });
-          return;
-        }
-
-        res.status(500).json({ message: err.message });
+      } catch (err) {
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -71,14 +65,13 @@ export const ArticleController = (log: Logger = logger) => {
       log.info(`${context} - Started`);
 
       try {
-        const { slug } = req.params;
+        const { id } = req.params;
         const { article } = req.body;
         const userId = req.user?.id;
 
         if (!userId) {
           log.warn(`${context} - Unauthorized access`);
-          res.status(401).json({ message: "Unauthorized access" });
-          return;
+          throw new ApiError(401, "Unauthorized access. | Reason: User ID is missing.");
         }
 
         if (!article || typeof article !== "object") {
@@ -114,13 +107,13 @@ export const ArticleController = (log: Logger = logger) => {
           return;
         }
 
-        const result = await service.updateArticle(slug, article, userId);
+        const result = await service.updateArticle(id, article, userId);
         log.info(`${context} - Article updated`);
 
         res.status(200).json({ article: result });
-      } catch (err: any) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: err.message });
+      } catch (err) {
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -131,21 +124,20 @@ export const ArticleController = (log: Logger = logger) => {
       log.info(`${context} - Started`);
 
       try {
-        const { slug } = req.params;
+        const { id } = req.params;
         const userId = req.user?.id;
 
         if (!userId) {
           log.warn(`${context} - Unauthorized access`);
-          res.status(401).json({ message: "Unauthorized access" });
-          return;
+          throw new ApiError(401, "Unauthorized access. | Reason: User ID is missing.");
         }
 
-        const result = await service.deleteArticle(slug, userId);
+        const result = await service.deleteArticle(id, userId);
 
         res.status(200).json(result);
-      } catch (err: any) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: err.message });
+      } catch (err) {
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -156,21 +148,20 @@ export const ArticleController = (log: Logger = logger) => {
       log.info(`${context} - Started`);
 
       try {
-        const { limit, offset } = req.query;
         const userId = req.user?.id ?? 0;
 
-        const articles = await service.listFeedArticles(
+        const result = await service.listFeedArticles(
           {
-            limit: limit ? parseInt(limit as string) : undefined,
-            offset: offset ? parseInt(offset as string) : undefined,
+            limit: parseQueryInt(req.query.limit, "limit"),
+            offset: parseQueryInt(req.query.offset, "offset"),
           },
           userId
         );
 
-        res.status(200).json({ articles, articlesCount: articles.length });
-      } catch (err: any) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: err.message });
+        res.status(200).json(result);
+      } catch (err) {
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -181,24 +172,24 @@ export const ArticleController = (log: Logger = logger) => {
       log.info(`${context} - Started`);
 
       try {
-        const { tag, author, favorited, limit, offset } = req.query;
+        const { tag, author, favorited } = req.query;
         const userId = req.user?.id ?? 0;
 
-        const articles = await service.listArticles(
+        const result = await service.listArticles(
           {
             tag: tag as string | undefined,
             author: author as string | undefined,
             favorited: favorited as string | undefined,
-            limit: limit ? parseInt(limit as string) : undefined,
-            offset: offset ? parseInt(offset as string) : undefined,
+            limit: parseQueryInt(req.query.limit, "limit"),
+            offset: parseQueryInt(req.query.offset, "offset"),
           },
           userId
         );
 
-        res.status(200).json({ articles, articlesCount: articles.length });
-      } catch (err: any) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: err.message });
+        res.status(200).json(result);
+      } catch (err) {
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -209,21 +200,20 @@ export const ArticleController = (log: Logger = logger) => {
       log.info(`${context} - Started`);
 
       try {
-        const { slug } = req.params;
+        const { id } = req.params;
         const userId = req.user?.id;
 
         if (!userId) {
           log.warn(`${context} - Unauthorized access`);
-          res.status(401).json({ message: "Unauthorized access" });
-          return;
+          throw new ApiError(401, "Unauthorized access. | Reason: User ID is missing.");
         }
 
-        const article = await service.favoriteArticle(slug, userId);
+        const article = await service.favoriteArticle(id, userId);
 
         res.status(200).json({ article });
-      } catch (err: any) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: err.message });
+      } catch (err) {
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -234,21 +224,20 @@ export const ArticleController = (log: Logger = logger) => {
       log.info(`${context} - Started`);
 
       try {
-        const { slug } = req.params;
+        const { id } = req.params;
         const userId = req.user?.id;
 
         if (!userId) {
           log.warn(`${context} - Unauthorized access`);
-          res.status(401).json({ message: "Unauthorized access" });
-          return;
+          throw new ApiError(401, "Unauthorized access. | Reason: User ID is missing.");
         }
 
-        const article = await service.unfavoriteArticle(slug, userId);
+        const article = await service.unfavoriteArticle(id, userId);
 
         res.status(200).json({ article });
-      } catch (err: any) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: err.message });
+      } catch (err) {
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -262,9 +251,9 @@ export const ArticleController = (log: Logger = logger) => {
         const tags = await service.getAllTags();
 
         res.status(200).json({ tags });
-      } catch (err: any) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: err.message });
+      } catch (err) {
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -276,22 +265,26 @@ export const ArticleController = (log: Logger = logger) => {
 
       try {
         const { comment } = req.body;
-        const { slug } = req.params;
+        const { id } = req.params;
         const userId = req.user?.id;
 
         if (!userId) {
           log.warn(`${context} - Unauthorized access`);
-          res.status(401).json({ message: "Unauthorized access" });
-          return;
+          throw new ApiError(401, "Unauthorized access. | Reason: User ID is missing.");
         }
 
-        const result = await service.addComment(comment.body, userId, slug);
+        if (!comment?.body) {
+          log.warn(`${context} - Missing required fields`);
+          throw new ApiError(400, "Missing required fields");
+        }
+
+        const result = await service.addComment(comment.body, userId, id);
         log.info(`${context} - Comment added`);
 
         res.status(201).json({ comment: result });
-      } catch (err: any) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: err.message });
+      } catch (err) {
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -302,16 +295,16 @@ export const ArticleController = (log: Logger = logger) => {
       log.info(`${context} - Started`);
 
       try {
-        const { slug } = req.params;
-        const userId = req.user?.id ?? 1;
+        const { id } = req.params;
+        const userId = req.user?.id;
 
-        const result = await service.getComments(slug, userId);
-        log.info(`${context} - Comments for ${slug} retrieved.`);
+        const result = await service.getComments(id, userId);
+        log.info(`${context} - Comments retrieved`);
 
         res.status(200).json({ comments: result });
-      } catch (err: any) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: err.message });
+      } catch (err) {
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -322,22 +315,24 @@ export const ArticleController = (log: Logger = logger) => {
       log.info(`${context} - Started`);
 
       try {
-        const { id, slug } = req.params;
+        const { commentId, id } = req.params;
         const userId = req.user?.id;
 
         if (!userId) {
           log.warn(`${context} - Unauthorized access`);
-          res.status(401).json({ message: "Unauthorized access" });
-          return;
+          throw new ApiError(401, "Unauthorized access. | Reason: User ID is missing.");
         }
 
-        const commentId = parseInt(id);
-        const result = await service.deleteComment(commentId, slug, userId);
+        const parsedCommentId = parseInt(commentId as string);
+        if (!Number.isInteger(parsedCommentId)) {
+          throw new ApiError(400, "Comment id must be a number");
+        }
+        const result = await service.deleteComment(parsedCommentId, id, userId);
 
         res.status(200).json(result);
-      } catch (err: any) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: err.message });
+      } catch (err) {
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }

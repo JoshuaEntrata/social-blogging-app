@@ -8,8 +8,8 @@ const articleService = {
     return { articles, articlesCount };
   },
 
-  get: async (slug) => {
-    const { data } = await api.get(`/articles/${slug}`);
+  get: async (id, slug) => {
+    const { data } = await api.get(`/articles/${id}/${slug}`);
     return data.article;
   },
 
@@ -32,34 +32,32 @@ const articleService = {
     return data.article;
   },
 
-  update: async (slug, article) => {
+  update: async (id, slug, article) => {
     const { data } = await api.put(
-      `/articles/${slug}`,
+      `/articles/${id}/${slug}`,
       { article },
       { requiresAuth: true }
     );
     return data.article;
   },
 
-  delete: async (slug) => {
-    await api.delete(`/articles/${slug}`, { requiresAuth: true });
+  delete: async (id, slug) => {
+    await api.delete(`/articles/${id}/${slug}`, { requiresAuth: true });
   },
 
-  favorite: async (slug) => {
+  favorite: async (id, slug) => {
     const { data } = await api.post(
-      `/articles/${slug}/favorite`,
+      `/articles/${id}/${slug}/favorite`,
       {},
       { requiresAuth: true }
     );
     return data.article;
   },
 
-  unfavorite: async (slug) => {
-    const { data } = await api.delete(
-      `/articles/${slug}/favorite`,
-      {},
-      { requiresAuth: true }
-    );
+  unfavorite: async (id, slug) => {
+    const { data } = await api.delete(`/articles/${id}/${slug}/favorite`, {
+      requiresAuth: true,
+    });
     return data.article;
   },
 };

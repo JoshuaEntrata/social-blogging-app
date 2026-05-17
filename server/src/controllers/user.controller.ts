@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { UserService } from "../services/user.service";
 import { logger, Logger } from "../utils/logger";
 import { AuthRequest } from "../middlewares/auth.middleware";
+import { ApiError, formatLogError, sendErrorResponse } from "../utils/apiError";
 
 export const UserController = (log: Logger = logger) => {
   const service = new UserService(log);
@@ -21,21 +22,21 @@ export const UserController = (log: Logger = logger) => {
         }
 
         const registeredUser = await service.registerUser(user);
-        log.info(`${context} - User "${user.email}" created`);
+        log.info(`${context} - User created`);
 
         res.status(201).json({
           user: registeredUser,
         });
       } catch (err) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: (err as Error).message });
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
     },
 
     login: async (req: Request, res: Response) => {
-      context = "UserController.register";
+      context = "UserController.login";
       log.info(`${context} - Started`);
       try {
         const { user } = req.body;
@@ -47,14 +48,14 @@ export const UserController = (log: Logger = logger) => {
         }
 
         const userDetails = await service.loginUser(user);
-        log.info(`${context} - User "${user.email}" logged in.`);
+        log.info(`${context} - User logged in`);
 
         res.status(200).json({
           user: userDetails,
         });
       } catch (err) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: (err as Error).message });
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -69,17 +70,16 @@ export const UserController = (log: Logger = logger) => {
         const token = req.headers.authorization?.split(" ")[1];
 
         if (!userId) {
-          log.warn(`${context} - Unauthorized access`);
-          res.status(401).json({ message: "Unauthorized access" });
-          return;
+          log.warn(`${context} - Unauthorized access. | Reason: User ID is missing.`);
+          throw new ApiError(401, "Unauthorized access");
         }
 
         const user = await service.getUser(userId, token!);
 
-        res.status(200).json({ user: { ...user, token } });
+        res.status(200).json({ user });
       } catch (err) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: (err as Error).message });
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -94,6 +94,11 @@ export const UserController = (log: Logger = logger) => {
         const { user } = req.body;
         const token = req.headers.authorization?.split(" ")[1];
 
+        if (!userId) {
+          log.warn(`${context} - Unauthorized access. | Reason: User ID is missing.`);
+          throw new ApiError(401, "Unauthorized access");
+        }
+
         if (
           !user?.username &&
           !user?.email &&
@@ -102,35 +107,34 @@ export const UserController = (log: Logger = logger) => {
           !user?.image
         ) {
           log.warn(`${context} - Missing required fields`);
-          res.status(400).json({ message: "Missing required fields" });
-          return;
+          throw new ApiError(400, "Missing required fields");
         }
 
-        const updatedUser = await service.updateUser(user, userId!, token!);
+        const updatedUser = await service.updateUser(user, userId, token!);
 
         res.status(200).json({ user: updatedUser });
       } catch (err) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: (err as Error).message });
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
     },
 
     getProfile: async (req: AuthRequest, res: Response) => {
-      context = "UserController.currentUser";
+      context = "UserController.getProfile";
       log.info(`${context} - Started`);
 
       try {
         const userId = req.user?.id;
         const { username } = req.params;
 
-        const profile = await service.getProfile(username, userId!);
+        const profile = await service.getProfile(username, userId);
 
         res.status(200).json({ profile });
       } catch (err) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: (err as Error).message });
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -144,12 +148,17 @@ export const UserController = (log: Logger = logger) => {
         const userId = req.user?.id;
         const { username } = req.params;
 
-        const profile = await service.followUser(username, userId!);
+        if (!userId) {
+          log.warn(`${context} - Unauthorized access. | Reason: User ID is missing.`);
+          throw new ApiError(401, "Unauthorized access");
+        }
+
+        const profile = await service.followUser(username, userId);
 
         res.status(200).json({ profile });
       } catch (err) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: (err as Error).message });
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }
@@ -163,12 +172,17 @@ export const UserController = (log: Logger = logger) => {
         const userId = req.user?.id;
         const { username } = req.params;
 
-        const profile = await service.unfollowUser(username, userId!);
+        if (!userId) {
+          log.warn(`${context} - Unauthorized access. | Reason: User ID is missing.`);
+          throw new ApiError(401, "Unauthorized access");
+        }
+
+        const profile = await service.unfollowUser(username, userId);
 
         res.status(200).json({ profile });
       } catch (err) {
-        logger.error(`${context} - ${err}`);
-        res.status(500).json({ message: (err as Error).message });
+        logger.error(`${context} - ${formatLogError(err)}`);
+        sendErrorResponse(res, err);
       } finally {
         log.info(`${context} - Ended`);
       }

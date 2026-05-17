@@ -7,7 +7,7 @@ function Feed({ articles, total, page, onPageChange, pageSize }) {
     <>
       <div className={styles.feeds}>
         {articles.map((article) => (
-          <ArticleCard key={article.slug} articleDetails={article} />
+          <ArticleCard key={article.id} articleDetails={article} />
         ))}
 
         <Pagination

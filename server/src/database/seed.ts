@@ -85,7 +85,7 @@ async function seed() {
     console.log("Seeding complete.");
     process.exit(0);
   } catch (err) {
-    console.error("Seeding error:", err);
+    console.error("Seeding error.");
     process.exit(1);
   }
 }

@@ -27,7 +27,7 @@ function App() {
             <Route index element={<Home />} />
 
             {/* Public routes */}
-            <Route path="/article/:slug" element={<Article />} />
+            <Route path="/article/:id/:slug" element={<Article />} />
 
             {/* Protected routes */}
             <Route
@@ -39,7 +39,7 @@ function App() {
               }
             />
             <Route
-              path="/article/:slug/edit"
+              path="/article/:id/:slug/edit"
               element={
                 <ProtectedRoute>
                   <EditArticle />

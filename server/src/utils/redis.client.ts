@@ -1,6 +1,7 @@
 import { createClient, type RedisClientType } from "redis";
 import { logger } from "./logger";
 import dotenv from "dotenv";
+import { formatLogError } from "./apiError";
 
 dotenv.config();
 
@@ -18,7 +19,9 @@ export async function initializedRedisClient(): Promise<RedisClientType> {
       password: process.env.REDIS_PASSWORD,
     });
 
-    redisClient.on("error", (error) => logger.error("Redis error:", error));
+    redisClient.on("error", (error) =>
+      logger.error(`Redis error - ${formatLogError(error)}`)
+    );
     redisClient.on("connect", () => logger.info("Redis connected..."));
 
     await redisClient.connect();

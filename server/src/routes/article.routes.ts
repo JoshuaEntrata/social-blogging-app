@@ -18,35 +18,39 @@ router.get(
 );
 
 router.get(
-  "/articles/:slug",
+  "/articles/:id/:slug",
   optionalAuthMiddleware,
-  controller.getArticleBySlug
+  controller.getArticleById
 );
 
 router.post("/articles", authMiddleware, controller.createArticle);
 
-router.put("/articles/:slug", authMiddleware, controller.updateArticle);
+router.put("/articles/:id/:slug", authMiddleware, controller.updateArticle);
 
-router.delete("/articles/:slug", authMiddleware, controller.deleteArticle);
+router.delete("/articles/:id/:slug", authMiddleware, controller.deleteArticle);
 
-router.post("/articles/:slug/comments", authMiddleware, controller.addComment);
+router.post("/articles/:id/:slug/comments", authMiddleware, controller.addComment);
 
-router.get("/articles/:slug/comments", controller.getComments);
+router.get(
+  "/articles/:id/:slug/comments",
+  optionalAuthMiddleware,
+  controller.getComments
+);
 
 router.delete(
-  "/articles/:slug/comments/:id",
+  "/articles/:id/:slug/comments/:commentId",
   authMiddleware,
   controller.deleteComment
 );
 
 router.post(
-  "/articles/:slug/favorite",
+  "/articles/:id/:slug/favorite",
   authMiddleware,
   controller.favoriteArticle
 );
 
 router.delete(
-  "/articles/:slug/favorite",
+  "/articles/:id/:slug/favorite",
   authMiddleware,
   controller.unfavoriteArticle
 );

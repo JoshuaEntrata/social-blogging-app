@@ -11,7 +11,7 @@ const { TextArea } = Input;
 const EditArticle = () => {
   const { user } = useAuth();
   const { getArticle, updateArticle, deleteArticle } = useArticles();
-  const { slug } = useParams();
+  const { id, slug } = useParams();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -30,11 +30,11 @@ const EditArticle = () => {
     setArticleLoading(true);
     const fetchArticle = async () => {
       try {
-        const a = await getArticle(slug);
+        const a = await getArticle(id, slug);
 
         if (user?.username !== a.author?.username) {
           alert("You are not allowed to edit this article.");
-          navigate(`/article/${slug}`, { replace: true });
+          navigate(`/article/${id}/${slug}`, { replace: true });
         }
 
         setForm({
@@ -51,7 +51,7 @@ const EditArticle = () => {
     };
 
     fetchArticle();
-  }, [slug, getArticle, navigate, user]);
+  }, [id, slug, getArticle, navigate, user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

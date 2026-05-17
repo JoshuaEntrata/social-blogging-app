@@ -11,6 +11,7 @@ const ArticleCard = ({ articleDetails }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const {
+    id,
     slug,
     title,
     description,
@@ -39,14 +40,15 @@ const ArticleCard = ({ articleDetails }) => {
   useEffect(() => {
     const fetchCommentsCount = async () => {
       try {
-        const comments = await getComments(slug);
+        const comments = await getComments(id, slug);
         setCommentsCount(comments.length);
       } catch (err) {
         setCommentsCount(0);
+        console.log(err);
       }
     };
     fetchCommentsCount();
-  }, [slug, getComments]);
+  }, [id, slug, getComments]);
 
   const handleFavorite = async () => {
     if (!user) {
@@ -56,11 +58,11 @@ const ArticleCard = ({ articleDetails }) => {
 
     try {
       if (liked) {
-        const updated = await unfavorite(slug);
+        const updated = await unfavorite(id, slug);
         setLiked(false);
         setCount(updated.favoritesCount);
       } else {
-        const updated = await favorite(slug);
+        const updated = await favorite(id, slug);
         setLiked(true);
         setCount(updated.favoritesCount);
       }
@@ -116,7 +118,8 @@ const ArticleCard = ({ articleDetails }) => {
           >
             {count}
           </Button>
-          <Link to={`/article/${slug}`} className={styles.readMore}>
+          
+          <Link to={`/article/${id}/${slug}`} className={styles.readMore}>
             <Button
               type="text"
               icon={<CommentOutlined size={16} />}
@@ -126,7 +129,7 @@ const ArticleCard = ({ articleDetails }) => {
             </Button>
           </Link>
         </div>
-        <Link to={`/article/${slug}`} className={styles.readMore}>
+        <Link to={`/article/${id}/${slug}`} className={styles.readMore}>
           Read story
         </Link>
       </div>

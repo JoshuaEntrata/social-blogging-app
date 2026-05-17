@@ -46,12 +46,12 @@ export const ArticleProvider = ({ children }) => {
     }
   }, []);
 
-  const getArticle = useCallback(async (slug) => {
+  const getArticle = useCallback(async (id, slug) => {
     setLoadingItem(true);
     setError(null);
 
     try {
-      const a = await articleService.get(slug);
+      const a = await articleService.get(id, slug);
       setArticle(a);
       return a;
     } catch (e) {
@@ -68,30 +68,30 @@ export const ArticleProvider = ({ children }) => {
     return created;
   };
 
-  const updateArticle = async (slug, payload) => {
-    const updated = await articleService.update(slug, payload);
+  const updateArticle = async (id, slug, payload) => {
+    const updated = await articleService.update(id, slug, payload);
     setArticle(updated);
     setArticles((prev) => prev.map((a) => (a.slug === slug ? updated : a)));
     return updated;
   };
 
-  const deleteArticle = async (slug) => {
-    await articleService.delete(slug);
+  const deleteArticle = async (id, slug) => {
+    await articleService.delete(id, slug);
     setArticles((prev) => prev.filter((a) => a.slug !== slug));
     if (article?.slug === slug) setArticle(null);
   };
 
-  const favorite = async (slug) => {
-    const updated = await articleService.favorite(slug);
+  const favorite = async (id, slug) => {
+    const updated = await articleService.favorite(id, slug);
     setArticle(updated);
-    setArticles((prev) => prev.map((a) => (a.slug === slug ? updated : a)));
+    setArticles((prev) => prev.map((a) => (a.id === id ? updated : a)));
     return updated;
   };
 
-  const unfavorite = async (slug) => {
-    const updated = await articleService.unfavorite(slug);
+  const unfavorite = async (id, slug) => {
+    const updated = await articleService.unfavorite(id, slug);
     setArticle(updated);
-    setArticles((prev) => prev.map((a) => (a.slug === slug ? updated : a)));
+    setArticles((prev) => prev.map((a) => (a.id === id ? updated : a)));
     return updated;
   };
 

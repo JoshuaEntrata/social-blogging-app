@@ -1,5 +1,6 @@
 import { initializedRedisClient } from "./redis.client";
 import { logger } from "./logger";
+import { formatLogError } from "./apiError";
 
 const REDIS_ENABLED = process.env.REDIS_FLAG === "true";
 
@@ -14,7 +15,7 @@ export async function getCache(key: string) {
 
     return cached ? JSON.parse(cached) : null;
   } catch (err) {
-    logger.error(`getCache error for key "${key}":`, err);
+    logger.error(`getCache error - ${formatLogError(err)}`);
     return null;
   }
 }
@@ -28,7 +29,7 @@ export async function setCache(key: string, value: any, ttlSeconds = 3600) {
     const client = await initializedRedisClient();
     await client.set(key, JSON.stringify(value), { EX: ttlSeconds });
   } catch (err) {
-    logger.error(`setCache error for key "${key}":`, err);
+    logger.error(`setCache error - ${formatLogError(err)}`);
   }
 }
 
@@ -41,7 +42,7 @@ export async function delCache(key: string) {
     const client = await initializedRedisClient();
     await client.del(key);
   } catch (err) {
-    logger.error(`delCache error for key "${key}":`, err);
+    logger.error(`delCache error - ${formatLogError(err)}`);
   }
 }
 
@@ -66,7 +67,7 @@ export async function delCacheByPattern(pattern: string) {
       }
     }
   } catch (err) {
-    logger.error(`delCacheByPattern error for pattern "${pattern}":`, err);
+    logger.error(`delCacheByPattern error - ${formatLogError(err)}`);
   }
 }
 

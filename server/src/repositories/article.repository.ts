@@ -8,6 +8,10 @@ export class ArticleRepository {
     return await Article.findOne({ where: { slug } });
   }
 
+  async findById(id: string) {
+    return await Article.findByPk(id);
+  }
+
   async create(article: ArticleCreationAttributes, tagList?: string[]) {
     const articleCreated = await Article.create(article);
 
@@ -26,8 +30,18 @@ export class ArticleRepository {
     return await this.findBySlug(slug);
   }
 
+  async updateById(id: string, article: Partial<ArticleCreationAttributes>) {
+    await Article.update(article, { where: { id } });
+    return await this.findById(id);
+  }
+
   async delete(slug: string) {
     await Article.destroy({ where: { slug } });
+    return;
+  }
+
+  async deleteById(id: string) {
+    await Article.destroy({ where: { id } });
     return;
   }
 
@@ -41,31 +55,20 @@ export class ArticleRepository {
     const { tag, author, favorited, limit = 20, offset = 0 } = filters;
     const where: any = {};
     const include: any[] = [
-      { model: User, as: "author", attributes: ["id", "username"] },
+      {
+        model: User,
+        as: "author",
+        attributes: ["id", "username"],
+        ...(author ? { where: { username: author }, required: true } : {}),
+      },
       {
         model: Tag,
         as: "tags",
         attributes: ["name"],
         through: { attributes: [] },
+        ...(tag ? { where: { name: tag }, required: true } : {}),
       },
     ];
-
-    if (tag) {
-      include.push({
-        model: Tag,
-        as: "tags",
-        where: { name: tag },
-        through: { attributes: [] },
-      });
-    }
-
-    if (author) {
-      include.push({
-        model: User,
-        as: "author",
-        where: { username: author },
-      });
-    }
 
     if (favorited) {
       include.push({
@@ -73,14 +76,16 @@ export class ArticleRepository {
         as: "favoritedBy",
         where: { username: favorited },
         through: { attributes: [] },
+        required: true,
       });
     }
 
-    return await Article.findAll({
+    return await Article.findAndCountAll({
       where,
       include,
       limit,
       offset,
+      distinct: true,
       order: [["createdAt", "DESC"]],
     });
   }
@@ -92,10 +97,11 @@ export class ArticleRepository {
     limit?: number;
     offset?: number;
   }) {
-    return await Article.findAll({
+    return await Article.findAndCountAll({
       include: [{ model: User, as: "author", attributes: ["id", "username"] }],
       limit,
       offset,
+      distinct: true,
       order: [["createdAt", "DESC"]],
     });
   }
@@ -105,32 +111,32 @@ export class ArticleRepository {
     return tags.map((t) => t.name);
   }
 
-  async getTagsByArticleId(articleId: number) {
+  async getTagsByArticleId(articleId: string) {
     const article = await Article.findByPk(articleId, {
       include: [{ model: Tag, as: "tags", attributes: ["name"] }],
     });
     return article ? article.tags?.map((t: any) => t.name) : [];
   }
 
-  async favorite(userId: number, articleId: number) {
+  async favorite(userId: number, articleId: string) {
     const article = await Article.findByPk(articleId);
     const user = await User.findByPk(userId);
     if (article && user) await (user as any).addFavoritedArticle(article);
   }
 
-  async unfavorite(userId: number, articleId: number) {
+  async unfavorite(userId: number, articleId: string) {
     const article = await Article.findByPk(articleId);
     const user = await User.findByPk(userId);
     if (article && user) await (user as any).removeFavoritedArticle(article);
   }
 
-  async isFavorited(userId: number, articleId: number) {
+  async isFavorited(userId: number, articleId: string) {
     const user = await User.findByPk(userId);
     if (!user) return false;
     return await (user as any).hasFavoritedArticle(articleId);
   }
 
-  async countFavorites(articleId: number) {
+  async countFavorites(articleId: string) {
     const article = await Article.findByPk(articleId, {
       include: [{ model: User, as: "favoritedBy" }],
     });
@@ -141,11 +147,11 @@ export class ArticleRepository {
     return await Comment.findOne({ where: { id } });
   }
 
-  async addComment(data: { body: string; userId: number; articleId: number }) {
-    return await Comment.create(data);
+  async addComment(data: { body: string; userId: number; articleId: string }) {
+    return await Comment.create(data as any);
   }
 
-  async getCommentsByArticleId(articleId: number) {
+  async getCommentsByArticleId(articleId: string) {
     return await Comment.findAll({
       where: { articleId },
       include: [
@@ -161,7 +167,7 @@ export class ArticleRepository {
     });
   }
 
-  async deleteCommentById(commentId: number, articleId: number) {
+  async deleteCommentById(commentId: number, articleId: string) {
     await Comment.destroy({ where: { id: commentId, articleId } });
   }
 }

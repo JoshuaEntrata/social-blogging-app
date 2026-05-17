@@ -6,7 +6,7 @@ interface CommentAttributes {
   id: number;
   body: string;
   userId: number;
-  articleId: number;
+  articleId: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -23,7 +23,7 @@ class Comment
   public id!: number;
   public body!: string;
   public userId!: number;
-  public articleId!: number;
+  public articleId!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -33,7 +33,7 @@ Comment.init(
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
     body: { type: DataTypes.TEXT, allowNull: false },
     userId: { type: DataTypes.INTEGER, allowNull: false },
-    articleId: { type: DataTypes.INTEGER, allowNull: false },
+    articleId: { type: DataTypes.UUID, allowNull: false },
   },
   { sequelize, modelName: "Comment", tableName: "comments", timestamps: true }
 );

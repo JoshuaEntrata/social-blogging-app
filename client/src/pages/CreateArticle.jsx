@@ -42,7 +42,7 @@ const CreateArticle = () => {
       };
 
       const created = await createArticle(payload);
-      navigate(`/article/${created.slug}`);
+      navigate(`/article/${created.id}/${created.slug}`);
     } catch (err) {
       setError(err.message || "Failed to create article");
     } finally {
