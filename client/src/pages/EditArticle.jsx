@@ -27,8 +27,9 @@ const EditArticle = () => {
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    setArticleLoading(true);
     const fetchArticle = async () => {
+      setArticleLoading(true);
+
       try {
         const a = await getArticle(id, slug);
 
@@ -67,8 +68,8 @@ const EditArticle = () => {
     setError(null);
 
     try {
-      const updated = await updateArticle(article.slug, form);
-      navigate(`/article/${updated.slug}`);
+      const updated = await updateArticle(article.id, article.slug, form);
+      navigate(`/article/${updated.id}/${updated.slug}`);
     } catch (err) {
       setError(err.message || "Failed to update article");
     } finally {
@@ -79,7 +80,7 @@ const EditArticle = () => {
   const handleDelete = async () => {
     try {
       setDeleting(true);
-      await deleteArticle(article.slug);
+      await deleteArticle(article.id, article.slug);
       message.success("Article deleted successfully!");
       navigate("/");
     } catch (err) {

@@ -119,7 +119,7 @@ const Article = () => {
       {user?.username === article.author.username && (
         <Button
           className={styles.editButton}
-          onClick={() => navigate(`/article/${article.slug}/edit`)}
+          onClick={() => navigate(`/article/${article.id}/${article.slug}/edit`)}
         >
           Edit Article
         </Button>

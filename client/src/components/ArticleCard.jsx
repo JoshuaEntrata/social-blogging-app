@@ -22,20 +22,15 @@ const ArticleCard = ({ articleDetails }) => {
     favoritesCount,
   } = articleDetails;
 
-  const [liked, setLiked] = useState(favorited);
-  const [count, setCount] = useState(favoritesCount);
+  const [overrideFavorite, setOverrideFavorite] = useState(null);
+  const [overrideCount, setOverrideCount] = useState(null);
   const { favorite, unfavorite } = useArticles();
   const { getComments } = useComments();
   const [commentsCount, setCommentsCount] = useState(0);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    setLiked(favorited);
-  }, [favorited]);
-
-  useEffect(() => {
-    setCount(favoritesCount);
-  }, [favoritesCount]);
+  const liked = overrideFavorite ?? favorited;
+  const count = overrideCount ?? favoritesCount;
 
   useEffect(() => {
     const fetchCommentsCount = async () => {
@@ -59,12 +54,12 @@ const ArticleCard = ({ articleDetails }) => {
     try {
       if (liked) {
         const updated = await unfavorite(id, slug);
-        setLiked(false);
-        setCount(updated.favoritesCount);
+        setOverrideFavorite(false);
+        setOverrideCount(updated.favoritesCount);
       } else {
         const updated = await favorite(id, slug);
-        setLiked(true);
-        setCount(updated.favoritesCount);
+        setOverrideFavorite(true);
+        setOverrideCount(updated.favoritesCount);
       }
     } catch (err) {
       setError(err.message || "Something went wrong");

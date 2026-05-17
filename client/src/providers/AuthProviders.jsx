@@ -8,20 +8,26 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+    const loadUser = async () => {
+      const token = localStorage.getItem("token");
 
-    authService
-      .getCurrentUser()
-      .then(setUser)
-      .catch(() => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const u = await authService.getCurrentUser();
+        setUser(u);
+      } catch {
         localStorage.removeItem("token");
         setUser(null);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUser();
   }, []);
 
   const login = async (email, password) => {
